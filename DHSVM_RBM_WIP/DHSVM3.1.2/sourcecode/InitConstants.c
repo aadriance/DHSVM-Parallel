@@ -5,28 +5,28 @@
  * AUTHOR:       Bart Nijssen
  * ORG:          University of Washington, Department of Civil Engineering
  * E-MAIL:       nijssen@u.washington.edu
- * ORIG-DATE:    Apr-96 
+ * ORIG-DATE:    Apr-96
  * DESCRIPTION:  Initialize constants for DHSVM
  * DESCRIP-END.
  * FUNCTIONS:    InitConstants()
  * COMMENTS:
- * $Id: InitConstants.c,v 1.16 2004/08/18 01:01:28 colleen Exp $     
+ * $Id: InitConstants.c,v 1.16 2004/08/18 01:01:28 colleen Exp $
  */
 
+#include "Calendar.h"
+#include "DHSVMerror.h"
+#include "constants.h"
+#include "data.h"
+#include "fileio.h"
+#include "functions.h"
+#include "getinit.h"
+#include "rad.h"
+#include "settings.h"
 #include <ctype.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "settings.h"
-#include "data.h"
-#include "Calendar.h"
-#include "fileio.h"
-#include "DHSVMerror.h"
-#include "functions.h"
-#include "getinit.h"
-#include "constants.h"
-#include "rad.h"
 
 /*****************************************************************************
   Function name: InitConstants()
@@ -51,87 +51,85 @@
 
   Comments     :
 *****************************************************************************/
-void InitConstants(LISTPTR Input, OPTIONSTRUCT * Options, MAPSIZE * Map,
-		   SOLARGEOMETRY * SolarGeo, TIMESTRUCT * Time)
-{
-  int i;			/* counter */
-  double PointModelX;		/* X-coordinate for POINT model mode */
-  double PointModelY;		/* Y-coordinate for POINT model mode */
-  float TimeStep;		/* Timestep in hours */
-  DATE End;			/* End of run */
-  DATE Start;			/* Start of run */
+void InitConstants(LISTPTR Input, OPTIONSTRUCT *Options, MAPSIZE *Map,
+                   SOLARGEOMETRY *SolarGeo, TIMESTRUCT *Time) {
+  int i;              /* counter */
+  double PointModelX; /* X-coordinate for POINT model mode */
+  double PointModelY; /* Y-coordinate for POINT model mode */
+  float TimeStep;     /* Timestep in hours */
+  DATE End;           /* End of run */
+  DATE Start;         /* Start of run */
 
   STRINIENTRY StrEnv[] = {
-    {"OPTIONS", "FORMAT", "", ""},
-    {"OPTIONS", "EXTENT", "", ""},
-    {"OPTIONS", "GRADIENT", "", ""},
-    {"OPTIONS", "FLOW ROUTING", "", ""},
-    {"OPTIONS", "SENSIBLE HEAT FLUX", "", ""},
-    {"OPTIONS", "SEDIMENT", "", ""},
-    {"OPTIONS", "SEDIMENT INPUT FILE", "", ""},
-    {"OPTIONS", "OVERLAND ROUTING", "", ""}, 
-    {"OPTIONS", "INFILTRATION", "", ""},
-    {"OPTIONS", "INTERPOLATION", "", ""},
-    {"OPTIONS", "MM5", "", ""},
-    {"OPTIONS", "QPF", "", ""},
-    {"OPTIONS", "PRISM", "", ""},
-    {"OPTIONS", "CANOPY RADIATION ATTENUATION MODE", "", ""},
-    {"OPTIONS", "SHADING", "", ""},
-    {"OPTIONS", "SNOTEL", "", ""},
-    {"OPTIONS", "OUTSIDE", "", ""},
-    {"OPTIONS", "RHOVERRIDE", "", ""},
-    {"OPTIONS", "PRECIPITATION SOURCE", "", ""},
-    {"OPTIONS", "WIND SOURCE", "", ""},
-    {"OPTIONS", "TEMPERATURE LAPSE RATE", "", ""},
-    {"OPTIONS", "PRECIPITATION LAPSE RATE", "", ""},
-    {"OPTIONS", "CRESSMAN RADIUS", "", ""},
-    {"OPTIONS", "CRESSMAN STATIONS", "", ""},
-    {"OPTIONS", "PRISM DATA PATH", "", ""},
-    {"OPTIONS", "PRISM DATA EXTENSION", "", ""},
-    {"OPTIONS", "SHADING DATA PATH", "", ""},
-    {"OPTIONS", "SHADING DATA EXTENSION", "", ""},
-    {"OPTIONS", "SKYVIEW DATA PATH", "", ""},
-	{"OPTIONS", "STREAM TEMPERATURE", "", ""}, 
-	{"OPTIONS", "CANOPY SHADING", "", ""}, 
-    {"AREA", "COORDINATE SYSTEM", "", ""},
-    {"AREA", "EXTREME NORTH", "", ""},
-    {"AREA", "EXTREME WEST", "", ""},
-    {"AREA", "CENTER LATITUDE", "", ""},
-    {"AREA", "CENTER LONGITUDE", "", ""},
-    {"AREA", "TIME ZONE MERIDIAN", "", ""},
-    {"AREA", "NUMBER OF ROWS", "", ""},
-    {"AREA", "NUMBER OF COLUMNS", "", ""},
-    {"AREA", "GRID SPACING", "", ""},
-    {"AREA", "POINT NORTH", "", ""},
-    {"AREA", "POINT EAST", "", ""},
-    {"TIME", "TIME STEP", "", ""},
-    {"TIME", "MODEL START", "", ""},
-    {"TIME", "MODEL END", "", ""},
-    {"CONSTANTS", "GROUND ROUGHNESS", "", ""},
-    {"CONSTANTS", "SNOW ROUGHNESS", "", ""},
-    {"CONSTANTS", "RAIN THRESHOLD", "", ""},
-    {"CONSTANTS", "SNOW THRESHOLD", "", ""},
-    {"CONSTANTS", "SNOW WATER CAPACITY", "", ""},
-    {"CONSTANTS", "REFERENCE HEIGHT", "", ""},
-    {"CONSTANTS", "RAIN LAI MULTIPLIER", "", ""},
-    {"CONSTANTS", "SNOW LAI MULTIPLIER", "", ""},
-    {"CONSTANTS", "MIN INTERCEPTED SNOW", "", ""},
-    {"CONSTANTS", "OUTSIDE BASIN VALUE", "", ""},
-    {"CONSTANTS", "TEMPERATURE LAPSE RATE", "", ""},
-    {"CONSTANTS", "PRECIPITATION LAPSE RATE", "", ""},
-    {"CONSTANTS", "PRECIPITATION MULTIPLIER", "", ""},
-	{"CONSTANTS", "TREE HEIGHT", "", ""},
-	{"CONSTANTS", "BUFFER WIDTH", "", ""},
-	{"CONSTANTS", "OVERHANG COEFFICIENT", "", ""},
-	{"CONSTANTS", "MONTHLY EXTINCTION COEFFICIENT", "", ""},
-	{"CONSTANTS", "CANOPY BANK DISTANCE", "", ""},
-    {NULL, NULL, "", NULL}
-  };
+      {"OPTIONS", "FORMAT", "", ""},
+      {"OPTIONS", "EXTENT", "", ""},
+      {"OPTIONS", "GRADIENT", "", ""},
+      {"OPTIONS", "FLOW ROUTING", "", ""},
+      {"OPTIONS", "SENSIBLE HEAT FLUX", "", ""},
+      {"OPTIONS", "SEDIMENT", "", ""},
+      {"OPTIONS", "SEDIMENT INPUT FILE", "", ""},
+      {"OPTIONS", "OVERLAND ROUTING", "", ""},
+      {"OPTIONS", "INFILTRATION", "", ""},
+      {"OPTIONS", "INTERPOLATION", "", ""},
+      {"OPTIONS", "MM5", "", ""},
+      {"OPTIONS", "QPF", "", ""},
+      {"OPTIONS", "PRISM", "", ""},
+      {"OPTIONS", "CANOPY RADIATION ATTENUATION MODE", "", ""},
+      {"OPTIONS", "SHADING", "", ""},
+      {"OPTIONS", "SNOTEL", "", ""},
+      {"OPTIONS", "OUTSIDE", "", ""},
+      {"OPTIONS", "RHOVERRIDE", "", ""},
+      {"OPTIONS", "PRECIPITATION SOURCE", "", ""},
+      {"OPTIONS", "WIND SOURCE", "", ""},
+      {"OPTIONS", "TEMPERATURE LAPSE RATE", "", ""},
+      {"OPTIONS", "PRECIPITATION LAPSE RATE", "", ""},
+      {"OPTIONS", "CRESSMAN RADIUS", "", ""},
+      {"OPTIONS", "CRESSMAN STATIONS", "", ""},
+      {"OPTIONS", "PRISM DATA PATH", "", ""},
+      {"OPTIONS", "PRISM DATA EXTENSION", "", ""},
+      {"OPTIONS", "SHADING DATA PATH", "", ""},
+      {"OPTIONS", "SHADING DATA EXTENSION", "", ""},
+      {"OPTIONS", "SKYVIEW DATA PATH", "", ""},
+      {"OPTIONS", "STREAM TEMPERATURE", "", ""},
+      {"OPTIONS", "CANOPY SHADING", "", ""},
+      {"AREA", "COORDINATE SYSTEM", "", ""},
+      {"AREA", "EXTREME NORTH", "", ""},
+      {"AREA", "EXTREME WEST", "", ""},
+      {"AREA", "CENTER LATITUDE", "", ""},
+      {"AREA", "CENTER LONGITUDE", "", ""},
+      {"AREA", "TIME ZONE MERIDIAN", "", ""},
+      {"AREA", "NUMBER OF ROWS", "", ""},
+      {"AREA", "NUMBER OF COLUMNS", "", ""},
+      {"AREA", "GRID SPACING", "", ""},
+      {"AREA", "POINT NORTH", "", ""},
+      {"AREA", "POINT EAST", "", ""},
+      {"TIME", "TIME STEP", "", ""},
+      {"TIME", "MODEL START", "", ""},
+      {"TIME", "MODEL END", "", ""},
+      {"CONSTANTS", "GROUND ROUGHNESS", "", ""},
+      {"CONSTANTS", "SNOW ROUGHNESS", "", ""},
+      {"CONSTANTS", "RAIN THRESHOLD", "", ""},
+      {"CONSTANTS", "SNOW THRESHOLD", "", ""},
+      {"CONSTANTS", "SNOW WATER CAPACITY", "", ""},
+      {"CONSTANTS", "REFERENCE HEIGHT", "", ""},
+      {"CONSTANTS", "RAIN LAI MULTIPLIER", "", ""},
+      {"CONSTANTS", "SNOW LAI MULTIPLIER", "", ""},
+      {"CONSTANTS", "MIN INTERCEPTED SNOW", "", ""},
+      {"CONSTANTS", "OUTSIDE BASIN VALUE", "", ""},
+      {"CONSTANTS", "TEMPERATURE LAPSE RATE", "", ""},
+      {"CONSTANTS", "PRECIPITATION LAPSE RATE", "", ""},
+      {"CONSTANTS", "PRECIPITATION MULTIPLIER", "", ""},
+      {"CONSTANTS", "TREE HEIGHT", "", ""},
+      {"CONSTANTS", "BUFFER WIDTH", "", ""},
+      {"CONSTANTS", "OVERHANG COEFFICIENT", "", ""},
+      {"CONSTANTS", "MONTHLY EXTINCTION COEFFICIENT", "", ""},
+      {"CONSTANTS", "CANOPY BANK DISTANCE", "", ""},
+      {NULL, NULL, "", NULL}};
 
   /* Read the key-entry pairs from the input file */
   for (i = 0; StrEnv[i].SectionName; i++)
     GetInitString(StrEnv[i].SectionName, StrEnv[i].KeyName, StrEnv[i].Default,
-		  StrEnv[i].VarStr, (unsigned long) BUFSIZE, Input);
+                  StrEnv[i].VarStr, (unsigned long)BUFSIZE, Input);
 
   /**************** Determine model options ****************/
 
@@ -150,11 +148,9 @@ void InitConstants(LISTPTR Input, OPTIONSTRUCT * Options, MAPSIZE * Map,
   if (strncmp(StrEnv[extent].VarStr, "POINT", 5) == 0) {
     Options->Extent = POINT;
     Options->HasNetwork = FALSE;
-  }
-  else if (strncmp(StrEnv[extent].VarStr, "BASIN", 5) == 0) {
+  } else if (strncmp(StrEnv[extent].VarStr, "BASIN", 5) == 0) {
     Options->Extent = BASIN;
-  }
-  else
+  } else
     ReportError(StrEnv[extent].KeyName, 51);
 
   /* Determine how the flow gradient should be calculated */
@@ -165,8 +161,7 @@ void InitConstants(LISTPTR Input, OPTIONSTRUCT * Options, MAPSIZE * Map,
       Options->FlowGradient = WATERTABLE;
     else
       ReportError(StrEnv[gradient].KeyName, 51);
-  }
-  else
+  } else
     Options->FlowGradient = NOT_APPLICABLE;
 
   /* Determine what meterological interpolation to use */
@@ -184,8 +179,8 @@ void InitConstants(LISTPTR Input, OPTIONSTRUCT * Options, MAPSIZE * Map,
   if (Options->Interpolation == VARCRESS) {
     if (!CopyInt(&(Options->CressRadius), StrEnv[cressman_radius].VarStr, 1))
       ReportError(StrEnv[cressman_radius].KeyName, 51);
-    if (!CopyInt
-	(&(Options->CressStations), StrEnv[cressman_stations].VarStr, 1))
+    if (!CopyInt(&(Options->CressStations), StrEnv[cressman_stations].VarStr,
+                 1))
       ReportError(StrEnv[cressman_stations].KeyName, 51);
   }
 
@@ -197,8 +192,7 @@ void InitConstants(LISTPTR Input, OPTIONSTRUCT * Options, MAPSIZE * Map,
       Options->HasNetwork = FALSE;
     else
       ReportError(StrEnv[flow_routing].KeyName, 51);
-  }
-  else
+  } else
     Options->HasNetwork = FALSE;
 
   /* Determine whether a sensible heat flux should be calculated */
@@ -212,23 +206,22 @@ void InitConstants(LISTPTR Input, OPTIONSTRUCT * Options, MAPSIZE * Map,
   /* Determine whether sediment model should be run */
   if (strncmp(StrEnv[sediment].VarStr, "TRUE", 4) == 0)
     Options->Sediment = TRUE;
-  else if (strncmp(StrEnv[sediment].VarStr, "FALSE", 5) == 0){
+  else if (strncmp(StrEnv[sediment].VarStr, "FALSE", 5) == 0) {
     printf("WARNING: Sediment option has not been chosen. All erosion\n");
     printf("options are being turned off.\n\n");
     Options->Sediment = FALSE;
     Options->MassWaste = FALSE;
     Options->SurfaceErosion = FALSE;
     Options->ErosionPeriod = FALSE;
-  }
-  else
+  } else
     ReportError(StrEnv[sediment].KeyName, 51);
 
-  if(Options->Sediment == TRUE) {
+  if (Options->Sediment == TRUE) {
     if (IsEmptyStr(StrEnv[sed_input_file].VarStr))
       ReportError(StrEnv[sed_input_file].KeyName, 51);
     strcpy(Options->SedFile, StrEnv[sed_input_file].VarStr);
   }
-  
+
   /* Determine overland flow routing method to use */
   if (strncmp(StrEnv[routing].VarStr, "KINEMATIC", 9) == 0)
     Options->Routing = TRUE;
@@ -236,20 +229,17 @@ void InitConstants(LISTPTR Input, OPTIONSTRUCT * Options, MAPSIZE * Map,
     Options->Routing = FALSE;
   else
     ReportError(StrEnv[routing].KeyName, 51);
-  
- 
+
   /* Determine if the maximum infiltration rate is static or dynamic */
   if (strncmp(StrEnv[infiltration].VarStr, "STATIC", 6) == 0) {
     Options->Infiltration = STATIC;
-  }
-  else if (strncmp(StrEnv[infiltration].VarStr, "DYNAMIC", 7) == 0) {
-    Options->Infiltration = DYNAMIC ;
+  } else if (strncmp(StrEnv[infiltration].VarStr, "DYNAMIC", 7) == 0) {
+    Options->Infiltration = DYNAMIC;
     printf("WARNING: Dynamic maximum infiltration capacity has\n");
     printf("not been fully tested. It is a work in progress.\n\n");
-  }
-  else
+  } else
     ReportError(StrEnv[infiltration].KeyName, 51);
-    
+
   /* Determine whether the mm5 interface should be used */
   if (strncmp(StrEnv[mm5].VarStr, "TRUE", 4) == 0)
     Options->MM5 = TRUE;
@@ -311,14 +301,14 @@ void InitConstants(LISTPTR Input, OPTIONSTRUCT * Options, MAPSIZE * Map,
 
   /* Determine if CANOPY SHADING is called for */
   if (strncmp(StrEnv[canopy_shading].VarStr, "TRUE", 4) == 0) {
-	Options->CanopyShading = TRUE;
-	if (Options->StreamTemp == FALSE) {
-	  printf("Stream temp module must be turned on to allow canopy shading options\n");
-	  exit(-1);
-	}
-  }
-  else if (strncmp(StrEnv[canopy_shading].VarStr, "FALSE", 5) == 0)
-	Options->CanopyShading = FALSE;
+    Options->CanopyShading = TRUE;
+    if (Options->StreamTemp == FALSE) {
+      printf("Stream temp module must be turned on to allow canopy shading "
+             "options\n");
+      exit(-1);
+    }
+  } else if (strncmp(StrEnv[canopy_shading].VarStr, "FALSE", 5) == 0)
+    Options->CanopyShading = FALSE;
   else
     ReportError(StrEnv[canopy_shading].KeyName, 51);
 
@@ -370,8 +360,7 @@ void InitConstants(LISTPTR Input, OPTIONSTRUCT * Options, MAPSIZE * Map,
       Options->PrecipType = STATION;
     if (Options->QPF == TRUE && Options->Prism == FALSE)
       Options->PrecipLapse = CONSTANT;
-  }
-  else {
+  } else {
     /* Determine the type of precipitation data that the model will use */
     if (strncmp(StrEnv[precipitation_source].VarStr, "RADAR", 5) == 0)
       Options->PrecipType = RADAR;
@@ -421,16 +410,16 @@ void InitConstants(LISTPTR Input, OPTIONSTRUCT * Options, MAPSIZE * Map,
 
   if (!CopyFloat(&(SolarGeo->Latitude), StrEnv[center_latitude].VarStr, 1))
     ReportError(StrEnv[center_latitude].KeyName, 51);
-  SolarGeo->Latitude *= (float) RADPDEG;
+  SolarGeo->Latitude *= (float)RADPDEG;
 
   if (!CopyFloat(&(SolarGeo->Longitude), StrEnv[center_longitude].VarStr, 1))
     ReportError(StrEnv[center_longitude].KeyName, 51);
-  SolarGeo->Longitude *= (float) RADPDEG;
+  SolarGeo->Longitude *= (float)RADPDEG;
 
   if (!CopyFloat(&(SolarGeo->StandardMeridian),
-		 StrEnv[time_zone_meridian].VarStr, 1))
+                 StrEnv[time_zone_meridian].VarStr, 1))
     ReportError(StrEnv[time_zone_meridian].KeyName, 51);
-  SolarGeo->StandardMeridian *= (float) RADPDEG;
+  SolarGeo->StandardMeridian *= (float)RADPDEG;
 
   if (!CopyInt(&(Map->NY), StrEnv[number_of_rows].VarStr, 1))
     ReportError(StrEnv[number_of_rows].KeyName, 51);
@@ -442,7 +431,7 @@ void InitConstants(LISTPTR Input, OPTIONSTRUCT * Options, MAPSIZE * Map,
     ReportError(StrEnv[grid_spacing].KeyName, 51);
 
   Map->DX = Map->DY;
-  Map->DXY = (float) sqrt(Map->DX * Map->DX + Map->DY * Map->DY);
+  Map->DXY = (float)sqrt(Map->DX * Map->DX + Map->DY * Map->DY);
   Map->X = 0;
   Map->Y = 0;
   Map->OffsetX = 0;
@@ -458,11 +447,10 @@ void InitConstants(LISTPTR Input, OPTIONSTRUCT * Options, MAPSIZE * Map,
       ReportError(StrEnv[point_east].KeyName, 51);
 
     Options->PointY =
-      Round(((Map->Yorig - 0.5 * Map->DY) - PointModelY) / Map->DY);
+        Round(((Map->Yorig - 0.5 * Map->DY) - PointModelY) / Map->DY);
     Options->PointX =
-      Round((PointModelX - (Map->Xorig + 0.5 * Map->DX)) / Map->DX);
-  }
-  else {
+        Round((PointModelX - (Map->Xorig + 0.5 * Map->DX)) / Map->DX);
+  } else {
     Options->PointY = 0;
     Options->PointX = 0;
   }
@@ -479,9 +467,9 @@ void InitConstants(LISTPTR Input, OPTIONSTRUCT * Options, MAPSIZE * Map,
   if (!SScanDate(StrEnv[model_end].VarStr, &(End)))
     ReportError(StrEnv[model_end].KeyName, 51);
 
-  InitTime(Time, &Start, &End, NULL, NULL, (int) TimeStep);
+  InitTime(Time, &Start, &End, NULL, NULL, (int)TimeStep);
 
-   /**************** Determine model constants ****************/
+  /**************** Determine model constants ****************/
 
   if (!CopyFloat(&Z0_GROUND, StrEnv[ground_roughness].VarStr, 1))
     ReportError(StrEnv[ground_roughness].KeyName, 51);
@@ -507,8 +495,8 @@ void InitConstants(LISTPTR Input, OPTIONSTRUCT * Options, MAPSIZE * Map,
   if (!CopyFloat(&LAI_SNOW_MULTIPLIER, StrEnv[snow_lai_multiplier].VarStr, 1))
     ReportError(StrEnv[snow_lai_multiplier].KeyName, 51);
 
-  if (!CopyFloat(&MIN_INTERCEPTION_STORAGE,
-		 StrEnv[min_intercepted_snow].VarStr, 1))
+  if (!CopyFloat(&MIN_INTERCEPTION_STORAGE, StrEnv[min_intercepted_snow].VarStr,
+                 1))
     ReportError(StrEnv[min_intercepted_snow].KeyName, 51);
 
   if (!CopyUChar(&OUTSIDEBASIN, StrEnv[outside_basin].VarStr, 1))
@@ -517,47 +505,44 @@ void InitConstants(LISTPTR Input, OPTIONSTRUCT * Options, MAPSIZE * Map,
   if (Options->TempLapse == CONSTANT) {
     if (!CopyFloat(&TEMPLAPSE, StrEnv[temp_lapse_rate].VarStr, 1))
       ReportError(StrEnv[temp_lapse_rate].KeyName, 51);
-  }
-  else
+  } else
     TEMPLAPSE = NOT_APPLICABLE;
 
   if (Options->PrecipLapse == CONSTANT) {
     if (!CopyFloat(&PRECIPLAPSE, StrEnv[precip_lapse_rate].VarStr, 1))
       ReportError(StrEnv[precip_lapse_rate].KeyName, 51);
-  }
-  else
+  } else
     PRECIPLAPSE = NOT_APPLICABLE;
 
   if (!CopyFloat(&PRECIPMULTIPLIER, StrEnv[precip_multiplier].VarStr, 1))
-      ReportError(StrEnv[precip_multiplier].KeyName, 51);
+    ReportError(StrEnv[precip_multiplier].KeyName, 51);
   /* assign values to riparian vegetations */
   if (Options->StreamTemp && Options->CanopyShading) {
-	if (!CopyFloat(&TREEHEIGHT, StrEnv[tree_height].VarStr, 1))
-	  ReportError(StrEnv[tree_height].KeyName, 51);
-	if (!CopyFloat(&BUFFERWIDTH, StrEnv[buffer_width].VarStr, 1))
-	  ReportError(StrEnv[buffer_width].KeyName, 51);
-	if (!CopyFloat(&OvhCoeff, StrEnv[ovh].VarStr, 1))
-	  ReportError(StrEnv[ovh].KeyName, 51);
-	if (!CopyFloat(ExtnCoeff, StrEnv[extn].VarStr, 12))
-	  ReportError(StrEnv[extn].KeyName, 51);
-	if (!CopyFloat(&CanopyBankDist, StrEnv[canopy_bank_dist].VarStr, 1))
-	  ReportError(StrEnv[canopy_bank_dist].KeyName, 51);
+    if (!CopyFloat(&TREEHEIGHT, StrEnv[tree_height].VarStr, 1))
+      ReportError(StrEnv[tree_height].KeyName, 51);
+    if (!CopyFloat(&BUFFERWIDTH, StrEnv[buffer_width].VarStr, 1))
+      ReportError(StrEnv[buffer_width].KeyName, 51);
+    if (!CopyFloat(&OvhCoeff, StrEnv[ovh].VarStr, 1))
+      ReportError(StrEnv[ovh].KeyName, 51);
+    if (!CopyFloat(ExtnCoeff, StrEnv[extn].VarStr, 12))
+      ReportError(StrEnv[extn].KeyName, 51);
+    if (!CopyFloat(&CanopyBankDist, StrEnv[canopy_bank_dist].VarStr, 1))
+      ReportError(StrEnv[canopy_bank_dist].KeyName, 51);
 
-	printf("Calculate canopy shading effect on stream temperature: \n");
-	printf("Tree Height = %.1f\n", TREEHEIGHT);
-	printf("Buffer Width = %.1f\n", BUFFERWIDTH); 
-	printf("Monthly Extinction Coefficient = \n");
-	for (i = 0; i < 12; i++)
-	  printf("%.3f ", ExtnCoeff[i]);
-	printf("\n");
-	printf("Bank to Canopy Distance = %.3f\n\n\n", CanopyBankDist);
-  }
-  else {
-	TREEHEIGHT = NOT_APPLICABLE;
-	BUFFERWIDTH = NOT_APPLICABLE;
-	OvhCoeff = NOT_APPLICABLE;
-	for (i = 0; i < 12; i++)
-	  ExtnCoeff[i] = NOT_APPLICABLE;
-	CanopyBankDist = NOT_APPLICABLE;
+    printf("Calculate canopy shading effect on stream temperature: \n");
+    printf("Tree Height = %.1f\n", TREEHEIGHT);
+    printf("Buffer Width = %.1f\n", BUFFERWIDTH);
+    printf("Monthly Extinction Coefficient = \n");
+    for (i = 0; i < 12; i++)
+      printf("%.3f ", ExtnCoeff[i]);
+    printf("\n");
+    printf("Bank to Canopy Distance = %.3f\n\n\n", CanopyBankDist);
+  } else {
+    TREEHEIGHT = NOT_APPLICABLE;
+    BUFFERWIDTH = NOT_APPLICABLE;
+    OvhCoeff = NOT_APPLICABLE;
+    for (i = 0; i < 12; i++)
+      ExtnCoeff[i] = NOT_APPLICABLE;
+    CanopyBankDist = NOT_APPLICABLE;
   }
 }
