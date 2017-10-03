@@ -15,7 +15,6 @@
 
 #include "DHSVMerror.h"
 #include "sizeofnt.h"
-#include <stdlib.h>
 #include <sys/types.h>
 
 /*****************************************************************************

@@ -14,6 +14,7 @@
 #define _channel_h_
 
 #define NSEDSIZES 3 /* number of sediment sizes used for transport */
+#include <stdio.h>
 
 typedef unsigned short int SegmentID, ClassID;
 
