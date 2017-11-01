@@ -405,6 +405,27 @@ int main(int argc, char **argv) {
       }
     }
 
+    x = Map.NX-1;
+    y = Map.NY-1;
+    if (Options.Shading && INBASIN(TopoMap[y][x].Mask)) {
+      LocalMet = MakeLocalMetData(
+          y, x, &Map, Time.DayStep, &Options, NStats, Stat,
+          MetWeights[y][x], TopoMap[y][x].Dem, &(RadMap[y][x]),
+          &(PrecipMap[y][x]), &Radar, RadarMap, PrismMap,
+          &(SnowMap[y][x]), SnowAlbedo, MM5Input, WindModel,
+          PrecipLapseMap, &MetMap, NGraphics, Time.Current.Month,
+          SkyViewMap[y][x], ShadowMap[Time.DayStep][y][x],
+          SolarGeo.SunMax, SolarGeo.SineSolarAltitude);
+    } else if(INBASIN(TopoMap[y][x].Mask)) {
+      LocalMet = MakeLocalMetData(
+          y, x, &Map, Time.DayStep, &Options, NStats, Stat,
+          MetWeights[y][x], TopoMap[y][x].Dem, &(RadMap[y][x]),
+          &(PrecipMap[y][x]), &Radar, RadarMap, PrismMap,
+          &(SnowMap[y][x]), SnowAlbedo, MM5Input, WindModel,
+          PrecipLapseMap, &MetMap, NGraphics, Time.Current.Month, 0.0,
+          0.0, SolarGeo.SunMax, SolarGeo.SineSolarAltitude);
+      }
+
     /* Average all RBM inputs over each segment */
     if (Options.StreamTemp) {
       channel_grid_avg(ChannelData.streams);

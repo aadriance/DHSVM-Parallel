@@ -80,16 +80,28 @@ long GetInitLong(const char *Section, const char *Key, long Default,
   char Buffer[BUFSIZE + 1];
   char *EndPtr = NULL;
   long Entry;
+  long Start;
+  long End;
+  long ranVal;
 
+  printf("Getting long\n");
   if ((SectionHead = LocateSection(Section, Input)) == NULL) {
     return Default;
   }
-
+  printf("Found long section\n");
   if (!LocateKey(Key, Buffer, SectionHead)) {
     return Default;
   }
-
-  Entry = strtol(Buffer, &EndPtr, 0);
+  printf("Found long key\n");
+  if(Buffer[0] == '<'){
+    Start = strtol(Buffer+1, &EndPtr, 0);
+    End = strtol(EndPtr+1, EndPtr, 0);
+    ranVal = rand();
+    Entry = Start + ((End - Start) * ranVal)/RAND_MAX;
+    printf("Rand Long: %l\n", Entry);
+  } else {
+    Entry = strtol(Buffer, &EndPtr, 0);
+  }
   if (EndPtr == Buffer) {
     return Default;
   }
@@ -103,6 +115,9 @@ double GetInitDouble(const char *Section, const char *Key, double Default,
   char Buffer[BUFSIZE + 1];
   char *EndPtr = NULL;
   double Entry;
+  double Start;
+  double End;
+  double ranVal;
 
   if ((SectionHead = LocateSection(Section, Input)) == NULL) {
     return Default;
@@ -112,7 +127,15 @@ double GetInitDouble(const char *Section, const char *Key, double Default,
     return Default;
   }
 
-  Entry = strtod(Buffer, &EndPtr);
+  if(Buffer[0] == '<'){
+    Start = strtod(Buffer+1, &EndPtr);
+    End = strtod(EndPtr+1, EndPtr);
+    ranVal = rand();
+    Entry = Start + ((End - Start) * ranVal)/RAND_MAX;
+    printf("Rand Double: %d\n", Entry);
+  } else {
+    Entry = strtod(Buffer, &EndPtr);
+  }
   if (EndPtr == Buffer) {
     return Default;
   }
