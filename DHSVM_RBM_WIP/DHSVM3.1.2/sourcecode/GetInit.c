@@ -73,6 +73,41 @@ unsigned long GetInitString(const char *Section, const char *Key,
 
   return (unsigned long)strlen(ReturnBuffer);
 }
+
+long GetRandomL(char *Buffer, char **EndPtr){
+  long Start;
+  long End;
+  double ranVal;
+  long result;
+  if(Buffer[0] == '<'){
+    Start = strtol(Buffer+1, EndPtr, 0);
+    End = strtol((*EndPtr)+1, EndPtr, 0);
+    ranVal = drand48();
+    result = Start + ((End - Start) * ranVal);
+    if((*EndPtr)[0] == '>'){
+      *EndPtr = (*EndPtr)[1];
+    }
+  }
+  return result;
+}
+
+double GetRandomD(char *Buffer, char **EndPtr){
+  double Start;
+  double End;
+  double ranVal;
+  double result;
+  if(Buffer[0] == '<'){
+    Start = strtod(Buffer+1, EndPtr);
+    End = strtod((*EndPtr)+1, EndPtr);
+    ranVal = drand48();
+    result = Start + ((End - Start) * ranVal);
+    if((*EndPtr)[0] == '>'){
+      *EndPtr = (*EndPtr)[1];
+    }
+  }
+  return result;
+}
+
 /*#####################################################################################*/
 long GetInitLong(const char *Section, const char *Key, long Default,
                  LISTPTR Input) {
@@ -80,28 +115,21 @@ long GetInitLong(const char *Section, const char *Key, long Default,
   char Buffer[BUFSIZE + 1];
   char *EndPtr = NULL;
   long Entry;
-  long Start;
-  long End;
-  long ranVal;
 
-  printf("Getting long\n");
   if ((SectionHead = LocateSection(Section, Input)) == NULL) {
     return Default;
   }
-  printf("Found long section\n");
+
   if (!LocateKey(Key, Buffer, SectionHead)) {
     return Default;
   }
-  printf("Found long key\n");
+
   if(Buffer[0] == '<'){
-    Start = strtol(Buffer+1, &EndPtr, 0);
-    End = strtol(EndPtr+1, EndPtr, 0);
-    ranVal = rand();
-    Entry = Start + ((End - Start) * ranVal)/RAND_MAX;
-    printf("Rand Long: %l\n", Entry);
+    Entry = GetRandomL(Buffer, &EndPtr);
   } else {
     Entry = strtol(Buffer, &EndPtr, 0);
   }
+
   if (EndPtr == Buffer) {
     return Default;
   }
@@ -115,9 +143,6 @@ double GetInitDouble(const char *Section, const char *Key, double Default,
   char Buffer[BUFSIZE + 1];
   char *EndPtr = NULL;
   double Entry;
-  double Start;
-  double End;
-  double ranVal;
 
   if ((SectionHead = LocateSection(Section, Input)) == NULL) {
     return Default;
@@ -128,11 +153,7 @@ double GetInitDouble(const char *Section, const char *Key, double Default,
   }
 
   if(Buffer[0] == '<'){
-    Start = strtod(Buffer+1, &EndPtr);
-    End = strtod(EndPtr+1, EndPtr);
-    ranVal = rand();
-    Entry = Start + ((End - Start) * ranVal)/RAND_MAX;
-    printf("Rand Double: %d\n", Entry);
+    Entry = GetRandomD(Buffer, &EndPtr);
   } else {
     Entry = strtod(Buffer, &EndPtr);
   }
@@ -306,7 +327,11 @@ int CopyDouble(double *Value, char *Str, const int NValues) {
   int i;
 
   for (i = 0; i < NValues; i++) {
-    Value[i] = strtod(Str, &EndPtr);
+    if(Str[0] == '<'){
+      Value[i] = GetRandomD(Str, &EndPtr);
+    } else {
+      Value[i] = strtod(Str, &EndPtr);
+    }
     if (EndPtr == Str)
       return FALSE;
     Str = EndPtr;
@@ -323,7 +348,11 @@ int CopyFloat(float *Value, char *Str, const int NValues) {
   int i;
 
   for (i = 0; i < NValues; i++) {
-    Value[i] = (float)strtod(Str, &EndPtr);
+    if(Str[0] == '<'){
+      Value[i] = (float)GetRandomD(Str, &EndPtr);
+    } else {
+      Value[i] = (float)strtod(Str, &EndPtr);
+    }
     if (EndPtr == Str)
       return FALSE;
     Str = EndPtr;
@@ -340,7 +369,11 @@ int CopyInt(int *Value, char *Str, const int NValues) {
   int i;
 
   for (i = 0; i < NValues; i++) {
-    Value[i] = (int)strtol(Str, &EndPtr, 0);
+    if(Str[0] == '<'){
+      Value[i] = (int)GetRandomL(Str, &EndPtr);
+    } else {
+      Value[i] = (int)strtol(Str, &EndPtr, 0);
+    }
     if (EndPtr == Str)
       return FALSE;
     Str = EndPtr;
@@ -357,7 +390,11 @@ int CopyLong(long *Value, char *Str, const int NValues) {
   int i;
 
   for (i = 0; i < NValues; i++) {
-    Value[i] = strtol(Str, &EndPtr, 0);
+    if(Str[0] == '<'){
+      Value[i] = GetRandomL(Str, &EndPtr);
+    } else {
+      Value[i] = strtol(Str, &EndPtr, 0);
+    }
     if (EndPtr == Str)
       return FALSE;
     Str = EndPtr;
@@ -374,7 +411,11 @@ int CopyShort(short *Value, char *Str, const int NValues) {
   int i;
 
   for (i = 0; i < NValues; i++) {
-    Value[i] = (short)strtol(Str, &EndPtr, 0);
+    if(Str[0] == '<'){
+      Value[i] = (short)GetRandomL(Str, &EndPtr);
+    } else {
+      Value[i] = (short)strtol(Str, &EndPtr, 0);
+    }
     if (EndPtr == Str)
       return FALSE;
     Str = EndPtr;

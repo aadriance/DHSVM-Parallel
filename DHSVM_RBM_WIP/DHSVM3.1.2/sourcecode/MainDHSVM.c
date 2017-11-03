@@ -14,6 +14,8 @@
  * $Id: MainDHSVM.c,v 1.42 2006/10/12 20:38:11 nathalie Exp $
  */
 
+#define _USE_MPI_
+
 /******************************************************************************/
 /*				    INCLUDES                                  */
 /******************************************************************************/
@@ -30,6 +32,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#ifdef _USE_MPI_
+#include <mpi.h>
+#endif
 
 /******************************************************************************/
 /*				GLOBAL VARIABLES                              */
@@ -50,7 +55,11 @@ char errorstr[BUFSIZ + 1] = "";     /* error message */
 /******************************************************************************/
 /*				      MAIN                                    */
 /******************************************************************************/
+#ifdef _USE_MPI_
+int mpiMain(int argc, char **argv) {
+#else
 int main(int argc, char **argv) {
+#endif
   float *Hydrograph = NULL;
   float ***MM5Input = NULL;
   float **PrecipLapseMap = NULL;
@@ -80,7 +89,7 @@ int main(int argc, char **argv) {
   int NGraphics;       /* number of graphics for X11 */
   int *which_graphics; /* which graphics for X11 */
   char buffer[32];
-
+  srand48(time(NULL));
   AGGREGATED Total = {
       /* Total or average value of a  variable over the entire basin */
       {0.0, NULL, NULL, NULL, NULL, 0.0},                  /* EVAPPIX */
@@ -177,6 +186,16 @@ int main(int argc, char **argv) {
 
   printf("\nRunning DHSVM %s\n", version);
   printf("\nSTARTING INITIALIZATION PROCEDURES\n\n");
+
+  #ifdef _USE_MPI_
+  /* MPI Set Up */
+  int comm_sz;
+  int my_rank;
+
+  MPI_Init(NULL, NULL);
+  MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
+  MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+  #endif 
 
   /* Start recording time */
   start = clock();
