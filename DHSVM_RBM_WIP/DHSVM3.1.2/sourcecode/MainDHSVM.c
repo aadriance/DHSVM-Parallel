@@ -14,7 +14,7 @@
  * $Id: MainDHSVM.c,v 1.42 2006/10/12 20:38:11 nathalie Exp $
  */
 
-#define _USE_MPI_
+//#define _USE_MPI_
 
 /******************************************************************************/
 /*				    INCLUDES                                  */
@@ -34,6 +34,7 @@
 #include <time.h>
 #ifdef _USE_MPI_
 #include <mpi.h>
+#include <omp.h>
 #endif
 
 /******************************************************************************/
@@ -61,11 +62,22 @@ int main(int argc, char **argv){
   /* MPI Set Up */
   int comm_sz;
   int my_rank;
+  int numRuns;
+  if (argc < 3) {
+    fprintf(stderr, "\nUsage: %s inputfile numberOfRuns\n\n", argv[0]);
+    exit(EXIT_FAILURE);
+  }
 
+  numRuns = strtol(argv[2],NULL,0);
   MPI_Init(NULL, NULL);
   MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
   MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
-  mpiMain(argc, argv, my_rank);
+  omp_set_num_threads(8);
+  #pragma omp parallel for
+  for(int i = my_rank; i < numRuns; i += comm_sz) {
+    printf("Number of threads in the current parallel region is %i \n", omp_get_num_threads());
+    mpiMain(argc, argv, i);
+  }
   MPI_Finalize();
 }
 
@@ -184,7 +196,7 @@ int main(int argc, char **argv) {
   /*****************************************************************************
     Initialization Procedures
   *****************************************************************************/
-  if (argc != 2) {
+  if (argc < 2) {
     fprintf(stderr, "\nUsage: %s inputfile\n\n", argv[0]);
     fprintf(stderr, "DHSVM uses two output streams: \n");
     fprintf(stderr, "Standard Out, for the majority of output \n");
