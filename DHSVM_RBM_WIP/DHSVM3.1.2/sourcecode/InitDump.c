@@ -95,8 +95,9 @@ void InitDump(LISTPTR Input, OPTIONSTRUCT *Options, MAPSIZE *Map,
   strcpy(Dump->Path, StrEnv[output_path].VarStr);
   if(id > -1) {
     len = strlen(Dump->Path);
-    Dump->Path[len] = '0' + id;
-    Dump->Path[len+1] = 0;
+    //Dump->Path[len] = '0' + id;
+    sprintf(Dump->Path + len, "%d", id);
+    //Dump->Path[len+1] = 0;
   }
 
   // delete any previous failure_summary.txt file
