@@ -56,10 +56,26 @@ char errorstr[BUFSIZ + 1] = "";     /* error message */
 /*				      MAIN                                    */
 /******************************************************************************/
 #ifdef _USE_MPI_
-int mpiMain(int argc, char **argv) {
+int mpiMain(int argc, char **argv, int id);
+int main(int argc, char **argv){
+  /* MPI Set Up */
+  int comm_sz;
+  int my_rank;
+
+  MPI_Init(NULL, NULL);
+  MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
+  MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+  mpiMain(argc, argv, my_rank);
+  MPI_Finalize();
+}
+
+int mpiMain(int argc, char **argv, int id) {
 #else
 int main(int argc, char **argv) {
 #endif
+  #ifndef _USE_MPI_
+  int id = -1;
+  #endif
   float *Hydrograph = NULL;
   float ***MM5Input = NULL;
   float **PrecipLapseMap = NULL;
@@ -187,16 +203,6 @@ int main(int argc, char **argv) {
   printf("\nRunning DHSVM %s\n", version);
   printf("\nSTARTING INITIALIZATION PROCEDURES\n\n");
 
-  #ifdef _USE_MPI_
-  /* MPI Set Up */
-  int comm_sz;
-  int my_rank;
-
-  MPI_Init(NULL, NULL);
-  MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
-  MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
-  #endif 
-
   /* Start recording time */
   start = clock();
 
@@ -259,7 +265,7 @@ int main(int argc, char **argv) {
   InitInterpolationWeights(&Map, &Options, TopoMap, &MetWeights, Stat, NStats);
 
   InitDump(Input, &Options, &Map, Soil.MaxLayers, Veg.MaxLayers, Time.Dt,
-           TopoMap, &Dump, &NGraphics, &which_graphics);
+           TopoMap, &Dump, &NGraphics, &which_graphics, id);
 
   if (Options.HasNetwork == TRUE) {
     InitChannelDump(&Options, &ChannelData, Dump.Path);

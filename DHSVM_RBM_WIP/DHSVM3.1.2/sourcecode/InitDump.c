@@ -55,7 +55,7 @@
 *****************************************************************************/
 void InitDump(LISTPTR Input, OPTIONSTRUCT *Options, MAPSIZE *Map,
               int MaxSoilLayers, int MaxVegLayers, int Dt, TOPOPIX **TopoMap,
-              DUMPSTRUCT *Dump, int *NGraphics, int **which_graphics) {
+              DUMPSTRUCT *Dump, int *NGraphics, int **which_graphics, int id) {
   char *Routine = "InitDump";
   int i;
   int x;          /* counter */
@@ -67,6 +67,7 @@ void InitDump(LISTPTR Input, OPTIONSTRUCT *Options, MAPSIZE *Map,
   int temp_count;
   uchar **BasinMask;
   char sumoutfile[100];
+  int len;
 
   STRINIENTRY StrEnv[] = {
       {"OUTPUT", "OUTPUT DIRECTORY", "", ""},
@@ -82,14 +83,21 @@ void InitDump(LISTPTR Input, OPTIONSTRUCT *Options, MAPSIZE *Map,
   printf("Initializing dump procedures\n");
 
   /* Get the key-entry pairs from the input file */
-  for (i = 0; StrEnv[i].SectionName; i++)
+  for (i = 0; StrEnv[i].SectionName; i++){
     GetInitString(StrEnv[i].SectionName, StrEnv[i].KeyName, StrEnv[i].Default,
                   StrEnv[i].VarStr, (unsigned long)BUFSIZE, Input);
+    //printf("%s\n", StrEnv[i].KeyName);                  
+    }
 
   /* Assign the entries to the variables */
   if (IsEmptyStr(StrEnv[output_path].VarStr))
     ReportError(StrEnv[output_path].KeyName, 51);
   strcpy(Dump->Path, StrEnv[output_path].VarStr);
+  if(id > -1) {
+    len = strlen(Dump->Path);
+    Dump->Path[len] = '0' + id;
+    Dump->Path[len+1] = 0;
+  }
 
   // delete any previous failure_summary.txt file
   sprintf(sumoutfile, "%sfailure_summary.txt", Dump->Path);
