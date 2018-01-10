@@ -9,26 +9,24 @@
  * DESCRIPTION:   Initialize sediment grid when sediment options is on
  * DESCRIP-END.
  * FUNCTIONS:    InitSedMap()
- * COMMENTS:     
+ * COMMENTS:
  */
 
+#include "DHSVMerror.h"
+#include "data.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "data.h"
-#include "DHSVMerror.h"
 
 /*****************************************************************************
   InitSedMap()
 *****************************************************************************/
-void InitSedMap(MAPSIZE *Map, SEDPIX *** SedMap )
-{
-  int   y;		/* Counters */
-  
-  if (!(*SedMap = (SEDPIX **) calloc(Map->NY, sizeof(SEDPIX *))))
-     ReportError("InitSedMap", 1);
-  for (y = 0; y < Map->NY; y++) {
-    if (!((*SedMap)[y] = (SEDPIX *) calloc(Map->NX, sizeof(SEDPIX))))
-      ReportError("InitSedMap", 1);
-    }
-}
+void InitSedMap(MAPSIZE *Map, SEDPIX ***SedMap) {
+  int y; /* Counters */
 
+  if (!(*SedMap = (SEDPIX **)calloc(Map->NY, sizeof(SEDPIX *))))
+    ReportError("InitSedMap", 1);
+  for (y = 0; y < Map->NY; y++) {
+    if (!((*SedMap)[y] = (SEDPIX *)calloc(Map->NX, sizeof(SEDPIX))))
+      ReportError("InitSedMap", 1);
+  }
+}

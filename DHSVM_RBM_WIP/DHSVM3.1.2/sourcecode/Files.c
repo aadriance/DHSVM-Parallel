@@ -8,38 +8,37 @@
  * ORIG-DATE:    Apr-96
  * DESCRIPTION:  File and I/O functions
  * DESCRIP-END.
- * FUNCTIONS:    OpenFile() 
- *               ScanInts() 
- *               ScanFloats() 
- *               SkipLines()             
- *               SkipHeader() 
- *               ScanDoubles() 
- *               ScanUChars() 
+ * FUNCTIONS:    OpenFile()
+ *               ScanInts()
+ *               ScanFloats()
+ *               SkipLines()
+ *               SkipHeader()
+ *               ScanDoubles()
+ *               ScanUChars()
  * COMMENTS:
- * $Id: Files.c,v3.1.2 2013/07/01 Ning Exp $     
+ * $Id: Files.c,v3.1.2 2013/07/01 Ning Exp $
  */
 
+#include "DHSVMerror.h"
+#include "constants.h"
+#include "data.h"
+#include "fileio.h"
+#include "functions.h"
+#include "settings.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include "settings.h"
-#include "data.h"
-#include "DHSVMerror.h"
-#include "functions.h"
-#include "constants.h"
-#include "fileio.h"
+#include <sys/types.h>
 
 /*****************************************************************************
   OpenFile()
 *****************************************************************************/
-void OpenFile(FILE ** FilePtr, char *FileName, char *Mode, uchar OverWrite)
-{
+void OpenFile(FILE **FilePtr, char *FileName, char *Mode, uchar OverWrite) {
   struct stat FileInfo;
 
-  /* if OverWrite is FALSE and the Mode is not read, check whether the file 
+  /* if OverWrite is FALSE and the Mode is not read, check whether the file
      already exists */
 
   if (!OverWrite && strstr(Mode, "w")) {
@@ -48,14 +47,12 @@ void OpenFile(FILE ** FilePtr, char *FileName, char *Mode, uchar OverWrite)
   }
   if (!(*FilePtr = fopen(FileName, Mode)))
     ReportError(FileName, 3);
-
 }
 
 /*****************************************************************************
   ScanUChars()
 *****************************************************************************/
-uchar ScanUChars(FILE * FilePtr, uchar * X, int N)
-{
+uchar ScanUChars(FILE *FilePtr, uchar *X, int N) {
   int Ctr;
   char Str[2];
 
@@ -71,8 +68,7 @@ uchar ScanUChars(FILE * FilePtr, uchar * X, int N)
 /*****************************************************************************
   ScanInts()
 *****************************************************************************/
-int ScanInts(FILE * FilePtr, int *X, int N)
-{
+int ScanInts(FILE *FilePtr, int *X, int N) {
   int Ctr;
 
   for (Ctr = 0; Ctr < N; Ctr++) {
@@ -86,8 +82,7 @@ int ScanInts(FILE * FilePtr, int *X, int N)
 /*****************************************************************************
   ScanFloats()
 *****************************************************************************/
-int ScanFloats(FILE * FilePtr, float *X, int N)
-{
+int ScanFloats(FILE *FilePtr, float *X, int N) {
   int Ctr;
 
   for (Ctr = 0; Ctr < N; Ctr++) {
@@ -101,8 +96,7 @@ int ScanFloats(FILE * FilePtr, float *X, int N)
 /*****************************************************************************
   ScanDoubles()
 *****************************************************************************/
-int ScanDoubles(FILE * FilePtr, double *X, int N)
-{
+int ScanDoubles(FILE *FilePtr, double *X, int N) {
   int Ctr;
 
   for (Ctr = 0; Ctr < N; Ctr++) {
@@ -116,8 +110,7 @@ int ScanDoubles(FILE * FilePtr, double *X, int N)
 /*****************************************************************************
   SkipLines()
 *****************************************************************************/
-void SkipLines(FILES * InFile, int NLines)
-{
+void SkipLines(FILES *InFile, int NLines) {
   int Ctr;
   char str[BUFSIZE + 1];
 
@@ -130,7 +123,4 @@ void SkipLines(FILES * InFile, int NLines)
 /*****************************************************************************
   SkipHeader()
 *****************************************************************************/
-void SkipHeader(FILES * InFile, int NLines)
-{
-  SkipLines(InFile, NLines);
-}
+void SkipHeader(FILES *InFile, int NLines) { SkipLines(InFile, NLines); }

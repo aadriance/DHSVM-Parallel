@@ -10,16 +10,16 @@
  * DESCRIP-END.
  * FUNCTIONS:    LapseT()
  * COMMENTS:
- * $Id: LapseT.c,v 1.4 2003/07/01 21:26:19 olivier Exp $     
+ * $Id: LapseT.c,v 1.4 2003/07/01 21:26:19 olivier Exp $
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include "settings.h"
+#include "constants.h"
 #include "data.h"
 #include "functions.h"
-#include "constants.h"
+#include "settings.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 /*****************************************************************************
   Function name: LapseT()
@@ -39,8 +39,7 @@
 
   Comments     :
 *****************************************************************************/
-float LapseT(float Temp, float FromElev, float ToElev, float LapseRate)
-{
+float LapseT(float Temp, float FromElev, float ToElev, float LapseRate) {
   float LapsedTemp;
 
   LapsedTemp = Temp + (ToElev - FromElev) * LapseRate;
@@ -53,7 +52,7 @@ float LapseT(float Temp, float FromElev, float ToElev, float LapseRate)
 
   Purpose      : Lapse precipitation with elevation
 
-  Required     : 
+  Required     :
     float Precip       - Precipitation at FromElev (m/timestep)
     float FromElev     - Elevation to lapse from (m)
     float ToElev       - Elevation to lapse to (m)
@@ -65,17 +64,15 @@ float LapseT(float Temp, float FromElev, float ToElev, float LapseRate)
 
   Comments     : Used to lapse precip with elevation.
 *****************************************************************************/
-float LapsePrecip(float Precip, float FromElev, float ToElev, float PrecipLapse)
-{
-  float LapsedPrecip;		/* Precipitation at ToElev (m/timestep) */
+float LapsePrecip(float Precip, float FromElev, float ToElev,
+                  float PrecipLapse) {
+  float LapsedPrecip; /* Precipitation at ToElev (m/timestep) */
 
-  LapsedPrecip = Precip * (1.0 + PrecipLapse * (ToElev - FromElev))
-	  * (1 + PRECIPMULTIPLIER * (ToElev - MINELEV));
+  LapsedPrecip = Precip * (1.0 + PrecipLapse * (ToElev - FromElev)) *
+                 (1 + PRECIPMULTIPLIER * (ToElev - MINELEV));
 
   if (LapsedPrecip < 0.0)
     LapsedPrecip = 0.0;
 
   return LapsedPrecip;
-
-
 }

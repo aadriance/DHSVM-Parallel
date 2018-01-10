@@ -10,25 +10,24 @@
  * DESCRIP-END.
  * FUNCTIONS:    ResetAggregate.()
  * COMMENTS:
- * $Id: ResetAggregate.c,v 1.12 2004/05/03 03:28:46 colleen Exp $     
+ * $Id: ResetAggregate.c,v 1.12 2004/05/03 03:28:46 colleen Exp $
  */
 
-#include <stdio.h>
-#include <stdlib.h>
-#include "settings.h"
 #include "data.h"
 #include "functions.h"
+#include "settings.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 /*****************************************************************************
   ResetAggregate()
 
   Set all the area averages to zero
 *****************************************************************************/
-void ResetAggregate(LAYER * Soil, LAYER * Veg, AGGREGATED * Total,
-                    OPTIONSTRUCT *Options)
-{
-  int i;			/* counter */
-  int j;			/* counter */
+void ResetAggregate(LAYER *Soil, LAYER *Veg, AGGREGATED *Total,
+                    OPTIONSTRUCT *Options) {
+  int i; /* counter */
+  int j; /* counter */
 
   if (DEBUG)
     printf("Resetting the aggregate values\n");
@@ -118,23 +117,23 @@ void ResetAggregate(LAYER * Soil, LAYER * Veg, AGGREGATED * Total,
   Total->CulvertToChannel = 0;
   Total->RunoffToChannel = 0;
   if (Options->Sediment) {
-    Total->Sediment.Erosion = 0.0; 
-    Total->Sediment.SedFluxOut = 0.0; 
+    Total->Sediment.Erosion = 0.0;
+    Total->Sediment.SedFluxOut = 0.0;
     Total->Road.Erosion = 0.0;
     Total->Sediment.RoadSed = 0.0;
     Total->DebrisInflow = 0.0;
-    Total->SedimentOverlandInflow = 0.0; 
+    Total->SedimentOverlandInflow = 0.0;
     Total->SedimentOverroadInflow = 0.0;
     Total->ChannelSedimentStorage = 0.0;
     Total->ChannelSuspendedSediment = 0.0;
-    Total->CulvertReturnSedFlow = 0.0; 
-    Total->CulvertSedToChannel = 0.0; 
-    Total->SedimentOutflow = 0.0; 
-    Total->Fine.SatThickness = 0.0; 
-    Total->Fine.DeltaDepth = 0.0; 
-    Total->Fine.Probability = 0.0; 
-    Total->Fine.MassWasting = 0.0; 
-    Total->Fine.MassDeposition = 0.0; 
-    Total->Fine.SedimentToChannel = 0.0; 
+    Total->CulvertReturnSedFlow = 0.0;
+    Total->CulvertSedToChannel = 0.0;
+    Total->SedimentOutflow = 0.0;
+    Total->Fine.SatThickness = 0.0;
+    Total->Fine.DeltaDepth = 0.0;
+    Total->Fine.Probability = 0.0;
+    Total->Fine.MassWasting = 0.0;
+    Total->Fine.MassDeposition = 0.0;
+    Total->Fine.SedimentToChannel = 0.0;
   }
 }

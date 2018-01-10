@@ -6,21 +6,21 @@
  * ORG:          University of Washington, Department of Civil Engineering
  * E-MAIL:       nijssen@u.washington.edu
  * ORIG-DATE:    Apr-96
- * DESCRIPTION:  This function calculates the thermal conductivity of a soil 
+ * DESCRIPTION:  This function calculates the thermal conductivity of a soil
  *               under dry conditions, KhDry, based on the soil density.
  * DESCRIP-END.
- * FUNCTIONS:    CalcKhDry() 
+ * FUNCTIONS:    CalcKhDry()
  * COMMENTS:
- * $Id: CalcKhDry.c,v 1.4 2003/07/01 21:26:10 olivier Exp $     
+ * $Id: CalcKhDry.c,v 1.4 2003/07/01 21:26:10 olivier Exp $
  */
 
-#include "settings.h"
 #include "functions.h"
+#include "settings.h"
 
 /*****************************************************************************
   Function name: CalcKhDry()
 
-  Purpose      : This function calculates the thermal conductivity of a soil 
+  Purpose      : This function calculates the thermal conductivity of a soil
                  under dry conditions, KhDry, based on the soil density. This
                  is an empirical relationship which supposedly is accurate to
                  within 20% [Farouki, 1986; section 3.3.2].
@@ -32,13 +32,12 @@
 
   Modifies     : NA
 
-  Comments     : Source: Farouki, O. T., 1986, Thermal properties of soils, 
+  Comments     : Source: Farouki, O. T., 1986, Thermal properties of soils,
                  Trans Tech Publications
 
 *****************************************************************************/
-float CalcKhDry(float Density)
-{
-  float KhDry;			/* Dry soil thermal conductivity (W/(m*K)) */
+float CalcKhDry(float Density) {
+  float KhDry; /* Dry soil thermal conductivity (W/(m*K)) */
 
   KhDry = (0.135 * Density + 64.7) / (2700 - 0.947 * Density);
 
