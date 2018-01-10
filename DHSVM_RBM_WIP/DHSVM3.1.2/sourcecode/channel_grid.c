@@ -10,36 +10,35 @@
    $Id: channel_grid.c,v 3.1.2 2014/1/2 Ning Exp $
    ------------------------------------------------------------- */
 
-#include <math.h>
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
 #ifndef PI
 #define PI 3.14159265358979323846
 #endif
 #include <errno.h>
 #include <string.h>
 
-#include "DHSVMChannel.h"
 #include "channel_grid.h"
-#include "constants.h"
-#include "data.h"
+#include "tableio.h"
 #include "errorhandler.h"
 #include "settings.h"
-#include "tableio.h"
+#include "data.h"
+#include "DHSVMChannel.h"
+#include "constants.h"
 
 /* -------------------------------------------------------------
    local function prototype
    ------------------------------------------------------------- */
 static ChannelMapRec *alloc_channel_map_record(void);
 static ChannelMapPtr **channel_grid_create_map(int cols, int rows);
-Channel *Find_First_Segment(ChannelMapPtr **map, int col, int row,
-                            float SlopeAspect, char *Continue);
-Channel *Find_Next_Segment(ChannelMapPtr **map, int curr_col, int curr_row,
-                           int next_col, int next_row, int CurrentID,
-                           int NextID, char *Continue, float *SedimentToChannel,
-                           float *SedimentMass);
-char channel_grid_has_intersection(ChannelMapPtr **map, int Currid, int Nextid,
-                                   int row, int col, int Flag);
+Channel *Find_First_Segment(ChannelMapPtr ** map, int col, int row, float SlopeAspect, 
+			    char *Continue);
+Channel *Find_Next_Segment(ChannelMapPtr ** map, int curr_col, int curr_row, int next_col, 
+			   int next_row, int CurrentID, int NextID, char *Continue, 
+			   float *SedimentToChannel, float *SedimentMass);
+char channel_grid_has_intersection(ChannelMapPtr ** map, int Currid, int Nextid, int row, 
+				   int col, int Flag);
 
 /* -------------------------------------------------------------
    local module variables
@@ -51,17 +50,18 @@ static char channel_grid_initialized = FALSE;
 /* -------------------------------------------------------------
    RouteDebrisFlow
    ------------------------------------------------------------- */
-void RouteDebrisFlow(float *SedimentToChannel, int y, int x, float SlopeAspect,
-                     CHANNEL *ChannelData, MAPSIZE *Map) {
+void RouteDebrisFlow(float *SedimentToChannel, int y, int x, float SlopeAspect, 
+		     CHANNEL *ChannelData, MAPSIZE *Map)
+{
   Channel *CurrentSeg;
   char Continue, Match;
   int SearchRadius, Flag;
-  int i, j, curr_inti, curr_intj, next_inti, next_intj;
+  int i, j, curr_inti, curr_intj,next_inti,next_intj;
   int MaxRadius = 200;
   float SedimentMass[NSEDSIZES];
 
   /* Initialize */
-  for (i = 0; i < NSEDSIZES; i++) {
+  for(i = 0; i < NSEDSIZES; i++){
     SedimentMass[i] = 0.;
   }
 
@@ -69,167 +69,149 @@ void RouteDebrisFlow(float *SedimentToChannel, int y, int x, float SlopeAspect,
      If multiple segments exist in the current gridcell, the debris flow
      enters the channel with aspect closest to the aspect of the debris flow. */
 
-  CurrentSeg =
-      Find_First_Segment(ChannelData->stream_map, x, y, SlopeAspect, &Continue);
+  CurrentSeg = Find_First_Segment(ChannelData->stream_map, x, y, SlopeAspect, &Continue);
 
   /* Debris flow hits head wall; all sediment is deposited in channel. */
-  if (Continue == FALSE) {
+  if(Continue == FALSE) {
     CurrentSeg->sediment.tempvol += *SedimentToChannel;
     *SedimentToChannel = 0.0;
   }
 
-  // fprintf(stdout, "Debris flow enters network at segment %d, row=%d,
-  // col=%d\n", CurrentSeg->id, y, x);
-
+  // fprintf(stdout, "Debris flow enters network at segment %d, row=%d, col=%d\n", CurrentSeg->id, y, x);
+  
   /* Continue until basin mouth, or debris flow stops. */
-  while (CurrentSeg->outlet != NULL && Continue) {
+  while (CurrentSeg->outlet != NULL && Continue ) {
 
-    // fprintf(stdout, "Next segment equals %d\n", CurrentSeg->outlet->id);
+   // fprintf(stdout, "Next segment equals %d\n", CurrentSeg->outlet->id);
 
     /* Find row and column of next intersection; first check current cell. */
     Flag = 0;
     Match = FALSE;
-    Match =
-        channel_grid_has_intersection(ChannelData->stream_map, CurrentSeg->id,
-                                      CurrentSeg->outlet->id, y, x, Flag);
+    Match = channel_grid_has_intersection(ChannelData->stream_map, CurrentSeg->id, 
+    					  CurrentSeg->outlet->id, y, x, Flag);
 
-    if (Match == TRUE) {
+    if(Match==TRUE) {
       curr_inti = y;
       curr_intj = x;
       next_inti = y;
       next_intj = x;
     }
-
+      
     /* Find row and column of next intersection; search radially outward. */
     SearchRadius = 1;
-    while (!Match && Flag != 2) {
-      for (i = y - SearchRadius; i <= y + SearchRadius; i++) {
-        for (j = x - SearchRadius; j <= x + SearchRadius; j++) {
-          if (i >= 0 && j >= 0 && i < Map->NY && j < Map->NX) {
-            if (i == y - SearchRadius || i == y + SearchRadius) {
-              Match = channel_grid_has_intersection(
-                  ChannelData->stream_map, CurrentSeg->id,
-                  CurrentSeg->outlet->id, i, j, Flag);
-              // fprintf(stdout, "Looking for intersection in row=%d,
-              // col=%d\n",i,j);
-            } else if (j == x - SearchRadius || j == x + SearchRadius) {
-              Match = channel_grid_has_intersection(
-                  ChannelData->stream_map, CurrentSeg->id,
-                  CurrentSeg->outlet->id, i, j, Flag);
-              // fprintf(stdout, "Looking for intersection in row=%d,
-              // col=%d\n",i,j);
-            }
-          }
-          if (Match == TRUE && Flag == 0) {
-            curr_inti = i;
-            curr_intj = j;
-            next_inti = i;
-            next_intj = j;
-            Flag = 1;
-          }
-        }
+    while(!Match && Flag!=2) {
+      for(i=y-SearchRadius; i<= y+SearchRadius; i++) {
+	 for(j=x-SearchRadius; j<= x+SearchRadius; j++) {
+	   if(i>=0 && j>=0 && i< Map->NY && j<Map->NX) {
+	     if(i == y-SearchRadius || i == y+SearchRadius) {
+	       Match = channel_grid_has_intersection(ChannelData->stream_map, CurrentSeg->id, 
+						     CurrentSeg->outlet->id, i, j, Flag);
+	       //fprintf(stdout, "Looking for intersection in row=%d, col=%d\n",i,j);
+	     }
+	     else if(j == x-SearchRadius || j ==  x+SearchRadius) {
+	       Match = channel_grid_has_intersection(ChannelData->stream_map, CurrentSeg->id, 
+						     CurrentSeg->outlet->id, i, j, Flag);
+	       //fprintf(stdout, "Looking for intersection in row=%d, col=%d\n",i,j);
+	     }
+	   }
+	   if(Match == TRUE && Flag==0) {
+	     curr_inti = i;
+	     curr_intj = j;
+	     next_inti = i;
+	     next_intj = j;
+	     Flag = 1;
+	   }
+	 }
       }
-      if (Flag == 1)
-        Match = TRUE;
+      if(Flag==1)
+	Match = TRUE;
       SearchRadius += 1;
-      if (SearchRadius >
-          MaxRadius) /*if cannot find intersection, just find
-                       nearest cell that contains the next segment*/
-        Flag = 2;
+      if(SearchRadius>MaxRadius)  /*if cannot find intersection, just find
+				    nearest cell that contains the next segment*/
+	Flag=2;      
     }
 
     /*Repeat the search if MaxRadius was exceeded */
     SearchRadius = 1;
-    if (Flag == 2) {
+    if( Flag == 2 ) { 
       /*first find the nearest cell in next segment*/
-      while (!Match) {
-        for (i = y - SearchRadius; i <= y + SearchRadius; i++) {
-          for (j = x - SearchRadius; j <= x + SearchRadius; j++) {
-            if (i >= 0 && j >= 0 && i < Map->NY && j < Map->NX) {
-              if (i == y - SearchRadius || i == y + SearchRadius) {
-                Match = channel_grid_has_intersection(
-                    ChannelData->stream_map, CurrentSeg->id,
-                    CurrentSeg->outlet->id, i, j, Flag);
-                // fprintf(stdout, "Looking for intersection in row=%d,
-                // col=%d\n",i,j);
-              } else if (j == x - SearchRadius || j == x + SearchRadius) {
-                Match = channel_grid_has_intersection(
-                    ChannelData->stream_map, CurrentSeg->id,
-                    CurrentSeg->outlet->id, i, j, Flag);
-                // fprintf(stdout, "Looking for intersection in row=%d,
-                // col=%d\n",i,j);
-              }
-            }
-            if (Match == TRUE && Flag == 2) {
-              next_inti = i;
-              next_intj = j;
-              Flag = 1;
-            }
-          }
-        }
-        if (Flag == 1)
-          Match = TRUE;
-        SearchRadius += 1;
+      while(!Match) {
+	for(i=y-SearchRadius; i<= y+SearchRadius; i++) {
+	  for(j=x-SearchRadius; j<= x+SearchRadius; j++) {
+	    if(i>=0 && j>=0 && i< Map->NY && j<Map->NX) {
+	      if(i == y-SearchRadius || i == y+SearchRadius) {
+		Match = channel_grid_has_intersection(ChannelData->stream_map, CurrentSeg->id, 
+						      CurrentSeg->outlet->id, i, j, Flag);
+		//fprintf(stdout, "Looking for intersection in row=%d, col=%d\n",i,j);
+	      }
+	      else if(j == x-SearchRadius || j ==  x+SearchRadius) {
+		Match = channel_grid_has_intersection(ChannelData->stream_map, CurrentSeg->id, 
+						      CurrentSeg->outlet->id, i, j, Flag);
+		//fprintf(stdout, "Looking for intersection in row=%d, col=%d\n",i,j);
+	      }
+	    }
+	    if(Match == TRUE && Flag==2) {
+	      next_inti = i;
+	      next_intj = j;
+	      Flag = 1;
+	    }
+	  }
+	}
+	if(Flag==1)
+	  Match = TRUE;
+	SearchRadius += 1;
       }
       /*now find the nearest cell to that cell in the current segment*/
-      Flag = 3;
+      Flag=3;
       SearchRadius = 1;
       Match = FALSE;
-      while (!Match) {
-        for (i = next_inti - SearchRadius; i <= next_inti + SearchRadius; i++) {
-          for (j = next_intj - SearchRadius; j <= next_intj + SearchRadius;
-               j++) {
-            if (i >= 0 && j >= 0 && i < Map->NY && j < Map->NX) {
-              if (i == next_inti - SearchRadius ||
-                  i == next_inti + SearchRadius) {
-                Match = channel_grid_has_intersection(
-                    ChannelData->stream_map, CurrentSeg->id,
-                    CurrentSeg->outlet->id, i, j, Flag);
-                // fprintf(stdout, "Looking for intersection in row=%d,
-                // col=%d\n",i,j);
-              } else if (j == next_intj - SearchRadius ||
-                         j == next_intj + SearchRadius) {
-                Match = channel_grid_has_intersection(
-                    ChannelData->stream_map, CurrentSeg->id,
-                    CurrentSeg->outlet->id, i, j, Flag);
-                // fprintf(stdout, "Looking for intersection in row=%d,
-                // col=%d\n",i,j);
-              }
-            }
-            if (Match == TRUE && Flag == 3) {
-              curr_inti = i;
-              curr_intj = j;
-              Flag = 1;
-            }
-          }
-        }
-        if (Flag == 1)
-          Match = TRUE;
-        SearchRadius += 1;
+      while(!Match) {
+	for(i=next_inti-SearchRadius; i<= next_inti+SearchRadius; i++) {
+	  for(j=next_intj-SearchRadius; j<= next_intj+SearchRadius; j++) {
+	    if(i>=0 && j>=0 && i< Map->NY && j<Map->NX) {
+	      if(i == next_inti-SearchRadius || i == next_inti+SearchRadius) {
+		Match = channel_grid_has_intersection(ChannelData->stream_map, CurrentSeg->id, 
+						      CurrentSeg->outlet->id, i, j, Flag);
+		//fprintf(stdout, "Looking for intersection in row=%d, col=%d\n",i,j);
+	      }
+	      else if(j == next_intj-SearchRadius || j ==  next_intj+SearchRadius) {
+		Match = channel_grid_has_intersection(ChannelData->stream_map, CurrentSeg->id, 
+						      CurrentSeg->outlet->id, i, j, Flag);
+		//fprintf(stdout, "Looking for intersection in row=%d, col=%d\n",i,j);
+	      }
+	    }
+	    if(Match == TRUE && Flag==3) {
+	      curr_inti = i;
+	      curr_intj = j;
+	      Flag = 1;
+	    }
+	  }
+	}
+	if(Flag==1)
+	  Match = TRUE;
+	SearchRadius += 1;
       }
     }
 
-    //  fprintf(stdout, "Intersection found at row %d, col %d for current seg,
-    //  at row %d, col %d for next segment\n", curr_inti, curr_intj, next_inti,
-    //  next_intj);
-
+//  fprintf(stdout, "Intersection found at row %d, col %d for current seg, at row %d, col %d for next segment\n", curr_inti, curr_intj, next_inti, next_intj);
+    
     /* Now have location of intersection, check channel aspect. */
-    CurrentSeg = Find_Next_Segment(ChannelData->stream_map, curr_intj,
-                                   curr_inti, next_intj, next_inti,
-                                   CurrentSeg->id, CurrentSeg->outlet->id,
-                                   &Continue, SedimentToChannel, SedimentMass);
+    CurrentSeg = Find_Next_Segment(ChannelData->stream_map, curr_intj, curr_inti, 
+				   next_intj, next_inti, CurrentSeg->id, 
+				   CurrentSeg->outlet->id, &Continue, SedimentToChannel,
+				   SedimentMass);
   }
-  /*  fprintf(stdout, "Debris flow stopped, Segment = %d\n", CurrentSeg->id); */
+   /*  fprintf(stdout, "Debris flow stopped, Segment = %d\n", CurrentSeg->id); */
 }
 
 /* -------------------------------------------------------------
    Find_Next_Segment
    ------------------------------------------------------------- */
 
-Channel *Find_Next_Segment(ChannelMapPtr **map, int curr_col, int curr_row,
-                           int next_col, int next_row, int CurrentID,
-                           int NextID, char *Continue, float *SedimentToChannel,
-                           float *SedimentMass) {
+Channel *Find_Next_Segment(ChannelMapPtr ** map, int curr_col, int curr_row, 
+			   int next_col, int next_row,int CurrentID, int NextID, 
+			   char *Continue, float *SedimentToChannel, float *SedimentMass)
+{
   ChannelMapPtr curr_cell = map[curr_col][curr_row];
   ChannelMapPtr next_cell = map[next_col][next_row];
   float test;
@@ -237,9 +219,10 @@ Channel *Find_Next_Segment(ChannelMapPtr **map, int curr_col, int curr_row,
   float CurrentAspect, NextAspect;
   Channel *CurrPtr;
   Channel *NextPtr;
+ 
 
   while (curr_cell != NULL) {
-    if (curr_cell->channel->id == CurrentID) {
+    if(curr_cell->channel->id == CurrentID) {
       CurrentAspect = curr_cell->aspect;
       CurrPtr = curr_cell->channel;
       NextPtr = curr_cell->channel->outlet;
@@ -247,60 +230,62 @@ Channel *Find_Next_Segment(ChannelMapPtr **map, int curr_col, int curr_row,
     curr_cell = curr_cell->next;
   }
   while (next_cell != NULL) {
-    if (next_cell->channel->id == NextID) {
+    if(next_cell->channel->id == NextID) {
       NextAspect = next_cell->aspect;
     }
     next_cell = next_cell->next;
   }
 
   test = fabs(CurrentAspect - NextAspect);
-  if (test > PI) {
-    if (CurrentAspect < NextAspect)
-      test = fabs(CurrentAspect - (NextAspect - 2. * PI));
+  if(test > PI) {
+    if(CurrentAspect < NextAspect)
+      test = fabs(CurrentAspect - (NextAspect - 2.*PI));
     else
-      test = fabs(NextAspect - (CurrentAspect - 2. * PI));
+      test = fabs(NextAspect - (CurrentAspect - 2.*PI));
   }
-  if (test < 0. || test > PI) {
+  if(test < 0. || test > PI) {
     printf("Problem in Find_Next_Segment\n");
     exit(0);
   }
 
-  if (test <= 70. * PI / 180. && NextPtr->slope > 0.061) {
+  if(test <= 70.*PI/180. && NextPtr->slope > 0.061) {    
     *Continue = TRUE;
     *SedimentToChannel += CurrPtr->sediment.tempvol;
     CurrPtr->sediment.tempvol = 0.0;
-    for (i = 0; i < NSEDSIZES; i++) {
-      SedimentMass[i] += CurrPtr->sediment.tempmass[i];
-      CurrPtr->sediment.tempmass[i] = 0.;
-    }
-    //  printf(" Movin sediment from %d\n",CurrPtr->id);
-  } else {
+    for(i = 0; i < NSEDSIZES; i++){
+       SedimentMass[i] += CurrPtr->sediment.tempmass[i];
+       CurrPtr->sediment.tempmass[i] = 0.;
+     }
+   //  printf(" Movin sediment from %d\n",CurrPtr->id);
+  }
+  else {
     *Continue = FALSE;
     *SedimentToChannel += CurrPtr->sediment.tempvol;
     CurrPtr->sediment.tempvol = 0.;
-    for (i = 0; i < NSEDSIZES; i++) {
-      SedimentMass[i] += CurrPtr->sediment.tempmass[i];
-      CurrPtr->sediment.tempmass[i] = 0.;
-    }
-    //   printf("2Movin sediment from %d\n",CurrPtr->id);
-    if (test > 70. * PI / 180.) {
-      NextPtr->sediment.tempvol += *SedimentToChannel / 2.;
-      CurrPtr->sediment.tempvol = *SedimentToChannel / 2.;
+    for(i = 0; i < NSEDSIZES; i++){
+       SedimentMass[i] += CurrPtr->sediment.tempmass[i];
+       CurrPtr->sediment.tempmass[i] = 0.;
+     }
+  //   printf("2Movin sediment from %d\n",CurrPtr->id);
+    if(test > 70.*PI/180.) { 
+      NextPtr->sediment.tempvol += *SedimentToChannel/2.;
+      CurrPtr->sediment.tempvol = *SedimentToChannel/2.;
       *SedimentToChannel = 0.0;
-      for (i = 0; i < NSEDSIZES; i++) {
-        NextPtr->sediment.tempmass[i] += SedimentMass[i] / 2.;
-        CurrPtr->sediment.tempmass[i] = SedimentMass[i] / 2.;
-        SedimentMass[i] = 0.;
+      for(i = 0; i < NSEDSIZES; i++){
+ 	NextPtr->sediment.tempmass[i] += SedimentMass[i]/2.;
+ 	CurrPtr->sediment.tempmass[i] = SedimentMass[i]/2.;
+ 	SedimentMass[i] = 0.;
       }
-      //     printf(" Dumpin sediment in %d %d \n",NextPtr->id,CurrPtr->id);
-    } else {
+  //     printf(" Dumpin sediment in %d %d \n",NextPtr->id,CurrPtr->id);
+    }
+    else {
       NextPtr->sediment.tempvol += *SedimentToChannel;
       *SedimentToChannel = 0.0;
-      for (i = 0; i < NSEDSIZES; i++) {
-        NextPtr->sediment.tempmass[i] += SedimentMass[i];
-        SedimentMass[i] = 0.;
+      for(i = 0; i < NSEDSIZES; i++){
+ 	NextPtr->sediment.tempmass[i] += SedimentMass[i];
+ 	SedimentMass[i] = 0.;
       }
-      //     printf("2Dumpin sediment in %d \n",NextPtr->id);
+  //     printf("2Dumpin sediment in %d \n",NextPtr->id);
     }
   }
 
@@ -311,36 +296,36 @@ Channel *Find_Next_Segment(ChannelMapPtr **map, int curr_col, int curr_row,
    Find_First_Segment
    ------------------------------------------------------------- */
 
-Channel *Find_First_Segment(ChannelMapPtr **map, int col, int row,
-                            float SlopeAspect, char *Continue) {
+Channel *Find_First_Segment(ChannelMapPtr ** map, int col, int row, float SlopeAspect, char *Continue)
+{
   ChannelMapPtr cell = map[col][row];
   float test;
   float DeltaAspect;
   Channel *Ptr;
-
-  DeltaAspect = 2. * PI;
+  
+  DeltaAspect = 2.*PI;
 
   while (cell != NULL) {
     test = fabs(SlopeAspect - cell->aspect);
 
-    if (test > PI) {
-      if (SlopeAspect < cell->aspect)
-        test = fabs(SlopeAspect - (cell->aspect - 2. * PI));
+    if(test > PI) {
+      if(SlopeAspect < cell->aspect)
+	test = fabs(SlopeAspect - (cell->aspect - 2.*PI));
       else
-        test = fabs(cell->aspect - (SlopeAspect - 2. * PI));
+	test = fabs(cell->aspect - (SlopeAspect - 2.*PI));
     }
-    if (test < 0. || test > PI) {
+    if(test < 0. || test > PI) {
       printf("Problem in Find_First_Segment\n");
       exit(0);
     }
-
-    if (test < DeltaAspect) {
+    
+    if( test < DeltaAspect) {
       Ptr = cell->channel;
       DeltaAspect = test;
     }
     cell = cell->next;
   }
-  if (DeltaAspect <= 70. * PI / 180.)
+  if(DeltaAspect <= 70.*PI/180.)
     *Continue = TRUE;
   else
     *Continue = FALSE;
@@ -351,11 +336,12 @@ Channel *Find_First_Segment(ChannelMapPtr **map, int col, int row,
 /* -------------------------------------------------------------
    alloc_channel_map_record
    ------------------------------------------------------------- */
-static ChannelMapRec *alloc_channel_map_record(void) {
+static ChannelMapRec *alloc_channel_map_record(void)
+{
   ChannelMapRec *p;
-  if ((p = (ChannelMapRec *)malloc(sizeof(ChannelMapRec))) == NULL) {
-    error_handler(ERRHDL_FATAL, "alloc_channel_map_record: %s",
-                  strerror(errno));
+  if ((p = (ChannelMapRec *) malloc(sizeof(ChannelMapRec))) == NULL) {
+    error_handler(ERRHDL_FATAL,
+		  "alloc_channel_map_record: %s", strerror(errno));
   }
   p->length = 0.0;
   p->aspect = 0.0;
@@ -368,27 +354,29 @@ static ChannelMapRec *alloc_channel_map_record(void) {
 /* -------------------------------------------------------------
    channel_grid_create_map
    ------------------------------------------------------------- */
-static ChannelMapPtr **channel_grid_create_map(int cols, int rows) {
+static ChannelMapPtr **channel_grid_create_map(int cols, int rows)
+{
   ChannelMapPtr **map;
   int row, col;
   ChannelMapPtr *junk;
 
-  if ((map = (ChannelMapPtr **)malloc(cols * sizeof(ChannelMapPtr *))) ==
-      NULL) {
+  if ((map = (ChannelMapPtr **) malloc(cols * sizeof(ChannelMapPtr *))) == NULL) {
     error_handler(ERRHDL_FATAL, "channel_grid_create_map: malloc failed: %s",
-                  strerror(errno));
+		  strerror(errno));
   }
-  if ((junk = (ChannelMapPtr *)malloc(rows * cols * sizeof(ChannelMapPtr))) ==
-      NULL) {
+  if ((junk =
+       (ChannelMapPtr *) malloc(rows * cols * sizeof(ChannelMapPtr))) == NULL) {
     free(map);
-    error_handler(ERRHDL_FATAL, "channel_grid_create_map: malloc failed: %s",
-                  strerror(errno));
+    error_handler(ERRHDL_FATAL,
+		  "channel_grid_create_map: malloc failed: %s",
+		  strerror(errno));
   }
 
   for (col = 0; col < cols; col++) {
     if (col == 0) {
       map[col] = junk;
-    } else {
+    }
+    else {
       map[col] = &(map[0][col * rows]);
     }
     for (row = 0; row < rows; row++) {
@@ -401,7 +389,8 @@ static ChannelMapPtr **channel_grid_create_map(int cols, int rows) {
 /* -------------------------------------------------------------
    free_channel_map_record
    ------------------------------------------------------------- */
-static void free_channel_map_record(ChannelMapRec *cell) {
+static void free_channel_map_record(ChannelMapRec * cell)
+{
   if (cell->next != NULL) {
     free_channel_map_record(cell->next);
   }
@@ -411,12 +400,13 @@ static void free_channel_map_record(ChannelMapRec *cell) {
 /* -------------------------------------------------------------
    channel_grid_free_map
    ------------------------------------------------------------- */
-void channel_grid_free_map(ChannelMapPtr **map) {
+void channel_grid_free_map(ChannelMapPtr ** map)
+{
   int c, r;
   for (c = 0; c < channel_grid_cols; c++) {
     for (r = 0; r < channel_grid_rows; r++) {
       if (map[c][r] != NULL) {
-        free_channel_map_record(map[c][r]);
+	free_channel_map_record(map[c][r]);
       }
     }
   }
@@ -431,34 +421,38 @@ void channel_grid_free_map(ChannelMapPtr **map) {
 /* -------------------------------------------------------------
    channel_grid_read_map
    ------------------------------------------------------------- */
-ChannelMapPtr **channel_grid_read_map(Channel *net, const char *file,
-                                      SOILPIX **SoilMap) {
+ChannelMapPtr **channel_grid_read_map(Channel * net, const char *file,
+				      SOILPIX ** SoilMap)
+{
   ChannelMapPtr **map;
   static const int fields = 8;
-  static char *sink_words[2] = {"SINK", "\n"};
+  static char *sink_words[2] = {
+    "SINK", "\n"
+  };
   static TableField map_fields[8] = {
-      {"Column", TABLE_INTEGER, TRUE, FALSE, {0.0}, "", NULL},
-      {"Row", TABLE_INTEGER, TRUE, FALSE, {0.0}, "", NULL},
-      {"Segment ID", TABLE_INTEGER, TRUE, FALSE, {0.0}, "", NULL},
-      {"Segment Length", TABLE_REAL, TRUE, FALSE, {0.0}, "", NULL},
-      {"Cut Height", TABLE_REAL, TRUE, FALSE, {0.0}, "", NULL},
-      {"Cut Width", TABLE_REAL, TRUE, FALSE, {0.0}, "", NULL},
-      {"Segment Azimuth", TABLE_REAL, FALSE, FALSE, {0.0}, "", NULL},
-      {"Sink?", TABLE_WORD, FALSE, FALSE, {0.0}, "", sink_words}};
+    {"Column", TABLE_INTEGER, TRUE, FALSE, {0.0}, "", NULL},
+    {"Row", TABLE_INTEGER, TRUE, FALSE, {0.0}, "", NULL},
+    {"Segment ID", TABLE_INTEGER, TRUE, FALSE, {0.0}, "", NULL},
+    {"Segment Length", TABLE_REAL, TRUE, FALSE, {0.0}, "", NULL},
+    {"Cut Height", TABLE_REAL, TRUE, FALSE, {0.0}, "", NULL},
+    {"Cut Width", TABLE_REAL, TRUE, FALSE, {0.0}, "", NULL},
+    {"Segment Azimuth", TABLE_REAL, FALSE, FALSE, {0.0}, "", NULL},
+    {"Sink?", TABLE_WORD, FALSE, FALSE, {0.0}, "", sink_words}
+  };
   int done, err = 0;
 
   if (!channel_grid_initialized) {
     error_handler(ERRHDL_ERROR,
-                  "channel_grid_read_map: channel_grid module not initialized");
+		  "channel_grid_read_map: channel_grid module not initialized");
     return NULL;
   }
 
-  error_handler(ERRHDL_STATUS, "channel_grid_read_map: reading file \"%s\"",
-                file);
+  error_handler(ERRHDL_STATUS,
+		"channel_grid_read_map: reading file \"%s\"", file);
 
   if (table_open(file) != 0) {
     error_handler(ERRHDL_ERROR,
-                  "channel.grid_read_map: unable to read file \"%s\"", file);
+		  "channel.grid_read_map: unable to read file \"%s\"", file);
     return NULL;
   }
 
@@ -474,37 +468,41 @@ ChannelMapPtr **channel_grid_read_map(Channel *net, const char *file,
     done = (table_get_fields(fields, map_fields) < 0);
     if (done) {
       for (i = 0; i < fields; i++) {
-        if (map_fields[i].read)
-          break;
+	if (map_fields[i].read)
+	  break;
       }
       if (i >= fields)
-        continue;
+	continue;
     }
 
     if (map_fields[0].read) {
       if (map_fields[0].value.integer < 0 ||
-          map_fields[0].value.integer >= channel_grid_cols) {
-        rec_err++;
-      } else {
-        col = map_fields[0].value.integer;
+	  map_fields[0].value.integer >= channel_grid_cols) {
+	rec_err++;
       }
-    } else {
+      else {
+	col = map_fields[0].value.integer;
+      }
+    }
+    else {
       rec_err++;
     }
     if (map_fields[1].read) {
       if (map_fields[1].value.integer < 0 ||
-          map_fields[1].value.integer >= channel_grid_rows) {
-        rec_err++;
-      } else {
-        row = map_fields[1].value.integer;
+	  map_fields[1].value.integer >= channel_grid_rows) {
+	rec_err++;
       }
-    } else {
+      else {
+	row = map_fields[1].value.integer;
+      }
+    }
+    else {
       rec_err++;
     }
 
     if (rec_err) {
-      error_handler(ERRHDL_ERROR, "%s: line %d: bad coordinates", file,
-                    table_lineno());
+      error_handler(ERRHDL_ERROR,
+		    "%s: line %d: bad coordinates", file, table_lineno());
       err++;
       continue;
     }
@@ -512,86 +510,89 @@ ChannelMapPtr **channel_grid_read_map(Channel *net, const char *file,
     if (map[col][row] != NULL) {
       cell = map[col][row];
       while (cell->next != NULL)
-        cell = cell->next;
+	cell = cell->next;
       cell->next = alloc_channel_map_record();
       cell = cell->next;
-    } else {
+    }
+    else {
       map[col][row] = alloc_channel_map_record();
       cell = map[col][row];
     }
 
     for (i = 2; i < fields; i++) {
       if (map_fields[i].read) {
-        switch (i) {
-        case 2:
-          if ((cell->channel = channel_find_segment(
-                   net, map_fields[i].value.integer)) == NULL) {
-            error_handler(ERRHDL_ERROR,
-                          "%s, line %d: unable to locate segment %d", file,
-                          table_lineno(), map_fields[i].value.integer);
-            err++;
-          }
-          break;
-        case 3:
-          cell->length = map_fields[i].value.real;
-          if (cell->length < 0.0) {
-            error_handler(ERRHDL_ERROR, "%s, line %d: bad length", file,
-                          table_lineno());
-            err++;
-          }
-          break;
-        case 4:
-          cell->cut_height = map_fields[i].value.real;
-          if (cell->cut_height > SoilMap[row][col].Depth) {
-            printf("warning overriding cut depths with 0.95 soil depth \n");
-            cell->cut_height = SoilMap[row][col].Depth * 0.95;
-          }
-          if (cell->cut_height < 0.0 ||
-              cell->cut_height > SoilMap[row][col].Depth) {
-            error_handler(ERRHDL_ERROR, "%s, line %d: bad cut_depth", file,
-                          table_lineno());
-            err++;
-          }
-          break;
-        case 5:
-          cell->cut_width = map_fields[i].value.real;
-          if (cell->cut_width < 0.0) {
-            error_handler(ERRHDL_ERROR, "%s, line %d: bad cut_width", file,
-                          table_lineno());
-            err++;
-          }
-          break;
-        case 6:
-          /* road aspect is read in degrees and
-             stored in radians */
-          cell->azimuth = (float)(map_fields[i].value.real);
-          cell->aspect = map_fields[i].value.real * PI / 180.0;
-          break;
-        case 7:
-          cell->sink = TRUE;
-          break;
-        default:
-          error_handler(ERRHDL_FATAL,
-                        "channel_grid_read_map: this should not happen");
-          break;
-        }
+	switch (i) {
+	case 2:
+	  if ((cell->channel =
+	       channel_find_segment(net,
+				    map_fields[i].value.integer)) == NULL) {
+	    error_handler(ERRHDL_ERROR,
+			  "%s, line %d: unable to locate segment %d", file,
+			  table_lineno(), map_fields[i].value.integer);
+	    err++;
+	  }
+	  break;
+	case 3:
+	  cell->length = map_fields[i].value.real;
+	  if (cell->length < 0.0) {
+	    error_handler(ERRHDL_ERROR,
+			  "%s, line %d: bad length", file, table_lineno());
+	    err++;
+	  }
+	  break;
+	case 4:
+	  cell->cut_height = map_fields[i].value.real;
+	  if (cell->cut_height > SoilMap[row][col].Depth) {
+	    printf("warning overriding cut depths with 0.95 soil depth \n");
+	    cell->cut_height = SoilMap[row][col].Depth*0.95;
+	  }
+	  if (cell->cut_height < 0.0
+	      || cell->cut_height > SoilMap[row][col].Depth) {
+	    error_handler(ERRHDL_ERROR, "%s, line %d: bad cut_depth", file,
+			  table_lineno());
+	    err++;
+	  }
+	  break;
+	case 5:
+	  cell->cut_width = map_fields[i].value.real;
+	  if (cell->cut_width < 0.0) {
+	    error_handler(ERRHDL_ERROR,
+			  "%s, line %d: bad cut_width", file, table_lineno());
+	    err++;
+	  }
+	  break;
+	case 6:
+	  /* road aspect is read in degrees and
+	     stored in radians */
+	  cell->azimuth = (float)(map_fields[i].value.real);
+	  cell->aspect = map_fields[i].value.real * PI / 180.0;
+	  break;
+	case 7:
+	  cell->sink = TRUE;
+	  break;
+	default:
+	  error_handler(ERRHDL_FATAL,
+			"channel_grid_read_map: this should not happen");
+	  break;
+	}
       }
     }
+
   }
 
   table_errors += err;
   error_handler(ERRHDL_STATUS,
-                "channel_grid_read_map: %s: %d errors, %d warnings", file,
-                table_errors, table_warnings);
+		"channel_grid_read_map: %s: %d errors, %d warnings",
+		file, table_errors, table_warnings);
 
   table_close();
 
   error_handler(ERRHDL_STATUS,
-                "channel_grid_read_map: done reading file \"%s\"", file);
+		"channel_grid_read_map: done reading file \"%s\"", file);
 
   if (table_errors) {
-    error_handler(ERRHDL_ERROR, "channel_grid_read_map: %s: too many errors",
-                  file);
+    error_handler(ERRHDL_ERROR,
+		  "channel_grid_read_map: %s: too many errors", file);
     channel_grid_free_map(map);
     map = NULL;
   }
@@ -606,7 +607,8 @@ ChannelMapPtr **channel_grid_read_map(Channel *net, const char *file,
 /* -------------------------------------------------------------
    channel_grid_has_channel
    ------------------------------------------------------------- */
-int channel_grid_has_channel(ChannelMapPtr **map, int col, int row) {
+int channel_grid_has_channel(ChannelMapPtr ** map, int col, int row)
+{
   if (map != NULL)
     return (map[col][row] != NULL);
   else
@@ -616,7 +618,8 @@ int channel_grid_has_channel(ChannelMapPtr **map, int col, int row) {
 /* -------------------------------------------------------------
    channel_grid_has_sink
    ------------------------------------------------------------- */
-int channel_grid_has_sink(ChannelMapPtr **map, int col, int row) {
+int channel_grid_has_sink(ChannelMapPtr ** map, int col, int row)
+{
   ChannelMapPtr cell = map[col][row];
   char test = FALSE;
 
@@ -630,46 +633,47 @@ int channel_grid_has_sink(ChannelMapPtr **map, int col, int row) {
 /* -------------------------------------------------------------
    channel_grid_has_intersection
    ------------------------------------------------------------- */
-char channel_grid_has_intersection(ChannelMapPtr **map, int Currid, int Nextid,
-                                   int row, int col, int Flag) {
+char channel_grid_has_intersection(ChannelMapPtr ** map, int Currid, int Nextid,  int row, int col, int Flag)
+{
   ChannelMapPtr cell = map[col][row];
   char Next = FALSE;
   char Current = FALSE;
   char Intersection = FALSE;
-
-  if (Flag < 2) { /* search for intersecting cells given Currid and Nextid
-                      occur in the cell of intersection */
+  
+  if( Flag < 2) { /* search for intersecting cells given Currid and Nextid
+		      occur in the cell of intersection */
     while (cell != NULL) {
-      if (cell->channel->id == Currid)
-        Current = TRUE;
-      if (cell->channel->id == Nextid)
-        Next = TRUE;
+      if(cell->channel->id == Currid)
+	Current = TRUE;
+      if(cell->channel->id == Nextid)
+	Next = TRUE;
       cell = cell->next;
     }
-
-    if (Current && Next)
+    
+    if(Current && Next)
       Intersection = TRUE;
   }
 
-  else if (Flag == 2) { /* if Flag == 2 , only search for the nearest cell that
-             has id of next segment */
+  else if(Flag == 2) { /* if Flag == 2 , only search for the nearest cell that has id of next
+	    segment */
     while (cell != NULL) {
-      if (cell->channel->id == Nextid)
-        Next = TRUE;
+      if(cell->channel->id == Nextid)
+	Next = TRUE;
       cell = cell->next;
     }
-
-    if (Next)
+    
+    if(Next)
       Intersection = TRUE;
-  } else { /* if Flag == 3 , only search for the nearest cell that has id of
-              current segment */
+  }
+  else { /* if Flag == 3 , only search for the nearest cell that has id of current
+	    segment */
     while (cell != NULL) {
-      if (cell->channel->id == Currid)
-        Current = TRUE;
+      if(cell->channel->id == Currid)
+	Current = TRUE;
       cell = cell->next;
     }
-
-    if (Current)
+    
+    if(Current)
       Intersection = TRUE;
   }
 
@@ -680,7 +684,8 @@ char channel_grid_has_intersection(ChannelMapPtr **map, int Currid, int Nextid,
    channel_grid_cell_length
    returns the total length of channel(s) in the cell.
    ------------------------------------------------------------- */
-double channel_grid_cell_length(ChannelMapPtr **map, int col, int row) {
+double channel_grid_cell_length(ChannelMapPtr ** map, int col, int row)
+{
   ChannelMapPtr cell = map[col][row];
   double len = 0.0;
 
@@ -695,7 +700,8 @@ double channel_grid_cell_length(ChannelMapPtr **map, int col, int row) {
    channel_grid_cell_width
    returns a length-weighted average of the channel widths in the cell
    ------------------------------------------------------------- */
-double channel_grid_cell_width(ChannelMapPtr **map, int col, int row) {
+double channel_grid_cell_width(ChannelMapPtr ** map, int col, int row)
+{
   ChannelMapPtr cell = map[col][row];
   double len = channel_grid_cell_length(map, col, row);
   double width = 0.0;
@@ -714,7 +720,8 @@ double channel_grid_cell_width(ChannelMapPtr **map, int col, int row) {
 /* -------------------------------------------------------------
    channel_grid_cell_bankheight
    ------------------------------------------------------------- */
-double channel_grid_cell_bankht(ChannelMapPtr **map, int col, int row) {
+double channel_grid_cell_bankht(ChannelMapPtr ** map, int col, int row)
+{
   ChannelMapPtr cell = map[col][row];
   double len = channel_grid_cell_length(map, col, row);
   double height = 0.0;
@@ -735,16 +742,17 @@ double channel_grid_cell_bankht(ChannelMapPtr **map, int col, int row) {
    any channel(s) in the cell in proportion to their length within the
    cell.
    ------------------------------------------------------------- */
-void channel_grid_inc_inflow(ChannelMapPtr **map, int col, int row,
-                             float mass) {
+void channel_grid_inc_inflow(ChannelMapPtr ** map, int col, int row, float mass)
+{
   ChannelMapPtr cell = map[col][row];
   float len = channel_grid_cell_length(map, col, row);
 
-  /*
+  /* 
      if (mass > 0 && len <= 0.0) {
      error_handler(ERRHDL_ERROR,
-     "channel_grid_inc_inflow: attempt to add flow in cell with no channels!
-     (col=%d, row=%d)", col, row); return;
+     "channel_grid_inc_inflow: attempt to add flow in cell with no channels! (col=%d, row=%d)", 
+     col, row);
+     return;
      }
    */
 
@@ -760,7 +768,8 @@ void channel_grid_inc_inflow(ChannelMapPtr **map, int col, int row,
    function totals the mass from the channels(s) and returns the total
    mass.
    ------------------------------------------------------------- */
-double channel_grid_outflow(ChannelMapPtr **map, int col, int row) {
+double channel_grid_outflow(ChannelMapPtr ** map, int col, int row)
+{
   ChannelMapPtr cell = map[col][row];
   double mass = 0.0;
 
@@ -779,7 +788,8 @@ double channel_grid_outflow(ChannelMapPtr **map, int col, int row) {
    function totals the mass from the channels(s) and returns the total
    mass.
    ------------------------------------------------------------- */
-double channel_grid_sed_outflow(ChannelMapPtr **map, int col, int row, int i) {
+double channel_grid_sed_outflow(ChannelMapPtr ** map, int col, int row, int i)
+{
   ChannelMapPtr cell = map[col][row];
   double mass = 0.0;
 
@@ -796,13 +806,13 @@ double channel_grid_sed_outflow(ChannelMapPtr **map, int col, int row, int i) {
    channel_grid_flowlength
    returns the flowlength along a road surface in a channel
    if there is more than one road in a grid cell, the road
-   with the greatest surface area is used to calculate the
+   with the greatest surface area is used to calculate the 
    flowlength.
-   This can result in a flolen that is greater than the
-   horizontal length of the road in the cell.
+   This can result in a flolen that is greater than the 
+   horizontal length of the road in the cell. 
   ------------------------------------------------------------- */
-double channel_grid_flowlength(ChannelMapPtr **map, int col, int row,
-                               float floslope) {
+double channel_grid_flowlength(ChannelMapPtr ** map, int col, int row, float floslope)
+{
   ChannelMapPtr cell = map[col][row];
   double flolen = 0.0;
   double area;
@@ -810,17 +820,16 @@ double channel_grid_flowlength(ChannelMapPtr **map, int col, int row,
 
   while (cell != NULL) {
     area = cell->length * cell->cut_width;
-    if (area > maxarea) {
-      flolen = cell->cut_width * (floslope / ROADCROWN) *
-               sqrt(1 + pow(ROADCROWN, 2));
+    if(area > maxarea){
+      flolen = cell->cut_width * (floslope/ROADCROWN)*sqrt(1+pow(ROADCROWN,2));
       maxarea = area;
     }
-    if (flolen < cell->cut_width)
+    if(flolen < cell->cut_width)
       flolen = cell->cut_width;
-    /* If crowned, only one half goes to ditch. */
-    if (cell->channel->class2->crown == CHAN_CROWNED)
+    /* If crowned, only one half goes to ditch. */ 
+    if (cell->channel->class2->crown == CHAN_CROWNED) 
       flolen *= 0.5;
-
+    
     cell = cell->next;
   }
   return flolen;
@@ -830,11 +839,12 @@ double channel_grid_flowlength(ChannelMapPtr **map, int col, int row,
    channel_grid_flowslope
    returns the flowlength along a road surface in a grid cell
    if there is more than one road in a grid cell, the road
-   with the greatest surface area is used to calculate the
+   with the greatest surface area is used to calculate the 
    flowslope
    ------------------------------------------------------------- */
 
-double channel_grid_flowslope(ChannelMapPtr **map, int col, int row) {
+double channel_grid_flowslope(ChannelMapPtr ** map, int col, int row)
+{
   ChannelMapPtr cell = map[col][row];
   float floslope = 0.0;
   double area;
@@ -842,8 +852,8 @@ double channel_grid_flowslope(ChannelMapPtr **map, int col, int row) {
 
   while (cell != NULL) {
     area = cell->length * cell->cut_width;
-    if (area > maxarea) {
-      floslope = sqrt(pow(ROADCROWN, 2) + pow((cell->channel->slope), 2));
+    if(area > maxarea){
+      floslope = sqrt(pow(ROADCROWN, 2) + pow((cell->channel->slope),2));
       maxarea = area;
     }
     cell = cell->next;
@@ -858,7 +868,8 @@ double channel_grid_flowslope(ChannelMapPtr **map, int col, int row) {
    with the greatest surface area is used
    ------------------------------------------------------------- */
 
-ChannelClass *channel_grid_class(ChannelMapPtr **map, int col, int row) {
+ChannelClass* channel_grid_class(ChannelMapPtr ** map, int col, int row)
+{
   ChannelMapPtr cell = map[col][row];
   ChannelClass *pntr;
   double area;
@@ -866,7 +877,7 @@ ChannelClass *channel_grid_class(ChannelMapPtr **map, int col, int row) {
 
   while (cell != NULL) {
     area = cell->length * cell->cut_width;
-    if (area > maxarea) {
+    if(area > maxarea){
       pntr = cell->channel->class2;
       maxarea = area;
     }
@@ -882,7 +893,8 @@ ChannelClass *channel_grid_class(ChannelMapPtr **map, int col, int row) {
 /* -------------------------------------------------------------
    channel_grid_init
    ------------------------------------------------------------- */
-void channel_grid_init(int cols, int rows) {
+void channel_grid_init(int cols, int rows)
+{
   channel_grid_cols = cols;
   channel_grid_rows = rows;
   channel_grid_initialized = 1;
@@ -891,13 +903,17 @@ void channel_grid_init(int cols, int rows) {
 /* -------------------------------------------------------------
    channel_grid_done
    ------------------------------------------------------------- */
-void channel_grid_done(void) { /* ? */ }
+void channel_grid_done(void)
+{
+  /* ? */
+}
 
 #ifdef TEST_MAIN
 /* -------------------------------------------------------------
    interpolate
    ------------------------------------------------------------- */
-static float interpolate(int n, float *x, float *y, float x0) {
+static float interpolate(int n, float *x, float *y, float x0)
+{
   int i;
   if (x0 <= x[0]) {
     return ((x0 - x[0]) / (x[1] - x[0]) * (y[1] - y[0]) + y[0]);
@@ -913,7 +929,8 @@ static float interpolate(int n, float *x, float *y, float x0) {
 /* -------------------------------------------------------------
    Main Program
    ------------------------------------------------------------- */
-int main(int argc, char **argv) {
+int main(int argc, char **argv)
+{
   static const int columns = 5;
   static const int rows = 10;
 
@@ -923,12 +940,12 @@ int main(int argc, char **argv) {
   Channel *simple = NULL, *current;
   ChannelMapPtr **map = NULL;
 
-  static int interval = 3600;  /* seconds */
-  static float timestep = 1.0; /* hour */
+  static int interval = 3600;	/* seconds */
+  static float timestep = 1.0;	/* hour */
   static float endtime = 144.0;
 #define TIMES 6
-  static float bndflow[TIMES] = {0.0, 0.0, 300.0, 300.0, 0.0, 0.0};
-  static float bndtime[TIMES] = {0.0, 12.0, 36.0, 48.0, 60.0, 1000.0};
+  static float bndflow[TIMES] = { 0.0, 0.0, 300.0, 300.0, 0.0, 0.0 };
+  static float bndtime[TIMES] = { 0.0, 12.0, 36.0, 48.0, 60.0, 1000.0 };
   float time;
 
   /* module initialization */
@@ -963,7 +980,7 @@ int main(int argc, char **argv) {
       ChannelMapPtr cell = map[c][r];
       int count;
       for (count = 0; cell != NULL; cell = cell->next) {
-        count++;
+	count++;
       }
       printf("%3d", count);
     }
@@ -1000,7 +1017,7 @@ int main(int argc, char **argv) {
 
     channel_step_initialize_network(simple);
     channel_grid_inc_inflow(map, 2, 0, inflow);
-    (void)channel_route_network(simple, interval);
+    (void) channel_route_network(simple, interval);
     outflow = channel_grid_outflow(map, 2, 6);
     channel_save_outflow(time * interval, simple, stdout);
     printf("outflow: %8.3g\n", outflow);
@@ -1018,6 +1035,7 @@ int main(int argc, char **argv) {
   channel_done();
   error_handler_done();
   exit(0);
+
 }
 #endif
 
@@ -1028,82 +1046,82 @@ int main(int argc, char **argv) {
    This function generates outputs required by John's RBM model
 
    Given a mass/flux, this function increases the mass/flux in any
-   channel(s) is in proportion to their length within the cell
+   channel(s) is in proportion to their length within the cell 
    BECAUSE THOSE ARE NRG fluxes, similar to each segment
-   ---------------------------------------------------------------------------------
- */
+   --------------------------------------------------------------------------------- */
 
-void channel_grid_inc_other(ChannelMapPtr **map, int col, int row,
-                            PIXRAD *LocalRad, PIXMET *LocalMet, float skyview) {
+void channel_grid_inc_other(ChannelMapPtr ** map, int col, int row, PIXRAD * LocalRad, 
+							PIXMET * LocalMet, float skyview)
+{
   ChannelMapPtr cell = map[col][row];
   float len = channel_grid_cell_length(map, col, row);
 
-  while (cell != NULL) {
-    /* ISW is the total incoming shortwave radiation (VIC outputs) */
-    cell->channel->ISW += LocalRad->ObsShortIn;
-
-    cell->channel->NSW += LocalRad->RBMNetShort;
-    cell->channel->Beam += LocalRad->PixelBeam;
-    cell->channel->Diffuse += LocalRad->PixelDiffuse;
+  while (cell != NULL ) {
+	/* ISW is the total incoming shortwave radiation (VIC outputs) */
+	cell->channel->ISW += LocalRad->ObsShortIn;
+	
+	cell->channel->NSW += LocalRad->RBMNetShort;
+	cell->channel->Beam += LocalRad->PixelBeam;
+	cell->channel->Diffuse += LocalRad->PixelDiffuse;
 
     cell->channel->ILW += LocalRad->PixelLongIn;
-    cell->channel->NLW += LocalRad->RBMNetLong;
+	cell->channel->NLW += LocalRad->RBMNetLong;
 
     cell->channel->VP += LocalMet->Eact;
     cell->channel->WND += LocalMet->Wind;
     cell->channel->ATP += LocalMet->Tair;
 
-    cell->channel->azimuth +=
-        cell->azimuth * cell->length / cell->channel->length;
+	cell->channel->azimuth += 
+		cell->azimuth*cell->length /cell->channel->length;
 
-    cell->channel->skyview += skyview;
+	cell->channel->skyview += skyview;
 
     cell = cell->next;
   }
 }
 /*************************************************************************************
-void channel_grid_avg( ): average the heat budget variables by the total cell
-numbers
+void channel_grid_avg( ): average the heat budget variables by the total cell numbers
 *************************************************************************************/
-void channel_grid_avg(Channel *Channel) {
+void channel_grid_avg(Channel *Channel)
+{  
   while (Channel) {
-    if (Channel->Ncells > 0) {
-      Channel->ISW /= Channel->Ncells;
+    if (Channel->Ncells > 0 ) {
+	  Channel->ISW /= Channel->Ncells ;
+	  
+	  Channel->NSW /= Channel->Ncells;
+	  Channel->Beam /= Channel->Ncells;
+	  Channel->Diffuse /= Channel->Ncells;
 
-      Channel->NSW /= Channel->Ncells;
-      Channel->Beam /= Channel->Ncells;
-      Channel->Diffuse /= Channel->Ncells;
-
-      Channel->ILW /= Channel->Ncells;
-      Channel->NLW /= Channel->Ncells;
-
-      Channel->VP /= Channel->Ncells;
+	  Channel->ILW /= Channel->Ncells ;
+	  Channel->NLW /= Channel->Ncells ;
+      
+      Channel->VP  /= Channel->Ncells;
       Channel->WND /= Channel->Ncells;
-      Channel->ATP /= Channel->Ncells;
+	  Channel->ATP /= Channel->Ncells;
 
-      Channel->skyview /= Channel->Ncells;
+	  Channel->skyview /= Channel->Ncells;
     }
-    Channel = Channel->next;
+	Channel = Channel->next; 
   }
 }
 /*********************************************************************************
-Init_segment_ncell : computes the number of grid cell contributing to one
-segment
+Init_segment_ncell : computes the number of grid cell contributing to one segment
 **********************************************************************************/
-void Init_segment_ncell(TOPOPIX **TopoMap, ChannelMapPtr **map, int NY, int NX,
-                        Channel *net) {
-  int y, x;
-  ChannelMapPtr cell;
+void Init_segment_ncell(TOPOPIX **TopoMap, ChannelMapPtr ** map, int NY, 
+						int NX, Channel* net)
+{
+  int y,x;
+  ChannelMapPtr cell; 
 
   for (y = 0; y < NY; y++) {
-    for (x = 0; x < NX; x++) {
-      if (INBASIN(TopoMap[y][x].Mask)) {
-        if (channel_grid_has_channel(map, x, y)) {
-          cell = map[x][y];
-          while (cell != NULL) {
-            cell->channel->Ncells++;
-            cell = cell->next;
-          }
+    for (x = 0; x < NX; x++) {      
+	  if (INBASIN(TopoMap[y][x].Mask)) {
+		if (channel_grid_has_channel(map, x, y)){	
+           cell = map[x][y];
+		   while (cell != NULL) {
+			 cell->channel->Ncells++;
+             cell = cell->next;
+		   }   
         }
       }
     }
@@ -1111,9 +1129,11 @@ void Init_segment_ncell(TOPOPIX **TopoMap, ChannelMapPtr **map, int NY, int NX,
 
   // then check all segments
   for (; net != NULL; net = net->next) {
-    if (net->Ncells == 0) {
-      error_handler(ERRHDL_ERROR, "Init_segment_ncells: write error:%s",
-                    strerror(errno));
+    if (net->Ncells == 0 ) {
+      error_handler(ERRHDL_ERROR,"Init_segment_ncells: write error:%s", strerror(errno));
     }
   }
-}
+} 
+
+
+

@@ -10,14 +10,14 @@
  * DESCRIP-END.
  * FUNCTIONS:    MassRelease()
  * COMMENTS:
- * $Id: MassRelease.c,v 1.4 2003/07/01 21:26:21 olivier Exp $
+ * $Id: MassRelease.c,v 1.4 2003/07/01 21:26:21 olivier Exp $     
  */
 
-#include "constants.h"
-#include "massenergy.h"
-#include "settings.h"
-#include "snow.h"
 #include <stdarg.h>
+#include "constants.h"
+#include "settings.h"
+#include "massenergy.h"
+#include "snow.h"
 
 /*****************************************************************************
   Function name: MassRelease()
@@ -28,7 +28,7 @@
     float *InterceptedSnow
     float *TempInterceptionStorage
     float *ReleasedMass
-    float *Drip
+    float *Drip 
 
   Returns      : none
 
@@ -37,7 +37,8 @@
   Comments     :
 *****************************************************************************/
 void MassRelease(float *InterceptedSnow, float *TempInterceptionStorage,
-                 float *ReleasedMass, float *Drip, float MDRatio) {
+		 float *ReleasedMass, float *Drip, float MDRatio)
+{
   float TempDrip;
   float TempReleasedMass;
 
@@ -51,10 +52,10 @@ void MassRelease(float *InterceptedSnow, float *TempInterceptionStorage,
       *InterceptedSnow -= *TempInterceptionStorage;
 
       if (*InterceptedSnow < MIN_INTERCEPTION_STORAGE)
-        TempReleasedMass = 0.0;
+	TempReleasedMass = 0.0;
       else
-        TempReleasedMass = MIN((*InterceptedSnow - MIN_INTERCEPTION_STORAGE),
-                               *TempInterceptionStorage * MDRatio);
+	TempReleasedMass = MIN((*InterceptedSnow - MIN_INTERCEPTION_STORAGE),
+			       *TempInterceptionStorage * MDRatio);
       *ReleasedMass += TempReleasedMass;
       *InterceptedSnow -= TempReleasedMass;
       *TempInterceptionStorage = 0;

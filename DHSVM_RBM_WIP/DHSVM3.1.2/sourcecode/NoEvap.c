@@ -10,20 +10,21 @@
  * DESCRIP-END.
  * FUNCTIONS:    NoEvap()
  * COMMENTS:
- * $Id: NoEvap.c,v 1.4 2003/07/01 21:26:21 olivier Exp $
+ * $Id: NoEvap.c,v 1.4 2003/07/01 21:26:21 olivier Exp $     
  */
 
-#include "data.h"
-#include "massenergy.h"
-#include "settings.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "settings.h"
+#include "data.h"
+#include "massenergy.h"
 
 /*****************************************************************************
   NoEvap()
 *****************************************************************************/
-void NoEvap(int Layer, int NSoilLayers, EVAPPIX *LocalEvap) {
-  int i; /* counter */
+void NoEvap(int Layer, int NSoilLayers, EVAPPIX * LocalEvap)
+{
+  int i;			/* counter */
 
   LocalEvap->EPot[Layer] = 0.0;
   LocalEvap->EAct[Layer] = 0.0;

@@ -1,32 +1,34 @@
 /*
- * SUMMARY:      MaxRoadInfiltration.c - Calculate area averaged road
- * infiltration rate USAGE:        Part of DHSVM
+ * SUMMARY:      MaxRoadInfiltration.c - Calculate area averaged road infiltration 
+ *               rate
+ * USAGE:        Part of DHSVM
  *
  * AUTHOR:       Bart Nijssen
  * E-MAIL:       nijssen@u.arizona.edu
- * ORIG-DATE:
+ * ORIG-DATE:    
  * DESCRIPTION:  This subroutine calculates an area averaged maximum
  *               infiltration rate for the roads in a grid cell.
  * DESCRIP-END.
  * FUNCTIONS:    MaxRoadInfiltration()
  * COMMENTS:
- * $Id: MaxRoadInfiltration.c,v 1.4 2003/07/01 21:26:21 olivier Exp $
+ * $Id: MaxRoadInfiltration.c,v 1.4 2003/07/01 21:26:21 olivier Exp $     
  */
 
-#include "DHSVMChannel.h"
-#include "data.h"
-#include "functions.h"
-#include "settings.h"
 #include <assert.h>
-#include <math.h>
 #include <stdio.h>
+#include <math.h>
 #include <string.h>
+#include "settings.h"
+#include "data.h"
+#include "DHSVMChannel.h"
+#include "functions.h"
 
 /*****************************************************************************
   Function name: MaxRoadInfiltration()
 
 *****************************************************************************/
-float MaxRoadInfiltration(ChannelMapPtr **map, int col, int row) {
+float MaxRoadInfiltration(ChannelMapPtr **map, int col, int row)
+{
   ChannelMapPtr cell = map[col][row];
   float area;
   float infiltration = 0.0;

@@ -9,19 +9,19 @@
  * DESCRIPTION:  This function calculates the saturated soil density based
                  on the bulk density and particlc density.
  * DESCRIP-END.
- * FUNCTIONS:    CalcSatDensity)
+ * FUNCTIONS:    CalcSatDensity) 
  * COMMENTS:
- * $Id: CalcSatDensity.c,v 1.1 2003/10/29 01:01:08 colleen Exp $
+ * $Id: CalcSatDensity.c,v 1.1 2003/10/29 01:01:08 colleen Exp $     
  */
 
-#include "constants.h"
-#include "functions.h"
 #include "settings.h"
+#include "functions.h"
+#include "constants.h"
 
 /*****************************************************************************
   Function name: CalcSatDensity()
 
-  Purpose      : This function calculates the daturated soil density.
+  Purpose      : This function calculates the daturated soil density. 
 
   Required     :
     float Density - Soil bulk density in kg/m3
@@ -33,15 +33,15 @@
   Comments     :
 
 *****************************************************************************/
-float CalcSatDensity(float Density) {
-  float SatDensity; /* Saturated Soil Density (kg/m3) */
+float CalcSatDensity(float Density)
+{
+  float SatDensity;		      /* Saturated Soil Density (kg/m3) */
   float Porosity;
 
-  /* This could also be calculated using the porosity from the configuration
-   * file */
-  Porosity = 1 - (Density / PARTDENSITY);
+  /* This could also be calculated using the porosity from the configuration file */
+  Porosity = 1 - (Density/PARTDENSITY); 
 
-  SatDensity = PARTDENSITY * (1 - Porosity) + WATER_DENSITY * Porosity;
+  SatDensity = PARTDENSITY*(1-Porosity) + WATER_DENSITY*Porosity;
 
   return SatDensity;
 }

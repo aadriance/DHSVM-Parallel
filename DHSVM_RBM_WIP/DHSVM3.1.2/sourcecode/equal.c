@@ -7,11 +7,11 @@
  * ORG:          University of Washington, Department of Civil Engineering
  * E-MAIL:       nijssen@u.washington.edu
  * ORIG-DATE:    Wed Feb  3 08:39:13 1999
- * DESCRIPTION:
+ * DESCRIPTION:  
  * DESCRIP-END.
- * FUNCTIONS:
+ * FUNCTIONS:    
  * COMMENTS:     Adapted from netcdf library
- * $Id: equal.c,v 1.4 2003/07/01 21:26:29 olivier Exp $
+ * $Id: equal.c,v 1.4 2003/07/01 21:26:29 olivier Exp $     
  */
 
 /******************************************************************************/
@@ -25,8 +25,8 @@
    and uncomment the line after that */
 #include <float.h>
 /* #define NO_FLOAT_H */
-#include "functions.h"
 #include <math.h>
+#include "functions.h"
 
 /******************************************************************************/
 /*				GLOBAL VARIABLES                              */
@@ -38,10 +38,10 @@
 #define FALSE 0
 #endif
 #ifndef FLT_DIGITS
-#define FLT_DIGITS 7 /* default sig. digits for float data */
+#define FLT_DIGITS 7		/* default sig. digits for float data */
 #endif
 #ifndef DBL_DIGITS
-#define DBL_DIGITS 15 /* default sig. digits for double data */
+#define DBL_DIGITS 15		/* default sig. digits for double data */
 #endif
 static double double_eps;
 static float float_eps;
@@ -60,14 +60,15 @@ static void init_epsilons(void);
 /******************************************************************************/
 /*				     dequal                                   */
 /******************************************************************************/
-unsigned char dequal(double a, double b) {
-  if (!initeps) { /* make sure epsilons get initialized */
+unsigned char dequal(double a, double b)
+{
+  if (!initeps) {		/* make sure epsilons get initialized */
     init_epsilons();
     initeps = 1;
   }
 
   /* Two double values only need to be equal to within machine precision */
-  if ((a > 0) == (b > 0) && /* prevents potential overflow */
+  if ((a > 0) == (b > 0) &&	/* prevents potential overflow */
       (ABSVAL(a - b) <= ABSVAL(double_eps * b)))
     return TRUE;
   else
@@ -77,14 +78,15 @@ unsigned char dequal(double a, double b) {
 /******************************************************************************/
 /*				     fequal                                   */
 /******************************************************************************/
-unsigned char fequal(float a, float b) {
-  if (!initeps) { /* make sure epsilons get initialized */
+unsigned char fequal(float a, float b)
+{
+  if (!initeps) {		/* make sure epsilons get initialized */
     init_epsilons();
     initeps = 1;
   }
 
   /* Two float values anly need to be equal to within machine precision */
-  if ((a > 0) == (b > 0) && /* prevents potential overflow */
+  if ((a > 0) == (b > 0) &&	/* prevents potential overflow */
       (ABSVAL(a - b) <= ABSVAL(float_eps * b)))
     return TRUE;
   else
@@ -94,11 +96,12 @@ unsigned char fequal(float a, float b) {
 /******************************************************************************/
 /*				 double_epsilon                               */
 /******************************************************************************/
-static double double_epsilon(void) {
+static double double_epsilon(void)
+{
   double double_eps;
 #ifndef NO_FLOAT_H
   double_eps = DBL_EPSILON;
-#else  /* NO_FLOAT_H */
+#else /* NO_FLOAT_H */
   {
     double etop, ebot, eps;
     double one = 1.0;
@@ -111,9 +114,9 @@ static double double_epsilon(void) {
 
       epsp1 = one + eps;
       if (epsp1 > one)
-        etop = eps;
+	etop = eps;
       else
-        ebot = eps;
+	ebot = eps;
       eps = ebot + (etop - ebot) / two;
     }
     double_eps = two * etop;
@@ -125,11 +128,12 @@ static double double_epsilon(void) {
 /******************************************************************************/
 /*				 float_epsilon                                */
 /******************************************************************************/
-static float float_epsilon(void) {
+static float float_epsilon(void)
+{
   float float_eps;
 #ifndef NO_FLOAT_H
   float_eps = FLT_EPSILON;
-#else  /* NO_FLOAT_H */
+#else /* NO_FLOAT_H */
   {
     float etop, ebot, eps;
     float one = 1.0;
@@ -142,9 +146,9 @@ static float float_epsilon(void) {
 
       epsp1 = one + eps;
       if (epsp1 > one)
-        etop = eps;
+	etop = eps;
       else
-        ebot = eps;
+	ebot = eps;
       eps = ebot + (etop - ebot) / two;
     }
     float_eps = two * etop;
@@ -156,19 +160,21 @@ static float float_epsilon(void) {
 /******************************************************************************/
 /*				 init_epsilons                                */
 /******************************************************************************/
-static void init_epsilons(void) {
+static void init_epsilons(void)
+{
   float_eps = float_epsilon();
   double_eps = double_epsilon();
 }
 
 /*******************************************************************************
   Test main. Compile by typing:
-  gcc -Wall -g -o test_equal -DTEST_EQUAL equal.c
+  gcc -Wall -g -o test_equal -DTEST_EQUAL equal.c 
   then run the program by typing test_equal
 *******************************************************************************/
 #ifdef TEST_EQUAL
-int main(void) {
-  char *str[] = {"FALSE", "TRUE"};
+int main(void)
+{
+  char *str[] = { "FALSE", "TRUE" };
   double a;
   double b;
   float c;
@@ -179,8 +185,7 @@ int main(void) {
   b = 0.;
   printf("a = %15.13g, b = %15.13g, equal? %s\n", a, b, str[dequal(a, b)]);
   a = 0.;
-  b = DBL_EPSILON;
-  ;
+  b = DBL_EPSILON;;
   printf("a = %15.13g, b = %15.13g, equal? %s\n", a, b, str[dequal(a, b)]);
   a = 1.;
   b = 1. + .5 * DBL_EPSILON;
@@ -203,8 +208,7 @@ int main(void) {
   d = 0.;
   printf("c = %7.5g, d = %7.5g, equal? %s\n", c, d, str[fequal(c, d)]);
   c = 0.;
-  d = FLT_EPSILON;
-  ;
+  d = FLT_EPSILON;;
   printf("c = %7.5g, d = %7.5g, equal? %s\n", c, d, str[fequal(c, d)]);
   c = 1.;
   d = 1. + .5 * FLT_EPSILON;

@@ -8,27 +8,28 @@
  * ORIG-DATE:    Apr-96
  * DESCRIPTION:  Calculate basin-wide radiation
  * DESCRIP-END.
- * FUNCTIONS:
+ * FUNCTIONS:    
  * COMMENTS:
- * $Id: AggregateRadiation.c,v 1.4 2003/07/01 21:26:09 olivier Exp $
+ * $Id: AggregateRadiation.c,v 1.4 2003/07/01 21:26:09 olivier Exp $     
  */
 
-#include "data.h"
-#include "massenergy.h"
-#include "settings.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "settings.h"
+#include "data.h"
+#include "massenergy.h"
 
 /*****************************************************************************
   AggregateRadiation()
-
-  In the current implementation the local radiation elements are not stored
+  
+  In the current implementation the local radiation elements are not stored 
   for the entire area.  Therefore these components are aggregated here.  They
   are averaged over the basin in Aggregate()
 *****************************************************************************/
-void AggregateRadiation(int MaxVegLayers, int NVegL, PIXRAD *Rad,
-                        PIXRAD *TotalRad) {
-  int i; /* counter */
+void AggregateRadiation(int MaxVegLayers, int NVegL, PIXRAD * Rad,
+			PIXRAD * TotalRad)
+{
+  int i;			/* counter */
 
   /* aggregate radiation data */
   for (i = 0; i < NVegL; i++) {
@@ -42,4 +43,5 @@ void AggregateRadiation(int MaxVegLayers, int NVegL, PIXRAD *Rad,
   TotalRad->PixelNetShort += Rad->PixelNetShort;
   TotalRad->PixelLongIn += Rad->PixelLongIn;
   TotalRad->PixelLongOut += Rad->PixelLongOut;
+
 }

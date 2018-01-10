@@ -68,7 +68,7 @@ Center Longitude     = -122.1507756929    # Central meridian of basin
 Time Zone Meridian   = -120.0             # Time zone meridian for area 
 Number of Rows       = 423                # Number of rows
 Number of Columns    = 211                # Number of columns
-Grid spacing         = 10                 # Grid resolution in m 
+Grid spacing         = 30                 # Grid resolution in m 
 Point North          =                    # North coordinate for point model if Extent = POINT 
 Point East           =                    # East coordinate for point modelif Extent = POINT 
 
@@ -84,7 +84,7 @@ Model End            = 04/02/2004-06      # Model end time (MM/DD/YYYY-HH)
 # CONSTANTS SECTION
 ################################################################################
 [CONSTANTS]                               # Model constants
-Ground Roughness     = 0.02               # Roughness of soil surface (m)
+Ground Roughness     = <0.02-0.05>               # Roughness of soil surface (m)
 Snow Roughness       = 0.01               # Roughness of snow surface (m)
 Rain Threshold       = -1.0               # Minimum temperature at which rain occurs (C)
 Snow Threshold       = 0.5                # Maximum temperature at which snow occurs (C)

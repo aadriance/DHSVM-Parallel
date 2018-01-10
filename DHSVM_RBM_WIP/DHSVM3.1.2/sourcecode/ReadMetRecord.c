@@ -9,36 +9,36 @@
  * DESCRIP-END.
  * FUNCTIONS:    ReadMetRecord()
  * COMMENTS:
- * $Id: ReadMetRecord.c,v 1.4 2003/07/01 21:26:22 olivier Exp $
+ * $Id: ReadMetRecord.c,v 1.4 2003/07/01 21:26:22 olivier Exp $     
  */
 
-#include "DHSVMerror.h"
-#include "constants.h"
-#include "data.h"
-#include "functions.h"
-#include "settings.h"
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdlib.h>
+#include "settings.h"
+#include "data.h"
+#include "DHSVMerror.h"
+#include "functions.h"
+#include "constants.h"
 
-#define MAXMETVARS                                                             \
-  21 /* Maximum Number of meteorological variables                             \
-        to read.  Hack to be replaced by something                             \
-        better */
+#define MAXMETVARS    21	/* Maximum Number of meteorological variables 
+				   to read.  Hack to be replaced by something
+				   better */
 
 /*****************************************************************************
   ReadMetRecord()
 *****************************************************************************/
-void ReadMetRecord(OPTIONSTRUCT *Options, DATE *Current, int NSoilLayers,
-                   FILES *InFile, unsigned char IsWindModelLocation,
-                   MET *MetRecord) {
-  DATE MetDate;            /* Date of meteorological record */
-  float Array[MAXMETVARS]; /* Temporary storage of met variables */
+void ReadMetRecord(OPTIONSTRUCT * Options, DATE * Current, int NSoilLayers,
+		   FILES * InFile, unsigned char IsWindModelLocation,
+		   MET * MetRecord)
+{
+  DATE MetDate;			/* Date of meteorological record */
+  float Array[MAXMETVARS];	/* Temporary storage of met variables */
   int i;
-  int NMetVars; /* Number of meteorological variables to
-                   read */
+  int NMetVars;			/* Number of meteorological variables to 
+				   read */
   NMetVars = 5;
-  /* these are - in order:
+  /* these are - in order: 
      air temp,
      wind,
      humidity
@@ -97,7 +97,7 @@ void ReadMetRecord(OPTIONSTRUCT *Options, DATE *Current, int NSoilLayers,
   }
   if (MetRecord->Sin < 0.0) {
     printf("Warning: Negative Shortwave, setting to zero: %s\n",
-           InFile->FileName);
+	   InFile->FileName);
     MetRecord->Sin = 0.0;
   }
   MetRecord->Lin = Array[4];
@@ -118,24 +118,29 @@ void ReadMetRecord(OPTIONSTRUCT *Options, DATE *Current, int NSoilLayers,
     }
     i++;
 
-  } else
+  }
+  else
     MetRecord->Precip = 0.0;
 
   if (Options->PrecipLapse == VARIABLE) {
     MetRecord->PrecipLapse = Array[5 + i];
     i++;
-  } else
+  }
+  else
     MetRecord->PrecipLapse = PRECIPLAPSE;
 
   if (Options->TempLapse == VARIABLE) {
     MetRecord->TempLapse = Array[5 + i];
     i++;
-  } else
+  }
+  else
     MetRecord->TempLapse = TEMPLAPSE;
 
   if (IsWindModelLocation) {
-    MetRecord->WindDirection = (int)Array[5 + i];
+    MetRecord->WindDirection = (int) Array[5 + i];
     i++;
-  } else
+  }
+  else
     MetRecord->WindDirection = NOT_APPLICABLE;
+
 }

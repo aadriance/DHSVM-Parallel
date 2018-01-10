@@ -7,19 +7,19 @@
  * E-MAIL:       nijssen@u.washington.edu, pstorck@u.washington.edu
  * ORIG-DATE:    Apr-1996
  * DESCRIPTION:  Calculate the stability correction for exchange of sensible
- *               heat between the surface and the atmosphere
+ *               heat between the surface and the atmosphere 
  * DESCRIP-END.
  * FUNCTIONS:    StabilityCorrection()
  * COMMENTS:
- * $Id: StabilityCorrection.c,v 1.4 2003/07/01 21:26:25 olivier Exp $
+ * $Id: StabilityCorrection.c,v 1.4 2003/07/01 21:26:25 olivier Exp $     
  */
 
-#include "constants.h"
-#include "massenergy.h"
-#include "settings.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "settings.h"
+#include "massenergy.h"
+#include "constants.h"
 
 /*****************************************************************************
   Function name: StabilityCorrection()
@@ -39,19 +39,20 @@
     float Correction - Multiplier for aerodynamic resistance
 
   Modifies     : None
-
+    
   Comments     :
 *****************************************************************************/
-float StabilityCorrection(float Z, float d, float TSurf, float Tair, float Wind,
-                          float Z0) {
-  float Correction; /* Correction to aerodynamic resistance */
-  float Ri;         /* Richardson's Number */
-  float RiCr = 0.2; /* Critical Richardson's Number */
-  float RiLimit;    /* Upper limit for Richardson's Number */
+float StabilityCorrection(float Z, float d, float TSurf, float Tair,
+			  float Wind, float Z0)
+{
+  float Correction;		/* Correction to aerodynamic resistance */
+  float Ri;			/* Richardson's Number */
+  float RiCr = 0.2;		/* Critical Richardson's Number */
+  float RiLimit;		/* Upper limit for Richardson's Number */
 
   Correction = 1.0;
 
-  /* Calculate the effect of the atmospheric stability using a Richardson
+  /* Calculate the effect of the atmospheric stability using a Richardson 
      Number approach */
 
   if (TSurf != Tair) {
@@ -59,10 +60,10 @@ float StabilityCorrection(float Z, float d, float TSurf, float Tair, float Wind,
     /* Non-neutral conditions */
 
     Ri = G * (Tair - TSurf) * (Z - d) /
-         (((Tair + 273.15) + (TSurf + 273.15)) / 2.0 * Wind * Wind);
+      (((Tair + 273.15) + (TSurf + 273.15)) / 2.0 * Wind * Wind);
 
-    RiLimit = (Tair + 273.15) / (((Tair + 273.15) + (TSurf + 273.15)) / 2.0 *
-                                 (log((Z - d) / Z0) + 5));
+    RiLimit = (Tair + 273.15) /
+      (((Tair + 273.15) + (TSurf + 273.15)) / 2.0 * (log((Z - d) / Z0) + 5));
 
     if (Ri > RiLimit)
       Ri = RiLimit;
@@ -72,7 +73,7 @@ float StabilityCorrection(float Z, float d, float TSurf, float Tair, float Wind,
 
     else {
       if (Ri < -0.5)
-        Ri = -0.5;
+	Ri = -0.5;
 
       Correction = sqrt(1 - 16 * Ri);
     }
@@ -80,10 +81,10 @@ float StabilityCorrection(float Z, float d, float TSurf, float Tair, float Wind,
 
   return Correction;
 
-  /*  double Eta; */ /* intermediate product */
+/*  double Eta; *//* intermediate product */
 
-  /* calculate the effect of atmospheric stability on aerodynamic resistance
-     using the method of Choudhury et al., Agric. For. Met., 37, 75-88,
+  /* calculate the effect of atmospheric stability on aerodynamic resistance 
+     using the method of Choudhury et al., Agric. For. Met., 37, 75-88, 
      1986 */
 
   /* Eq. A4, Choudhury et al [1986] */

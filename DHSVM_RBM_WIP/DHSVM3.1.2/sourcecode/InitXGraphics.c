@@ -13,17 +13,17 @@
  * $Id: InitXGraphics.c,v 1.4 2003/07/01 21:26:18 olivier Exp $
  */
 
-#include "DHSVMerror.h"
-#include "data.h"
-#include "settings.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "settings.h"
+#include "data.h"
+#include "DHSVMerror.h"
 
 #ifdef HAVE_X11
-#include <X11/Xatom.h>
 #include <X11/Xlib.h>
-#include <X11/Xos.h>
 #include <X11/Xutil.h>
+#include <X11/Xos.h>
+#include <X11/Xatom.h>
 
 Display *display;
 Window window;
@@ -34,11 +34,12 @@ long black, white;
 int e, ndx;
 #endif
 
-void InitXGraphics(int argc, char **argv, int ny, int nx, int nd,
-                   MET_MAP_PIX ***MetMap) {
+void InitXGraphics(int argc, char **argv, int ny, int nx, int nd, 
+		   MET_MAP_PIX *** MetMap)
+{
   /* following is for the X11 libraries */
 
-  int i, x, y, screen; /* screen is an int. */
+  int i, x, y, screen;		/* screen is an int. */
   int border_width;
   int c1, c2, c3;
   float re, best_re;
@@ -48,7 +49,7 @@ void InitXGraphics(int argc, char **argv, int ny, int nx, int nd,
   int buf = 50;
 
 #ifdef HAVE_X11
-  Colormap cmap; /* map from pixel values to colors */
+  Colormap cmap;		/* map from pixel values to colors */
   char *window_name = "DHSVM Realtime Display", *display_name = NULL;
   XSizeHints size_hints;
 
@@ -56,7 +57,7 @@ void InitXGraphics(int argc, char **argv, int ny, int nx, int nd,
 
   if ((display = XOpenDisplay(display_name)) == NULL) {
     fprintf(stderr, "InitXGraphics: cannot connect to X server %s\n",
-            XDisplayName(display_name));
+	    XDisplayName(display_name));
     exit(-1);
   }
 
@@ -89,27 +90,26 @@ void InitXGraphics(int argc, char **argv, int ny, int nx, int nd,
     for (el = -10; el <= 10; el++) {
 
       if (el != 0) {
-        if (el < 0)
-          re = 1 / ((float)(-el));
-        if (el > 0)
-          re = (float)el;
-        ndyl = nd / (ndxl);
-        if (ndxl * ndyl < nd)
-          ndyl = ndyl + 1;
-        c1 = nd * (nx * re + buf) * (ny * re + buf);
-        c2 = ndxl * (nx * re + buf);
-        c3 = ndyl * (ny * re + buf);
-        if (c1 <= dx * dy && c2 <= dx && c3 <= dy) {
-          /*      printf("ndx %d ndy %d e %d \n",ndxl,ndy,el);
-             printf("nx ny buf re %d %d %d %f\n",nx,ny,buf,re);
-             printf("c1 c2 c3 rh1 rh2 rh3 %d %d %d %d %d %d
-             \n",c1,c2,c3,dx*dy,dx,dy); */
-          if (el > best_e) {
-            best_e = el;
-            best_ndx = ndxl;
-            best_re = re;
-          }
-        }
+	if (el < 0)
+	  re = 1 / ((float) (-el));
+	if (el > 0)
+	  re = (float) el;
+	ndyl = nd / (ndxl);
+	if (ndxl * ndyl < nd)
+	  ndyl = ndyl + 1;
+	c1 = nd * (nx * re + buf) * (ny * re + buf);
+	c2 = ndxl * (nx * re + buf);
+	c3 = ndyl * (ny * re + buf);
+	if (c1 <= dx * dy && c2 <= dx && c3 <= dy) {
+	  /*      printf("ndx %d ndy %d e %d \n",ndxl,ndy,el);
+	     printf("nx ny buf re %d %d %d %f\n",nx,ny,buf,re);
+	     printf("c1 c2 c3 rh1 rh2 rh3 %d %d %d %d %d %d \n",c1,c2,c3,dx*dy,dx,dy); */
+	  if (el > best_e) {
+	    best_e = el;
+	    best_ndx = ndxl;
+	    best_re = re;
+	  }
+	}
       }
     }
   }
@@ -129,9 +129,10 @@ void InitXGraphics(int argc, char **argv, int ny, int nx, int nd,
   dx = best_ndx * (nx * best_re + buf) + 10;
   dy = best_ndy * (ny * best_re + buf) + 60;
 
-  window = XCreateSimpleWindow(display, RootWindow(display, screen), 0, 0, dx,
-                               dy, border_width, WhitePixel(display, screen),
-                               WhitePixel(display, screen));
+  window = XCreateSimpleWindow(display, RootWindow(display, screen),
+			       0, 0, dx, dy, border_width,
+			       WhitePixel(display, screen),
+			       WhitePixel(display, screen));
   size_hints.flags = PPosition | PSize | PMinSize | PMaxSize;
   size_hints.x = 0;
   size_hints.y = 0;
@@ -142,8 +143,8 @@ void InitXGraphics(int argc, char **argv, int ny, int nx, int nd,
   size_hints.max_width = DisplayWidth(display, screen);
   size_hints.max_height = DisplayHeight(display, screen);
 
-  XSetStandardProperties(display, window, window_name, window_name, None, NULL,
-                         0, &size_hints);
+  XSetStandardProperties(display, window, window_name,
+			 window_name, None, NULL, 0, &size_hints);
 
   black = XBlackPixel(display, screen);
   white = XWhitePixel(display, screen);
@@ -201,19 +202,19 @@ void InitXGraphics(int argc, char **argv, int ny, int nx, int nd,
 
   /* initialize the memory used solely by the drawing functions */
 
-  if (!((*MetMap) = (MET_MAP_PIX **)calloc(ny, sizeof(MET_MAP_PIX *))))
+  if (!((*MetMap) = (MET_MAP_PIX **) calloc(ny, sizeof(MET_MAP_PIX *))))
     ReportError("InitXGraphics", 1);
 
   for (y = 0; y < ny; y++) {
-    if (!((*MetMap)[y] = (MET_MAP_PIX *)calloc(nx, sizeof(MET_MAP_PIX))))
+    if (!((*MetMap)[y] = (MET_MAP_PIX *) calloc(nx, sizeof(MET_MAP_PIX))))
       ReportError("InitXGraphics", 1);
   }
 
-  if ((temp_array = (float **)malloc(ny * sizeof(float *))) == NULL) {
+  if ((temp_array = (float **) malloc(ny * sizeof(float *))) == NULL) {
     ReportError("draw.c", 1);
   }
   for (y = 0; y < ny; y++) {
-    if ((temp_array[y] = (float *)malloc(nx * sizeof(float))) == NULL) {
+    if ((temp_array[y] = (float *) malloc(nx * sizeof(float))) == NULL) {
       ReportError("draw.c", 1);
     }
   }

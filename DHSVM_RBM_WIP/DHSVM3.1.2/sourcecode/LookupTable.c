@@ -12,19 +12,19 @@
  * FUNCTIONS:    init_float_table()
  *               float float_lookup(float x, FLOATTABLE *table)
  * COMMENTS:
- * $Id: LookupTable.c,v 1.4 2003/07/01 21:26:19 olivier Exp $
+ * $Id: LookupTable.c,v 1.4 2003/07/01 21:26:19 olivier Exp $     
  */
 
-#include "DHSVMerror.h"
-#include "lookuptable.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "lookuptable.h"
+#include "DHSVMerror.h"
 
 /*****************************************************************************
   Function name: InitFloatTable()
 
   Purpose      : Initialize a table structure
-
+                 
   Required     :
     unsigned long Size        - Number of entries in the lookup table
     float Offset              - Value of key for first entry in the table
@@ -39,7 +39,8 @@
   Comments     :
 *****************************************************************************/
 void InitFloatTable(unsigned long Size, float Offset, float Delta,
-                    float (*Function)(float), FLOATTABLE *Table) {
+		    float (*Function) (float), FLOATTABLE * Table)
+{
   int i;
   float x;
 
@@ -60,8 +61,8 @@ void InitFloatTable(unsigned long Size, float Offset, float Delta,
   Function name: FloatLookup()
 
   Purpose      : Lookup a table entry corresponding to key x
-
-  Required     :
+                 
+  Required     : 
     float x           - key to be looked up
     FLOATTABLE *Table - Table structure that contains the entries
 
@@ -71,10 +72,11 @@ void InitFloatTable(unsigned long Size, float Offset, float Delta,
 
   Comments     :
 *****************************************************************************/
-float FloatLookup(float x, FLOATTABLE *Table) {
+float FloatLookup(float x, FLOATTABLE * Table)
+{
   int i;
 
-  i = (int)(((x - Table->Offset) / Table->Delta));
+  i = (int) (((x - Table->Offset) / Table->Delta));
   if (i < 0 || i >= Table->Size) {
     sprintf(errorstr, "FloatLookup: attempting lookup of value %f \n", x);
     ReportError(errorstr, 47);

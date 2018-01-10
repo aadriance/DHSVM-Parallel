@@ -10,31 +10,32 @@
  * DESCRIP-END.
  * FUNCTIONS:    ReadRadarMap()
  * COMMENTS:
- * $Id: ReadRadarMap.c,v 1.4 2003/07/01 21:26:22 olivier Exp $
+ * $Id: ReadRadarMap.c,v 1.4 2003/07/01 21:26:22 olivier Exp $     
  */
 
-#include "DHSVMerror.h"
-#include "constants.h"
-#include "data.h"
-#include "fileio.h"
-#include "functions.h"
-#include "settings.h"
-#include "sizeofnt.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "settings.h"
+#include "data.h"
+#include "DHSVMerror.h"
+#include "fileio.h"
+#include "functions.h"
+#include "constants.h"
+#include "sizeofnt.h"
 
 /*****************************************************************************
   ReadRadarMap()
 *****************************************************************************/
 
-void ReadRadarMap(DATE *Current, DATE *StartRadar, int Dt, MAPSIZE *Radar,
-                  RADARPIX **RadarMap, char *FileName) {
+void ReadRadarMap(DATE * Current, DATE * StartRadar, int Dt, MAPSIZE * Radar,
+		  RADARPIX ** RadarMap, char *FileName)
+{
   const char *Routine = "ReadRadarMap";
-  int i;          /* counter */
-  int x;          /* counter */
-  int y;          /* counter */
-  int RadarStep;  /* Location of current timestep in radarfile */
-  int NumberType; /* number type */
+  int i;			/* counter */
+  int x;			/* counter */
+  int y;			/* counter */
+  int RadarStep;		/* Location of current timestep in radarfile */
+  int NumberType;		/* number type */
   void *Array;
 
   if (DEBUG)
@@ -42,9 +43,9 @@ void ReadRadarMap(DATE *Current, DATE *StartRadar, int Dt, MAPSIZE *Radar,
 
   NumberType = NC_FLOAT;
 
-  if (!(Array = (float *)calloc(Radar->NY * Radar->NX,
-                                SizeOfNumberType(NumberType))))
-    ReportError((char *)Routine, 1);
+  if (!(Array = (float *) calloc(Radar->NY * Radar->NX,
+				 SizeOfNumberType(NumberType))))
+    ReportError((char *) Routine, 1);
 
   RadarStep = NumberOfSteps(StartRadar, Current, Dt);
 
@@ -54,7 +55,7 @@ void ReadRadarMap(DATE *Current, DATE *StartRadar, int Dt, MAPSIZE *Radar,
 
   for (y = 0, i = 0; y < Radar->NY; y++)
     for (x = 0; x < Radar->NX; x++, i++)
-      RadarMap[y][x].Precip = ((float *)Array)[i];
+      RadarMap[y][x].Precip = ((float *) Array)[i];
 
   free(Array);
 }

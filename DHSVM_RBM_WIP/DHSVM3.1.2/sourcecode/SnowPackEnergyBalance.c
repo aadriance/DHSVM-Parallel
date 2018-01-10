@@ -10,17 +10,17 @@
  * DESCRIP-END.
  * FUNCTIONS:    SnowPackEnergyBalance()
  * COMMENTS:
- * $Id: SnowPackEnergyBalance.c,v 1.4 2003/07/01 21:26:25 olivier Exp $
+ * $Id: SnowPackEnergyBalance.c,v 1.4 2003/07/01 21:26:25 olivier Exp $     
  */
 
-#include "constants.h"
-#include "functions.h"
-#include "massenergy.h"
-#include "settings.h"
-#include "snow.h"
 #include <math.h>
 #include <stdarg.h>
 #include <stdlib.h>
+#include "settings.h"
+#include "constants.h"
+#include "massenergy.h"
+#include "snow.h"
+#include "functions.h"
 
 /*****************************************************************************
   Function name: SnowPackEnergyBalance()
@@ -36,58 +36,59 @@
   Returns      :
     float RestTerm        - Rest term in the energy balance
 
-  Modifies     :
-    float *RefreezeEnergy - Refreeze energy (W/m2)
+  Modifies     : 
+    float *RefreezeEnergy - Refreeze energy (W/m2) 
     float *VaporMassFlux  - Mass flux of water vapor to or from the
-                            intercepted snow
+                            intercepted snow 
 
   Comments     :
     Reference:  Bras, R. A., Hydrology, an introduction to hydrologic
                 science, Addisson Wesley, Inc., Reading, etc., 1990.
 *****************************************************************************/
-float SnowPackEnergyBalance(float TSurf, va_list ap) {
+float SnowPackEnergyBalance(float TSurf, va_list ap)
+{
   /* start of list of arguments in variable argument list */
 
-  int Dt;                   /* Model time step (hours) */
-  float Ra;                 /* Aerodynamic resistance (s/m) */
-  float Z;                  /* Reference height (m) */
-  float Displacement;       /* Displacement height (m) */
-  float Z0;                 /* Roughness length (m) */
-  float Wind;               /* Wind speed (m/s) */
-  float ShortRad;           /* Net incident shortwave radiation (W/m2) */
-  float LongRadIn;          /* Incoming longwave radiation (W/m2) */
-  float AirDens;            /* Density of air (kg/m3) */
-  float Lv;                 /* Latent heat of vaporization (J/kg3) */
-  float Tair;               /* Air temperature (C) */
-  float Press;              /* Air pressure (Pa) */
-  float Vpd;                /* Vapor pressure deficit (Pa) */
-  float EactAir;            /* Actual vapor pressure of air (Pa) */
-  float Rain;               /* Rain fall (m/timestep) */
-  float SweSurfaceLayer;    /* Snow water equivalent in surface layer (m)
-                             */
-  float SurfaceLiquidWater; /* Liquid water in the surface layer (m) */
-  float OldTSurf;           /* Surface temperature during previous time
-                               step */
-  float *RefreezeEnergy;    /* Refreeze energy (W/m2) */
-  float *VaporMassFlux;     /* Mass flux of water vapor to or from the
-                               intercepted snow */
+  int Dt;			/* Model time step (hours) */
+  float Ra;			/* Aerodynamic resistance (s/m) */
+  float Z;			/* Reference height (m) */
+  float Displacement;		/* Displacement height (m) */
+  float Z0;			/* Roughness length (m) */
+  float Wind;			/* Wind speed (m/s) */
+  float ShortRad;		/* Net incident shortwave radiation (W/m2) */
+  float LongRadIn;		/* Incoming longwave radiation (W/m2) */
+  float AirDens;		/* Density of air (kg/m3) */
+  float Lv;			/* Latent heat of vaporization (J/kg3) */
+  float Tair;			/* Air temperature (C) */
+  float Press;			/* Air pressure (Pa) */
+  float Vpd;			/* Vapor pressure deficit (Pa) */
+  float EactAir;		/* Actual vapor pressure of air (Pa) */
+  float Rain;			/* Rain fall (m/timestep) */
+  float SweSurfaceLayer;	/* Snow water equivalent in surface layer (m)
+				 */
+  float SurfaceLiquidWater;	/* Liquid water in the surface layer (m) */
+  float OldTSurf;		/* Surface temperature during previous time
+				   step */
+  float *RefreezeEnergy;	/* Refreeze energy (W/m2) */
+  float *VaporMassFlux;		/* Mass flux of water vapor to or from the
+				   intercepted snow */
 
   /* end of list of arguments in variable argument list */
 
-  float AdvectedEnergy;   /* Energy advected by precipitation (W/m2) */
-  float DeltaColdContent; /* Change in cold content (W/m2) */
-  float EsSnow;           /* saturated vapor pressure in the snow pack
-                             (Pa)  */
-  float LatentHeat;       /* Latent heat exchange at surface (W/m2) */
-  float LongRadOut;       /* long wave radiation emitted by surface
-                             (W/m2) */
-  float Ls;               /* Latent heat of sublimation (J/kg) */
-  float NetRad;           /* Net radiation exchange at surface (W/m2) */
-  float RestTerm;         /* Rest term in surface energy balance
-                             (W/m2) */
-  float SensibleHeat;     /* Sensible heat exchange at surface (W/m2) */
-  float TMean;            /* Mean temperature during interval (C) */
-  double Tmp;             /* temporary variable */
+  float AdvectedEnergy;		/* Energy advected by precipitation (W/m2) */
+  float DeltaColdContent;	/* Change in cold content (W/m2) */
+  float EsSnow;			/* saturated vapor pressure in the snow pack
+				   (Pa)  */
+  float LatentHeat;		/* Latent heat exchange at surface (W/m2) */
+  float LongRadOut;		/* long wave radiation emitted by surface
+				   (W/m2) */
+  float Ls;			/* Latent heat of sublimation (J/kg) */
+  float NetRad;			/* Net radiation exchange at surface (W/m2) */
+  float RestTerm;		/* Rest term in surface energy balance
+				   (W/m2) */
+  float SensibleHeat;		/* Sensible heat exchange at surface (W/m2) */
+  float TMean;			/* Mean temperature during interval (C) */
+  double Tmp;			/* temporary variable */
 
   /* Assign the elements of the array to the appropriate variables.  The list
      is traversed as if the elements are doubles, because:
@@ -97,30 +98,30 @@ float SnowPackEnergyBalance(float TSurf, va_list ap) {
      always promoted (widened) to type double, and types char and short int
      are promoted to int. Therefore, it is never correct to invoke
      va_arg(argp, float); instead you should always use va_arg(argp,
-     double).
+     double). 
 
      (quoted from the comp.lang.c FAQ list)
    */
   Dt = va_arg(ap, int);
-  Ra = (float)va_arg(ap, double);
-  Z = (float)va_arg(ap, double);
-  Displacement = (float)va_arg(ap, double);
-  Z0 = (float)va_arg(ap, double);
-  Wind = (float)va_arg(ap, double);
-  ShortRad = (float)va_arg(ap, double);
-  LongRadIn = (float)va_arg(ap, double);
-  AirDens = (float)va_arg(ap, double);
-  Lv = (float)va_arg(ap, double);
-  Tair = (float)va_arg(ap, double);
-  Press = (float)va_arg(ap, double);
-  Vpd = (float)va_arg(ap, double);
-  EactAir = (float)va_arg(ap, double);
-  Rain = (float)va_arg(ap, double);
-  SweSurfaceLayer = (float)va_arg(ap, double);
-  SurfaceLiquidWater = (float)va_arg(ap, double);
-  OldTSurf = (float)va_arg(ap, double);
-  RefreezeEnergy = (float *)va_arg(ap, double *);
-  VaporMassFlux = (float *)va_arg(ap, double *);
+  Ra = (float) va_arg(ap, double);
+  Z = (float) va_arg(ap, double);
+  Displacement = (float) va_arg(ap, double);
+  Z0 = (float) va_arg(ap, double);
+  Wind = (float) va_arg(ap, double);
+  ShortRad = (float) va_arg(ap, double);
+  LongRadIn = (float) va_arg(ap, double);
+  AirDens = (float) va_arg(ap, double);
+  Lv = (float) va_arg(ap, double);
+  Tair = (float) va_arg(ap, double);
+  Press = (float) va_arg(ap, double);
+  Vpd = (float) va_arg(ap, double);
+  EactAir = (float) va_arg(ap, double);
+  Rain = (float) va_arg(ap, double);
+  SweSurfaceLayer = (float) va_arg(ap, double);
+  SurfaceLiquidWater = (float) va_arg(ap, double);
+  OldTSurf = (float) va_arg(ap, double);
+  RefreezeEnergy = (float *) va_arg(ap, double *);
+  VaporMassFlux = (float *) va_arg(ap, double *);
 
   /* Calculate active temp for energy balance as average of old and new  */
 
@@ -130,7 +131,7 @@ float SnowPackEnergyBalance(float TSurf, va_list ap) {
      Note: If air temp >> snow temp then aero_cond -> 0 (i.e. very stable)
      velocity (vel_2m) is expected to be in m/sec */
 
-  /* Apply the stability correction to the aerodynamic resistance
+  /* Apply the stability correction to the aerodynamic resistance 
      NOTE: In the old code 2m was passed instead of Z-Displacement.  I (bart)
      think that it is more correct to calculate ALL fluxes at the same
      reference level */
@@ -152,7 +153,7 @@ float SnowPackEnergyBalance(float TSurf, va_list ap) {
 
   /* Calculate the mass flux of ice to or from the surface layer */
 
-  /* Calculate the saturated vapor pressure in the snow pack,
+  /* Calculate the saturated vapor pressure in the snow pack, 
      (Equation 3.32, Bras 1990) */
 
   EsSnow = SatVaporPressure(TMean);
@@ -167,13 +168,14 @@ float SnowPackEnergyBalance(float TSurf, va_list ap) {
   if (TMean >= 0.0) {
     /* Melt conditions: use latent heat of vaporization */
     LatentHeat = Lv * *VaporMassFlux * WATER_DENSITY;
-  } else {
+  }
+  else {
     /* Accumulation: use latent heat of sublimation (Eq. 3.19, Bras 1990 */
     Ls = (677. - 0.07 * TMean) * JOULESPCAL * GRAMSPKG;
     LatentHeat = Ls * *VaporMassFlux * WATER_DENSITY;
   }
 
-  /* Calculate advected heat flux from rain
+  /* Calculate advected heat flux from rain 
      WORK IN PROGRESS:  Should the following read (Tair - Tsurf) ?? */
 
   AdvectedEnergy = (CH_WATER * Tair * Rain) / Dt;
@@ -184,18 +186,19 @@ float SnowPackEnergyBalance(float TSurf, va_list ap) {
 
   /* Calculate net energy exchange at the snow surface */
 
-  RestTerm =
-      NetRad + SensibleHeat + LatentHeat + AdvectedEnergy - DeltaColdContent;
+  RestTerm = NetRad + SensibleHeat + LatentHeat + AdvectedEnergy -
+    DeltaColdContent;
 
   *RefreezeEnergy = (SurfaceLiquidWater * LF * WATER_DENSITY) / Dt;
 
   if (fequal(TSurf, 0.0) && RestTerm > -(*RefreezeEnergy)) {
-    *RefreezeEnergy = -RestTerm; /* available energy input over cold content
-                                    used to melt, i.e. Qrf is negative value
-                                    (energy out of pack) */
+    *RefreezeEnergy = -RestTerm;	/* available energy input over cold content
+					   used to melt, i.e. Qrf is negative value
+					   (energy out of pack) */
     RestTerm = 0.0;
-  } else {
-    RestTerm += *RefreezeEnergy; /* add this positive value to the pack */
+  }
+  else {
+    RestTerm += *RefreezeEnergy;	/* add this positive value to the pack */
   }
 
   return RestTerm;
