@@ -56,7 +56,7 @@ void RouteDebrisFlow(float *SedimentToChannel, int y, int x, float SlopeAspect,
   Channel *CurrentSeg;
   char Continue, Match;
   int SearchRadius, Flag;
-  int i, j, curr_inti, curr_intj, next_inti, next_intj;
+  int i, j, curr_inti = 0, curr_intj = 0, next_inti = 0, next_intj = 0;
   int MaxRadius = 200;
   float SedimentMass[NSEDSIZES];
 
@@ -234,9 +234,9 @@ Channel *Find_Next_Segment(ChannelMapPtr **map, int curr_col, int curr_row,
   ChannelMapPtr next_cell = map[next_col][next_row];
   float test;
   int i;
-  float CurrentAspect, NextAspect;
-  Channel *CurrPtr;
-  Channel *NextPtr;
+  float CurrentAspect = 0, NextAspect = 0;
+  Channel *CurrPtr = NULL;
+  Channel *NextPtr = NULL;
 
   while (curr_cell != NULL) {
     if (curr_cell->channel->id == CurrentID) {
@@ -316,7 +316,7 @@ Channel *Find_First_Segment(ChannelMapPtr **map, int col, int row,
   ChannelMapPtr cell = map[col][row];
   float test;
   float DeltaAspect;
-  Channel *Ptr;
+  Channel *Ptr = NULL;
 
   DeltaAspect = 2. * PI;
 
@@ -860,7 +860,7 @@ double channel_grid_flowslope(ChannelMapPtr **map, int col, int row) {
 
 ChannelClass *channel_grid_class(ChannelMapPtr **map, int col, int row) {
   ChannelMapPtr cell = map[col][row];
-  ChannelClass *pntr;
+  ChannelClass *pntr = NULL;
   double area;
   double maxarea = 0.0;
 

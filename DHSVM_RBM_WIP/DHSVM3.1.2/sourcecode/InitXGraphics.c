@@ -41,7 +41,7 @@ void InitXGraphics(int argc, char **argv, int ny, int nx, int nd,
   int i, x, y, screen; /* screen is an int. */
   int border_width;
   int c1, c2, c3;
-  float re, best_re;
+  float re = 0, best_re = 0;
   long dy, dx;
   int best_e, best_ndx, best_ndy;
   int el, ndxl, ndyl;

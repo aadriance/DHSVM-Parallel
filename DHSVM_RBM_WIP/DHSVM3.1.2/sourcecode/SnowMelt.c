@@ -26,7 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static float CalcSnowPackEnergyBalance(float Tsurf, ...);
+static float CalcSnowPackEnergyBalance(double Tsurf, ...);
 
 /*****************************************************************************
   Function name: SnowMelt()
@@ -377,7 +377,7 @@ float SnowMelt(int y, int x, int Dt, float Z, float Displacement, float Z0,
 
   Comments     : function is local to this module
 *****************************************************************************/
-static float CalcSnowPackEnergyBalance(float Tsurf, ...) {
+static float CalcSnowPackEnergyBalance(double Tsurf, ...) {
   va_list ap; /* Used in traversing variable argument list
                */
   float Qnet; /* Net energy exchange at the SnowPack snow

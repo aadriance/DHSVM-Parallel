@@ -147,6 +147,7 @@ int main(int argc, char **argv) {
   SOLARGEOMETRY SolarGeo; /* Geometry of Sun-Earth system (needed for INLINE
                              radiation calculations */
   TIMESTRUCT Time;
+  Time.NSETotalSteps = 0;
   TOPOPIX **TopoMap = NULL;
   UNITHYDR **UnitHydrograph = NULL;
   UNITHYDRINFO HydrographInfo; /* Information about unit hydrograph */

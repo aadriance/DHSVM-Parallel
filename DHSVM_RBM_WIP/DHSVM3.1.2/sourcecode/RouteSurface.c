@@ -75,8 +75,8 @@ void RouteSurface(MAPSIZE *Map, TIMESTRUCT *Time, TOPOPIX **TopoMap,
                      channel cells*/
   double sedoutflow;     /* Outflow used for sediment routing purposes (m3/s) */
   float VariableDT;      /* Maximum stable time step (s) */
-  float **SedIn, SedOut; /* (m3/m3) */
-  float DR;              /* Potential erosion due to leaf drip */
+  float **SedIn = NULL, SedOut; /* (m3/m3) */
+  float DR = 0;              /* Potential erosion due to leaf drip */
   float DS;              /* Median particle diameter (m) */
   float Cd;              /* Drag coefficient */
   float vs, vs_last;     /* Settling velocity (m/s)*/

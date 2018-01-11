@@ -295,7 +295,7 @@ void InitVegMap(OPTIONSTRUCT *Options, LISTPTR Input, MAPSIZE *Map,
   /* Get the map filename from the [VEGETATION] section */
   GetInitString("VEGETATION", "VEGETATION MAP FILE", "", VegMapFileName,
                 (unsigned long)BUFSIZE, Input);
-  if (!VegMapFileName)
+  if (VegMapFileName == NULL)
     ReportError("VEGETATION MAP FILE", 51);
 
   /* Read the vegetation type */

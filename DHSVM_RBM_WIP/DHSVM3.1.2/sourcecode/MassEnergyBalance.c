@@ -138,7 +138,7 @@ void MassEnergyBalance(OPTIONSTRUCT *Options, int y, int x,
                             8.87, 8.91, 8.96, 9.02, 9.07, 9.13};
   /* Drip fall velocity corresponding to
   CanopyHeight after Epema and Riezebos (1983) (m/s)*/
-  float LD_FallVelocity; /* Leaf drip fall velocity corresponding to the
+  float LD_FallVelocity = 0; /* Leaf drip fall velocity corresponding to the
                          canopy height in vegetation map (m/s) */
 
   /* Calculate the number of vegetation layers above the snow */

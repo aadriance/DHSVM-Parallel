@@ -80,7 +80,7 @@ void RadiationBalance(OPTIONSTRUCT *Options, int HeatFluxOption,
                       VEGTABLE *VType, SNOWPIX *LocalSnow, PIXRAD *LocalRad) {
   float F;          /* Fraction of pixel covered by top canopy layer [0-1] */
   float Albedo[2];  /* Albedo of each layer */
-  float Tau;        /* Transmittance for overstory vegetation layer */
+  float Tau = 0;        /* Transmittance for overstory vegetation layer */
   float Taub, Taud; /* Transmittance for overstory vegetation layer for
                                direct and diffuse radiation, respectively */
   float Tsurf;      /* Surface temperature (C) */

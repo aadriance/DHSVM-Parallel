@@ -15,7 +15,7 @@
 
 #ifndef BRENT_H
 #define BRENT_H
-
+#include <stdarg.h>
 float RootBrent(int y, int x, float LowerBound, float UpperBound,
 		float (*Function) (float Estimate, va_list ap), ...);
 

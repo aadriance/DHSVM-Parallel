@@ -223,11 +223,11 @@ void RouteChannelSediment(Channel *Head, TIMESTRUCT Time, DUMPSTRUCT *Dump,
                  differences between current and previous steps */
               if (Current->sediment.inflowrate[i] > 0 ||
                   Current->sediment.last_inflowrate[i] > 0) {
-                if (abs(1 - Current->sediment.last_inflowrate[i] /
+                if (fabsf(1 - Current->sediment.last_inflowrate[i] /
                                 Current->sediment.inflowrate[i]) > 0.75 ||
-                    abs(1 - Current->sediment.inflowrate[i] /
+                    fabsf(1 - Current->sediment.inflowrate[i] /
                                 Current->sediment.last_inflowrate[i]) > 0.75 ||
-                    abs(1 - Current->sediment.outflowrate[i] /
+                    fabsf(1 - Current->sediment.outflowrate[i] /
                                 Current->sediment.inflowrate[i]) > 0.7)
                   theta = 1.0;
                 else
@@ -237,7 +237,7 @@ void RouteChannelSediment(Channel *Head, TIMESTRUCT Time, DUMPSTRUCT *Dump,
 
               mass_error = 1.;
               error_count = 0;
-              while (abs(mass_error) > 0.1) {
+              while (fabsf(mass_error) > 0.1) {
                 if (error_count > 0)
                   theta = 1.;
 
@@ -302,7 +302,7 @@ void RouteChannelSediment(Channel *Head, TIMESTRUCT Time, DUMPSTRUCT *Dump,
                   dMdt += Current->sediment.outflowrate[i] - TotalCapacity;
                   Current->sediment.outflowrate[i] = TotalCapacity;
 
-                  if (abs(mass_error) > 0.1) {
+                  if (fabsf(mass_error) > 0.1) {
                     sediment_mass_adjust =
                         (dMdt - (Current->sediment.inflowrate[i] +
                                  lateral_sed_inflow_rate -

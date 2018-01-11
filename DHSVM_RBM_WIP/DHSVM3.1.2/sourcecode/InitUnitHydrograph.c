@@ -67,7 +67,7 @@ void InitUnitHydrograph(LISTPTR Input, MAPSIZE *Map, TOPOPIX **TopoMap,
   for (i = 0; StrEnv[i].SectionName; i++) {
     GetInitString(StrEnv[i].SectionName, StrEnv[i].KeyName, StrEnv[i].Default,
                   StrEnv[i].VarStr, (unsigned long)BUFSIZE, Input);
-    if (!StrEnv[i].VarStr)
+    if (StrEnv[i].VarStr == NULL)
       ReportError(StrEnv[i].KeyName, 51);
   }
 

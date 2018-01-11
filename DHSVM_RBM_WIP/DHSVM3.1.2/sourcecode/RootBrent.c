@@ -20,7 +20,6 @@
 #include "massenergy.h"
 #include "settings.h"
 #include <math.h>
-#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -87,22 +86,22 @@ float RootBrent(int y, int x, float LowerBound, float UpperBound,
   char ErrorString[MAXSTRING + 1];
   va_list ap; /* Used in traversing variable argument list
                */
-  float a;
-  float b;
-  float c;
-  float d;
-  float e;
-  float fa;
-  float fb;
-  float fc;
-  float m;
-  float p;
-  float q;
-  float r;
-  float s;
-  float tol;
-  int i;
-  int j;
+  float a = 0;
+  float b = 0;
+  float c = 0;
+  float d = 0;
+  float e = 0;
+  float fa = 0;
+  float fb = 0;
+  float fc = 0;
+  float m = 0;
+  float p = 0;
+  float q = 0;
+  float r = 0;
+  float s = 0;
+  float tol = 0;
+  int i = 0;
+  int j = 0;
   int eval = 0;
 
   sprintf(ErrorString, "%s: y = %d, x = %d", Routine, y, x);
@@ -211,4 +210,5 @@ float RootBrent(int y, int x, float LowerBound, float UpperBound,
     }
   }
   ReportError(ErrorString, 33);
+  return 0;
 }

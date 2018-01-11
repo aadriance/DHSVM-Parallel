@@ -380,7 +380,7 @@ void HeadSlopeAspect(MAPSIZE *Map, TOPOPIX **TopoMap, SOILPIX **SoilMap,
 float ElevationSlope(MAPSIZE *Map, TOPOPIX **TopoMap, FINEPIX ***FineMap, int y,
                      int x, int *nexty, int *nextx, int prevy, int prevx,
                      float *Aspect) {
-  int n, direction;
+  int n, direction = 0;
   float soil_elev[NNEIGHBORS];
   float bedrock_elev[NNEIGHBORS];
   float Slope;
