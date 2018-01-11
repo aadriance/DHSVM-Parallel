@@ -46,11 +46,11 @@ REL=
  
 DEFS =  -DHAVE_X11 
 #possible DEFS -DHAVE_NETCDF -DHAVE_X11 -DSHOW_MET_ONLY -DSNOW_ONLY
-CC = gcc-7
-IGNORE = -Wno-unused-function -Wno-unused-variable -Wno-unused-but-set-variable -Wno-format-overflow -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast 
+CC = icc
+#IGNORE = -Wno-unused-function -Wno-unused-variable -Wno-unused-but-set-variable -Wno-format-overflow -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast 
 #CC = clang
 #IGNORE = -Wno-tautological-pointer-compare -Wno-unused-function -Wno-unused-variable -Wno-unused-const-variable -Wno-shift-overflow -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast
-CFLAGS = -g -I/usr/X11R6/include -Wall -Werror -I/usr/local/include/ $(IGNORE) $(DEFS)
+CFLAGS = -O3 -g -I/usr/X11R6/include -Wall -I/usr/local/include/ $(DEFS)
 
 FLEX = /usr/bin/flex
 LIBS = -lm -L/usr/X11R6/lib -lX11 -L/sw/lib -L/usr/local/lib
