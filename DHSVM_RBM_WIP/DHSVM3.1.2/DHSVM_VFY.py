@@ -1,6 +1,7 @@
 import filecmp
 import resource
 import subprocess
+import sys
 from difflib import SequenceMatcher
 
 def runDHSVM():
@@ -10,7 +11,7 @@ def runDHSVM():
     #for line in process.stdout:
     #    print(line)
     info = resource.getrusage(resource.RUSAGE_CHILDREN)
-    print('\nRan for ', info.ru_utime, ' seconds.')
+    #print('\nRan for ', info.ru_utime, ' seconds.')
 
 def compareFiles():
     filesToCompare = ['Aggregated.Values',
@@ -31,6 +32,8 @@ def compareFiles():
         'VP.Only',
         'WND.Only']
     truthFolder = 'ValidOut'
+    if len(sys.argv) > 1:
+        truthFolder += '_icc'
     compareFolder = 'output'
     match, mismatch, errors = filecmp.cmpfiles(truthFolder, compareFolder, filesToCompare, shallow=True)
     print('Mismatched: ', mismatch)

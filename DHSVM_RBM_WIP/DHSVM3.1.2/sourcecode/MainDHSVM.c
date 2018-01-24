@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <omp.h>
 
 /******************************************************************************/
 /*				GLOBAL VARIABLES                              */
@@ -58,28 +59,29 @@ int main(int argc, char **argv) {
   unsigned char ***ShadowMap = NULL;
   float **SkyViewMap = NULL;
   float ***WindModel = NULL;
-  int MaxStreamID, MaxRoadID;
-  float SedDiams[NSEDSIZES]; /* Sediment particle diameters (mm) */
+  int MaxStreamID = 0, MaxRoadID = 0;
+  float SedDiams[NSEDSIZES] = {0}; /* Sediment particle diameters (mm) */
   clock_t start, finish1;
   double runtime = 0.0;
   int t = 0;
-  float roadarea;
+  float roadarea = 0;
   time_t tloc;
-  int flag;
-  int i;
-  int j;
-  int x;            /* row counter */
-  int y;            /* column counter */
-  int shade_offset; /* a fast way of handling arraay position given the number
+  int flag = 0;
+  int j = 0;
+  int shade_offset = 0; /* a fast way of handling arraay position given the number
                        of mm5 input options */
-  int NStats;       /* Number of meteorological stations */
+  int NStats = 0;       /* Number of meteorological stations */
   uchar ***MetWeights = NULL; /* 3D array with weights for interpolating
                                  meteorological variables between the stations
                                */
 
-  int NGraphics;       /* number of graphics for X11 */
-  int *which_graphics; /* which graphics for X11 */
-  char buffer[32];
+  int NGraphics = 0;       /* number of graphics for X11 */
+  int *which_graphics = NULL; /* which graphics for X11 */
+  char buffer[32] = {0};
+  
+  struct timespec tstart, tfinish;
+  double elapsed;
+  clock_gettime(CLOCK_MONOTONIC, &tstart);
 
   AGGREGATED Total = {
       /* Total or average value of a  variable over the entire basin */
@@ -117,19 +119,19 @@ int main(int argc, char **argv) {
                          NULL, NULL, NULL, NULL, NULL, NULL, NULL,
                          NULL, NULL, NULL, NULL, NULL, NULL, NULL,
                          NULL, NULL, NULL, NULL, NULL, NULL, NULL};
-  DUMPSTRUCT Dump;
+  DUMPSTRUCT Dump = {0};
   EVAPPIX **EvapMap = NULL;
-  INPUTFILES InFiles;
-  LAYER Soil;
-  LAYER Veg;
+  INPUTFILES InFiles = {0};
+  LAYER Soil = {0};
+  LAYER Veg = {0};
   LISTPTR Input = NULL; /* Linked list with input strings */
-  MAPSIZE Map;          /* Size and location of model area */
-  MAPSIZE Radar;  /* Size and location of area covered by precipitation radar */
-  MAPSIZE MM5Map; /* Size and location of area covered by MM5 input files */
+  MAPSIZE Map = {0};          /* Size and location of model area */
+  MAPSIZE Radar = {0};  /* Size and location of area covered by precipitation radar */
+  MAPSIZE MM5Map = {0}; /* Size and location of area covered by MM5 input files */
   METLOCATION *Stat = NULL;
   OPTIONSTRUCT
-      Options; /* Structure with information which program options to follow */
-  PIXMET LocalMet; /* Meteorological conditions for current pixel */
+      Options = {0}; /* Structure with information which program options to follow */
+  PIXMET LocalMet = {0}; /* Meteorological conditions for current pixel */
   FINEPIX ***FineMap = NULL;
   PRECIPPIX **PrecipMap = NULL;
   RADARPIX **RadarMap = NULL;
@@ -144,13 +146,12 @@ int main(int argc, char **argv) {
   SEDPIX **SedMap = NULL;
   SOILTABLE *SType = NULL;
   SEDTABLE *SedType = NULL;
-  SOLARGEOMETRY SolarGeo; /* Geometry of Sun-Earth system (needed for INLINE
+  SOLARGEOMETRY SolarGeo = {0}; /* Geometry of Sun-Earth system (needed for INLINE
                              radiation calculations */
-  TIMESTRUCT Time;
-  Time.NSETotalSteps = 0;
+  TIMESTRUCT Time = {0};
   TOPOPIX **TopoMap = NULL;
   UNITHYDR **UnitHydrograph = NULL;
-  UNITHYDRINFO HydrographInfo; /* Information about unit hydrograph */
+  UNITHYDRINFO HydrographInfo = {0}; /* Information about unit hydrograph */
   VEGPIX **VegMap = NULL;
   VEGTABLE *VType = NULL;
   WATERBALANCE Mass = /* parameter for mass balance calculations */
@@ -217,7 +218,7 @@ int main(int argc, char **argv) {
     printf("Warning: This requires that you have such a vegetation class in "
            "your vegetation table\n");
     printf("To disable this feature set Snotel OPTION to FALSE\n");
-    for (i = 0; i < NStats; i++) {
+    for (int i = 0; i < NStats; i++) {
       printf("veg type for station %d is %d ", i,
              VegMap[Stat[i].Loc.N][Stat[i].Loc.E].Veg);
       for (j = 0; j < Veg.NTypes; j++) {
@@ -358,9 +359,60 @@ int main(int argc, char **argv) {
       channel_step_initialize_network(ChannelData.streams);
       channel_step_initialize_network(ChannelData.roads);
     }
+  
+    //omp_set_num_threads(1);
+    #pragma omp parallel for
+    for (int y = 0; y < Map.NY; y++) {
+      for (int x = 0; x < Map.NX; x++) {
+        if (INBASIN(TopoMap[y][x].Mask)) {
+          PIXMET LoopMet;
+          if (Options.Shading)
+            LoopMet = MakeLocalMetData(
+                y, x, &Map, Time.DayStep, &Options, NStats, Stat,
+                MetWeights[y][x], TopoMap[y][x].Dem, &(RadMap[y][x]),
+                &(PrecipMap[y][x]), &Radar, RadarMap, PrismMap,
+                &(SnowMap[y][x]), SnowAlbedo, MM5Input, WindModel,
+                PrecipLapseMap, &MetMap, NGraphics, Time.Current.Month,
+                SkyViewMap[y][x], ShadowMap[Time.DayStep][y][x],
+                SolarGeo.SunMax, SolarGeo.SineSolarAltitude);
+          else
+            LoopMet = MakeLocalMetData(
+                y, x, &Map, Time.DayStep, &Options, NStats, Stat,
+                MetWeights[y][x], TopoMap[y][x].Dem, &(RadMap[y][x]),
+                &(PrecipMap[y][x]), &Radar, RadarMap, PrismMap,
+                &(SnowMap[y][x]), SnowAlbedo, MM5Input, WindModel,
+                PrecipLapseMap, &MetMap, NGraphics, Time.Current.Month, 0.0,
+                0.0, SolarGeo.SunMax, SolarGeo.SineSolarAltitude);
 
-    for (y = 0; y < Map.NY; y++) {
-      for (x = 0; x < Map.NX; x++) {
+          for (int i = 0; i < Soil.MaxLayers; i++) {
+            if (Options.HeatFlux == TRUE) {
+              if (Options.MM5 == TRUE)
+                SoilMap[y][x].Temp[i] =
+                    MM5Input[shade_offset + i + N_MM5_MAPS][y][x];
+              else
+                SoilMap[y][x].Temp[i] = Stat[0].Data.Tsoil[i];
+            } else
+              SoilMap[y][x].Temp[i] = LoopMet.Tair;
+          }
+
+          MassEnergyBalance(&Options, y, x, SolarGeo.SineSolarAltitude, Map.DX,
+                            Map.DY, Time.Dt, Options.HeatFlux,
+                            Options.CanopyRadAtt, Options.RoadRouting,
+                            Options.Infiltration, Veg.MaxLayers, &LoopMet,
+                            &(Network[y][x]), &(PrecipMap[y][x]),
+                            &(VType[VegMap[y][x].Veg - 1]), &(VegMap[y][x]),
+                            &(SType[SoilMap[y][x].Soil - 1]), &(SoilMap[y][x]),
+                            &(SnowMap[y][x]), &(EvapMap[y][x]), &(Total.Rad),
+                            &ChannelData, SkyViewMap);
+
+          PrecipMap[y][x].SumPrecip += PrecipMap[y][x].Precip;
+        }
+      }
+    }
+
+    for(int y = Map.NY - 1; y <= 0; y--) {
+      int x;
+      for(x = Map.NX - 1; x <= 0; x--) {
         if (INBASIN(TopoMap[y][x].Mask)) {
           if (Options.Shading)
             LocalMet = MakeLocalMetData(
@@ -379,31 +431,11 @@ int main(int argc, char **argv) {
                 &(SnowMap[y][x]), SnowAlbedo, MM5Input, WindModel,
                 PrecipLapseMap, &MetMap, NGraphics, Time.Current.Month, 0.0,
                 0.0, SolarGeo.SunMax, SolarGeo.SineSolarAltitude);
-
-          for (i = 0; i < Soil.MaxLayers; i++) {
-            if (Options.HeatFlux == TRUE) {
-              if (Options.MM5 == TRUE)
-                SoilMap[y][x].Temp[i] =
-                    MM5Input[shade_offset + i + N_MM5_MAPS][y][x];
-              else
-                SoilMap[y][x].Temp[i] = Stat[0].Data.Tsoil[i];
-            } else
-              SoilMap[y][x].Temp[i] = LocalMet.Tair;
-          }
-
-          MassEnergyBalance(&Options, y, x, SolarGeo.SineSolarAltitude, Map.DX,
-                            Map.DY, Time.Dt, Options.HeatFlux,
-                            Options.CanopyRadAtt, Options.RoadRouting,
-                            Options.Infiltration, Veg.MaxLayers, &LocalMet,
-                            &(Network[y][x]), &(PrecipMap[y][x]),
-                            &(VType[VegMap[y][x].Veg - 1]), &(VegMap[y][x]),
-                            &(SType[SoilMap[y][x].Soil - 1]), &(SoilMap[y][x]),
-                            &(SnowMap[y][x]), &(EvapMap[y][x]), &(Total.Rad),
-                            &ChannelData, SkyViewMap);
-
-          PrecipMap[y][x].SumPrecip += PrecipMap[y][x].Precip;
+          break;
         }
       }
+      if (INBASIN(TopoMap[y][x].Mask))
+        break;
     }
 
     /* Average all RBM inputs over each segment */
@@ -515,6 +547,11 @@ int main(int argc, char **argv) {
          "days) \n",
          runtime / 3600, t * Time.Dt / 3600, (float)t * Time.Dt / 3600 / 24);
 
+  clock_gettime(CLOCK_MONOTONIC, &tfinish);
+  elapsed = (tfinish.tv_sec - tstart.tv_sec);
+  elapsed += (tfinish.tv_nsec - tstart.tv_nsec) / 1000000000.0;
+  fprintf(stderr, "\n\n\n");
+  fprintf(stderr, "\n\nRan for %lf seconds\n", elapsed);
   return EXIT_SUCCESS;
 }
 /*****************************************************************************
