@@ -32,14 +32,23 @@ void AggregateRadiation(int MaxVegLayers, int NVegL, PIXRAD *Rad,
 
   /* aggregate radiation data */
   for (i = 0; i < NVegL; i++) {
+    #pragma omp atomic
     TotalRad->NetShort[i] += Rad->NetShort[i];
+    #pragma omp atomic
     TotalRad->LongIn[i] += Rad->LongIn[i];
+    #pragma omp atomic
     TotalRad->LongOut[i] += Rad->LongOut[i];
   }
+  #pragma omp atomic
   TotalRad->NetShort[MaxVegLayers] += Rad->NetShort[NVegL];
+  #pragma omp atomic
   TotalRad->LongIn[MaxVegLayers] += Rad->LongIn[NVegL];
+  #pragma omp atomic
   TotalRad->LongOut[MaxVegLayers] += Rad->LongOut[NVegL];
+  #pragma omp atomic
   TotalRad->PixelNetShort += Rad->PixelNetShort;
+  #pragma omp atomic
   TotalRad->PixelLongIn += Rad->PixelLongIn;
+  #pragma omp atomic
   TotalRad->PixelLongOut += Rad->PixelLongOut;
 }

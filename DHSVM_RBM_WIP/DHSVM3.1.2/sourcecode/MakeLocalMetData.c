@@ -71,9 +71,9 @@ MakeLocalMetData(int y, int x, MAPSIZE *Map, int DayStep, OPTIONSTRUCT *Options,
   int i;               /* counter */
   int RadarX;          /* X coordinate of radar map coordinate */
   int RadarY;          /* Y coordinate of radar map coordinate */
-  float TempLapseRate;
+  float TempLapseRate = 0;
   int WindDirection = 0; /* Direction of model wind */
-  PIXMET LocalMet;       /* local met data */
+  PIXMET LocalMet = {0};       /* local met data */
 
   LocalMet.Tair = 0.0;
   LocalMet.Rh = 0.0;
@@ -130,7 +130,7 @@ MakeLocalMetData(int y, int x, MAPSIZE *Map, int DayStep, OPTIONSTRUCT *Options,
       if (Options->WindSource == STATION)
         LocalMet.Wind += CurrentWeight * Stat[i].Data.Wind;
       LocalMet.Lin += CurrentWeight * Stat[i].Data.Lin;
-      LocalMet.Sin += CurrentWeight * Stat[i].Data.Sin;
+      LocalMet.Sin += CurrentWeight * Stat[i].Data.Sin; /* Why does this fix the beam dependency. Stat is at fault*/
       if (Options->Shading == TRUE) {
         LocalMet.SinBeam += CurrentWeight * Stat[i].Data.SinBeamObs;
         LocalMet.SinDiffuse += CurrentWeight * Stat[i].Data.SinDiffuseObs;
@@ -321,6 +321,6 @@ MakeLocalMetData(int y, int x, MAPSIZE *Map, int DayStep, OPTIONSTRUCT *Options,
     (*MetMap)[y][x].wind_speed = LocalMet.Wind;
     (*MetMap)[y][x].humidity = LocalMet.Rh;
   }
-
+  
   return LocalMet;
 }

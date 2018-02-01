@@ -33,7 +33,7 @@ void ReadMetRecord(OPTIONSTRUCT *Options, DATE *Current, int NSoilLayers,
                    FILES *InFile, unsigned char IsWindModelLocation,
                    MET *MetRecord) {
   DATE MetDate;            /* Date of meteorological record */
-  float Array[MAXMETVARS]; /* Temporary storage of met variables */
+  float Array[MAXMETVARS] = {0}; /* Temporary storage of met variables */
   int i;
   int NMetVars; /* Number of meteorological variables to
                    read */

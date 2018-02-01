@@ -147,7 +147,6 @@ void InitStations(LISTPTR Input, MAPSIZE *Map, int NDaySteps,
   /* use temp counter k to track number of valid stations */
   k = 0;
   for (i = 0; i < *NStats; i++) {
-
     for (j = 0; j <= station_file; j++) {
       sprintf(KeyName[j], "%s %d", KeyStr[j], i + 1);
       GetInitString(SectionName, KeyName[j], "", VarStr[j],

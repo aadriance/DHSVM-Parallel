@@ -1040,22 +1040,33 @@ void channel_grid_inc_other(ChannelMapPtr **map, int col, int row,
 
   while (cell != NULL) {
     /* ISW is the total incoming shortwave radiation (VIC outputs) */
+    //#pragma omp atomic
     cell->channel->ISW += LocalRad->ObsShortIn;
 
+    //#pragma omp atomic
     cell->channel->NSW += LocalRad->RBMNetShort;
+    //#pragma omp atomic
     cell->channel->Beam += LocalRad->PixelBeam;
+    //#pragma omp atomic
     cell->channel->Diffuse += LocalRad->PixelDiffuse;
 
+    //#pragma omp atomic
     cell->channel->ILW += LocalRad->PixelLongIn;
+    //#pragma omp atomic
     cell->channel->NLW += LocalRad->RBMNetLong;
 
+    //#pragma omp atomic
     cell->channel->VP += LocalMet->Eact;
+    //#pragma omp atomic
     cell->channel->WND += LocalMet->Wind;
+    //#pragma omp atomic
     cell->channel->ATP += LocalMet->Tair;
 
+    //#pragma omp atomic
     cell->channel->azimuth +=
         cell->azimuth * cell->length / cell->channel->length;
-
+    
+    //#pragma omp atomic
     cell->channel->skyview += skyview;
 
     cell = cell->next;

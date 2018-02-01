@@ -30,13 +30,13 @@ void GetMetData(OPTIONSTRUCT *Options, TIMESTRUCT *Time, int NSoilLayers,
                 int NStats, float SunMax, METLOCATION *Stat, MAPSIZE *Radar,
                 RADARPIX **RadarMap, char *RadarFileName) {
   int i; /* counter */
-
   if (DEBUG)
     printf("Reading all met data for current timestep\n");
 
-  for (i = 0; i < NStats; i++)
+  for (i = 0; i < NStats; i++) {
     ReadMetRecord(Options, &(Time->Current), NSoilLayers, &(Stat[i].MetFile),
                   Stat[i].IsWindModelLocation, &(Stat[i].Data));
+  }
 
   if (Options->PrecipType == RADAR)
     ReadRadarMap(&(Time->Current), &(Time->StartRadar), Time->Dt, Radar,

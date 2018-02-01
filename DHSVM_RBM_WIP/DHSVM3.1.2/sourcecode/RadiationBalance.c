@@ -78,12 +78,12 @@ void RadiationBalance(OPTIONSTRUCT *Options, int HeatFluxOption,
                       float VIC_Rs, float Rs, float Rsb, float Rsd, float Ld,
                       float Tair, float Tcanopy, float Tsoil, float SoilAlbedo,
                       VEGTABLE *VType, SNOWPIX *LocalSnow, PIXRAD *LocalRad) {
-  float F;          /* Fraction of pixel covered by top canopy layer [0-1] */
-  float Albedo[2];  /* Albedo of each layer */
+  float F = 0;          /* Fraction of pixel covered by top canopy layer [0-1] */
+  float Albedo[2] = {0};  /* Albedo of each layer */
   float Tau = 0;        /* Transmittance for overstory vegetation layer */
-  float Taub, Taud; /* Transmittance for overstory vegetation layer for
+  float Taub = 0, Taud = 0; /* Transmittance for overstory vegetation layer for
                                direct and diffuse radiation, respectively */
-  float Tsurf;      /* Surface temperature (C) */
+  float Tsurf = 0;      /* Surface temperature (C) */
 
   F = VType->Fract[0];
   /*following added 08/13/2001 by Pascal Storck */
@@ -140,7 +140,7 @@ void RadiationBalance(OPTIONSTRUCT *Options, int HeatFluxOption,
       Tau = 0.;
   }
 
-  ShortwaveBalance(Options, VType->OverStory, F, Rs, Rsb, Rsd, Tau, Albedo,
+  ShortwaveBalance(Options, VType->OverStory, F, Rs, Rsb/*WHAT R UR SECRETS*/, Rsd, Tau, Albedo,
                    LocalRad);
 
   if (LocalSnow->HasSnow == TRUE)

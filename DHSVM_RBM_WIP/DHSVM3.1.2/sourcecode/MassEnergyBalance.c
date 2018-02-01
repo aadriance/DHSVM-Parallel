@@ -407,7 +407,6 @@ void MassEnergyBalance(OPTIONSTRUCT *Options, int y, int x,
 #endif
 
 /* add the water that was not intercepted to the upper soil layer */
-#ifdef NONEVER
 #ifndef NO_SOIL
 
   /* This has been modified so that PercArea for infiltration is calculated
@@ -564,7 +563,6 @@ void MassEnergyBalance(OPTIONSTRUCT *Options, int y, int x,
     NoSensibleHeatFlux(Dt, LocalMet, MoistureFlux, LocalSoil);
 
 #endif
-
   /* add the components of the radiation balance for the current pixel to
      the total */
   AggregateRadiation(MaxVegLayers, VType->NVegLayers, &LocalRad, TotalRad);
@@ -574,5 +572,4 @@ void MassEnergyBalance(OPTIONSTRUCT *Options, int y, int x,
       channel_grid_inc_other(ChannelData->stream_map, x, y, &LocalRad, LocalMet,
                              skyview[y][x]);
   }
-  #endif
 }

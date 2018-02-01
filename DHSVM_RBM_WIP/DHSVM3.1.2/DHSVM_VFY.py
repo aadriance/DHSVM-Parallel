@@ -33,7 +33,7 @@ def compareFiles():
         'WND.Only']
     truthFolder = 'ValidOut'
     if len(sys.argv) > 1:
-        truthFolder += '_icc'
+        truthFolder += '_' + sys.argv[1]
     compareFolder = 'output'
     match, mismatch, errors = filecmp.cmpfiles(truthFolder, compareFolder, filesToCompare, shallow=True)
     print('Mismatched: ', mismatch)
