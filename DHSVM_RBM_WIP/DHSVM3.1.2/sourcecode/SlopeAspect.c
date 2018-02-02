@@ -341,18 +341,16 @@ void qs(ITEM *item, int left, int right)
 void HeadSlopeAspect(MAPSIZE *Map, TOPOPIX **TopoMap, SOILPIX **SoilMap,
                      float **FlowGrad, unsigned char ***Dir,
                      unsigned int **TotalDir) {
-  int x;
-  int y;
-  int n;
-  float neighbor_elev[NNEIGHBORS];
 
   /* let's assume for now that WaterLevel is the SOILPIX map is
      computed elsewhere */
-  for (x = 0; x < Map->NX; x++) {
-    for (y = 0; y < Map->NY; y++) {
+  #pragma omp parallel for
+  for (int x = 0; x < Map->NX; x++) {
+    for (int y = 0; y < Map->NY; y++) {
       if (INBASIN(TopoMap[y][x].Mask)) {
-        float slope, aspect;
-        for (n = 0; n < NNEIGHBORS; n++) {
+        float slope = 0, aspect = 0;
+        float neighbor_elev[NNEIGHBORS] = {0};
+        for (int n = 0; n < NNEIGHBORS; n++) {
           int xn = x + xneighbor[n];
           int yn = y + yneighbor[n];
           if (valid_cell(Map, xn, yn)) {

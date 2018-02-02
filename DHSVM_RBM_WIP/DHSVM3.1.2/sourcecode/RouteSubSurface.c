@@ -159,6 +159,7 @@ void RouteSubSurface(int Dt, MAPSIZE *Map, TOPOPIX **TopoMap, VEGTABLE *VType,
   }
 
   /* reset the saturated subsurface flow to zero */
+  #pragma omp parallel for
   for (y = 0; y < Map->NY; y++) {
     for (x = 0; x < Map->NX; x++) {
       if (INBASIN(TopoMap[y][x].Mask)) {
