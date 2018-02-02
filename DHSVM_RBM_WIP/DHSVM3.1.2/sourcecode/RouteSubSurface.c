@@ -101,23 +101,11 @@ void RouteSubSurface(int Dt, MAPSIZE *Map, TOPOPIX **TopoMap, VEGTABLE *VType,
                      FINEPIX ***FineMap, SEDTABLE *SedType, int MaxStreamID,
                      SNOWPIX **SnowMap) {
   const char *Routine = "RouteSubSurface";
-  int x;                    /* counter */
-  int y;                    /* counter */
   int i, j, ii, jj, yy, xx; /* counters for FineMap initialization */
-  float BankHeight;
-  float *Adjust;
-  float fract_used;
-  float depth;
-  float OutFlow;
-  float water_out_road;
-  float Transmissivity;
-  float AvailableWater;
-  int k;
   float **SubFlowGrad;        /* Magnitude of subsurface flow gradient
                                  slope * width */
   unsigned char ***SubDir;    /* Fraction of flux moving in each direction*/
   unsigned int **SubTotalDir; /* Sum of Dir array */
-
   /* variables for mass wasting trigger. */
   int count, totalcount;
   float mgrid, sat;
@@ -160,8 +148,8 @@ void RouteSubSurface(int Dt, MAPSIZE *Map, TOPOPIX **TopoMap, VEGTABLE *VType,
 
   /* reset the saturated subsurface flow to zero */
   #pragma omp parallel for
-  for (y = 0; y < Map->NY; y++) {
-    for (x = 0; x < Map->NX; x++) {
+  for (int y = 0; y < Map->NY; y++) {
+    for (int x = 0; x < Map->NX; x++) {
       if (INBASIN(TopoMap[y][x].Mask)) {
         SoilMap[y][x].SatFlow = 0;
         /* ChannelInt and RoadInt are initialized in Aggregate.c Why are there
@@ -178,15 +166,23 @@ void RouteSubSurface(int Dt, MAPSIZE *Map, TOPOPIX **TopoMap, VEGTABLE *VType,
   /* next sweep through all the grid cells, calculate the amount of
      flow in each direction, and divide the flow over the surrounding
      pixels */
-
-  for (y = 0; y < Map->NY; y++) {
-    for (x = 0; x < Map->NX; x++) {
+  #pragma omp parallel for
+  for (int y = 0; y < Map->NY; y++) {
+    for (int x = 0; x < Map->NX; x++) {
+      float *Adjust;
+      float fract_used;
+      float water_out_road;
+      float BankHeight;
+      float depth;
+      float Transmissivity;
+      float AvailableWater;
+      float OutFlow;
       if (INBASIN(TopoMap[y][x].Mask)) {
 
         if (Options->FlowGradient == TOPOGRAPHY) {
           SubTotalDir[y][x] = TopoMap[y][x].TotalDir;
           SubFlowGrad[y][x] = TopoMap[y][x].FlowGrad;
-          for (k = 0; k < NDIRS; k++)
+          for (int k = 0; k < NDIRS; k++)
             SubDir[y][x][k] = TopoMap[y][x].Dir[k];
         }
 
@@ -198,7 +194,7 @@ void RouteSubSurface(int Dt, MAPSIZE *Map, TOPOPIX **TopoMap, VEGTABLE *VType,
         water_out_road = 0.0;
 
         if (!channel_grid_has_channel(ChannelData->stream_map, x, y)) {
-          for (k = 0; k < NDIRS; k++) {
+          for (int k = 0; k < NDIRS; k++) {
             fract_used += (float)SubDir[y][x][k];
             /* 	    fract_used += (float) TopoMap[y][x].Dir[k]; */
           }
@@ -297,7 +293,7 @@ void RouteSubSurface(int Dt, MAPSIZE *Map, TOPOPIX **TopoMap, VEGTABLE *VType,
           else
             OutFlow = 0.;
 
-          for (k = 0; k < NDIRS; k++) {
+          for (int k = 0; k < NDIRS; k++) {
             int nx = xdirection[k] + x;
             int ny = ydirection[k] + y;
             if (valid_cell(Map, nx, ny)) {
@@ -371,8 +367,8 @@ void RouteSubSurface(int Dt, MAPSIZE *Map, TOPOPIX **TopoMap, VEGTABLE *VType,
 
   count = 0;
   totalcount = 0;
-  for (y = 0; y < Map->NY; y++) {
-    for (x = 0; x < Map->NX; x++) {
+  for (int y = 0; y < Map->NY; y++) {
+    for (int x = 0; x < Map->NX; x++) {
       if (INBASIN(TopoMap[y][x].Mask)) {
         mgrid = (SoilMap[y][x].Depth - SoilMap[y][x].TableDepth) /
                 SoilMap[y][x].Depth;
@@ -399,8 +395,8 @@ void RouteSubSurface(int Dt, MAPSIZE *Map, TOPOPIX **TopoMap, VEGTABLE *VType,
   /* Initialize the mass wasting variables for all time steps
      to maintain the mass balance */
   if (Options->Sediment) {
-    for (y = 0; y < Map->NY; y++) {
-      for (x = 0; x < Map->NX; x++) {
+    for (int y = 0; y < Map->NY; y++) {
+      for (int x = 0; x < Map->NX; x++) {
         if (INBASIN(TopoMap[y][x].Mask)) {
           for (ii = 0; ii < Map->DY / Map->DMASS;
                ii++) { /* Fine resolution counters. */
