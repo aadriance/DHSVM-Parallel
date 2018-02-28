@@ -12,14 +12,14 @@
  * FUNCTIONS:    CalcAvailableWater()
  * COMMENTS:     Mark Wigmosta, Batelle Pacific Northwest Laboratories,
  *               ms_wigmosta@pnl.gov
- * $Id: CalcAvailableWater.c,v 1.4 2003/07/01 21:26:09 olivier Exp $      
+ * $Id: CalcAvailableWater.c,v 1.4 2003/07/01 21:26:09 olivier Exp $
  */
 
+#include "settings.h"
+#include "soilmoisture.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "settings.h"
-#include "soilmoisture.h"
 
 /****************************************************************************
   Function name: CalcAvailableWater()
@@ -49,19 +49,18 @@
   Comments     :
 *****************************************************************************/
 float CalcAvailableWater(int NRootLayers, float TotalDepth, float *RootDepth,
-			 float *Porosity, float *FCap, float TableDepth,
-			 float *Adjust)
-{
-  float AvailableWater;		/* amount of water available for movement
-				   (m) */
-  float DeepFCap;		/* field capacity of the layer below the
-				   deepest root layer */
-  float DeepLayerDepth;		/* depth of layer below deepest root zone
-				   layer */
-  float DeepPorosity;		/* porosity of the layer below
-				   the deepest root layer */
-  float Depth;			/* depth below the ground surface (m) */
-  int i;			/* counter */
+                         float *Porosity, float *FCap, float TableDepth,
+                         float *Adjust) {
+  float AvailableWater; /* amount of water available for movement
+                           (m) */
+  float DeepFCap;       /* field capacity of the layer below the
+                           deepest root layer */
+  float DeepLayerDepth; /* depth of layer below deepest root zone
+                           layer */
+  float DeepPorosity;   /* porosity of the layer below
+                           the deepest root layer */
+  float Depth;          /* depth below the ground surface (m) */
+  int i;                /* counter */
 
   AvailableWater = 0;
 
@@ -73,10 +72,10 @@ float CalcAvailableWater(int NRootLayers, float TotalDepth, float *RootDepth,
       Depth = TotalDepth;
     if (Depth > TableDepth) {
       if ((Depth - TableDepth) > RootDepth[i])
-	AvailableWater += (Porosity[i] - FCap[i]) * RootDepth[i] * Adjust[i];
+        AvailableWater += (Porosity[i] - FCap[i]) * RootDepth[i] * Adjust[i];
       else
-	AvailableWater += (Porosity[i] - FCap[i]) * (Depth - TableDepth) *
-	  Adjust[i];
+        AvailableWater +=
+            (Porosity[i] - FCap[i]) * (Depth - TableDepth) * Adjust[i];
     }
   }
 
@@ -89,11 +88,11 @@ float CalcAvailableWater(int NRootLayers, float TotalDepth, float *RootDepth,
     Depth = TotalDepth;
 
     if ((Depth - TableDepth) > DeepLayerDepth)
-      AvailableWater += (DeepPorosity - DeepFCap) * DeepLayerDepth *
-	Adjust[NRootLayers];
+      AvailableWater +=
+          (DeepPorosity - DeepFCap) * DeepLayerDepth * Adjust[NRootLayers];
     else
       AvailableWater += (DeepPorosity - DeepFCap) * (Depth - TableDepth) *
-	Adjust[NRootLayers];
+                        Adjust[NRootLayers];
   }
 
   assert(AvailableWater >= 0.0);

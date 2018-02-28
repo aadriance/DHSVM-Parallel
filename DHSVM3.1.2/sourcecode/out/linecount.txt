@@ -1,0 +1,257 @@
+===============================================================================
+EXTENSION NAME : linecount
+EXTENSION VERSION : 0.1.7
+-------------------------------------------------------------------------------
+count time : 2018-02-20 14:14:57
+count workspace : /Users/andrewadriance/Documents/GitHub/DHSVM-Parallel/DHSVM_RBM_WIP/DHSVM3.1.2/sourcecode
+total files : 245
+total code lines : 22448
+total comment lines : 7655
+total blank lines : 4049
+
+5a57eaf3_44393.dyn, it is a binary file.
+AdjustStorage.c, code is 21, comment is 49, blank is 6.
+AdjustStorage.o, it is a binary file.
+Aggregate.c, code is 219, comment is 47, blank is 26.
+Aggregate.o, it is a binary file.
+AggregateRadiation.c, code is 29, comment is 22, blank is 3.
+AggregateRadiation.o, it is a binary file.
+brent.h, code is 11, comment is 16, blank is 6.
+CalcAerodynamic.c, code is 126, comment is 98, blank is 25.
+CalcAerodynamic.o, it is a binary file.
+CalcAvailableWater.c, code is 44, comment is 47, blank is 9.
+CalcAvailableWater.o, it is a binary file.
+CalcBagnold.c, code is 61, comment is 43, blank is 13.
+CalcBagnold.o, it is a binary file.
+CalcDistance.c, code is 13, comment is 17, blank is 3.
+CalcDistance.o, it is a binary file.
+CalcEffectiveKh.c, code is 77, comment is 51, blank is 21.
+CalcEffectiveKh.o, it is a binary file.
+CalcKhDry.c, code is 7, comment is 34, blank is 4.
+CalcKhDry.o, it is a binary file.
+CalcKinViscosity.c, code is 30, comment is 16, blank is 5.
+CalcKinViscosity.o, it is a binary file.
+CalcSafetyFactor.c, code is 62, comment is 43, blank is 17.
+CalcSafetyFactor.o, it is a binary file.
+CalcSatDensity.c, code is 10, comment is 32, blank is 5.
+CalcSatDensity.o, it is a binary file.
+CalcSnowAlbedo.c, code is 16, comment is 19, blank is 4.
+CalcSnowAlbedo.o, it is a binary file.
+CalcSolar.c, code is 130, comment is 171, blank is 43.
+CalcSolar.o, it is a binary file.
+CalcTopoIndex.c, code is 233, comment is 88, blank is 43.
+CalcTopoIndex.o, it is a binary file.
+CalcTotalWater.c, code is 20, comment is 39, blank is 7.
+CalcTotalWater.o, it is a binary file.
+CalcTransmissivity.c, code is 30, comment is 55, blank is 4.
+CalcTransmissivity.o, it is a binary file.
+CalcWeights.c, code is 199, comment is 61, blank is 32.
+CalcWeights.o, it is a binary file.
+Calendar.c, code is 452, comment is 133, blank is 82.
+Calendar.h, code is 67, comment is 17, blank is 7.
+Calendar.o, it is a binary file.
+CanopyResistance.c, code is 39, comment is 27, blank is 14.
+CanopyResistance.o, it is a binary file.
+CanopyShading.c, code is 121, comment is 77, blank is 20.
+CanopyShading.o, it is a binary file.
+channel.c, code is 801, comment is 186, blank is 122.
+channel.h, code is 100, comment is 41, blank is 20.
+channel.o, it is a binary file.
+channel_complt.c, code is 276, comment is 26, blank is 20.
+channel_complt.o, it is a binary file.
+channel_grid.c, code is 782, comment is 204, blank is 133.
+channel_grid.h, code is 39, comment is 27, blank is 15.
+channel_grid.o, it is a binary file.
+ChannelState.c, code is 87, comment is 53, blank is 18.
+ChannelState.o, it is a binary file.
+CheckOut.c, code is 121, comment is 16, blank is 15.
+CheckOut.o, it is a binary file.
+constants.h, code is 65, comment is 32, blank is 38.
+CutBankGeometry.c, code is 28, comment is 86, blank is 3.
+CutBankGeometry.o, it is a binary file.
+data.h, code is 515, comment is 52, blank is 54.
+Desorption.c, code is 19, comment is 28, blank is 9.
+Desorption.o, it is a binary file.
+DHSVM3.1.2, it is a binary file.
+DHSVM3.1.2.dSYM/Contents/Info.plist, code is 20, comment is 0, blank is 0.
+DHSVM3.1.2.dSYM/Contents/Resources/DWARF/DHSVM3.1.2, it is a binary file.
+DHSVMChannel.c, code is 251, comment is 58, blank is 33.
+DHSVMChannel.h, code is 50, comment is 18, blank is 5.
+DHSVMChannel.o, it is a binary file.
+DHSVMerror.h, code is 6, comment is 14, blank is 3.
+DistSedDiams.c, code is 24, comment is 30, blank is 8.
+DistSedDiams.o, it is a binary file.
+drand48.c, code is 137, comment is 24, blank is 22.
+Draw.c, code is 1078, comment is 89, blank is 114.
+Draw.o, it is a binary file.
+equal.c, code is 159, comment is 51, blank is 17.
+equal.o, it is a binary file.
+errorhandler.c, code is 85, comment is 23, blank is 15.
+errorhandler.h, code is 16, comment is 11, blank is 5.
+errorhandler.o, it is a binary file.
+EvalExponentIntegral.c, code is 67, comment is 14, blank is 4.
+EvalExponentIntegral.o, it is a binary file.
+EvapoTranspiration.c, code is 95, comment is 62, blank is 30.
+EvapoTranspiration.o, it is a binary file.
+ExecDump.c, code is 1479, comment is 71, blank is 86.
+ExecDump.o, it is a binary file.
+fifobin.h, code is 14, comment is 14, blank is 3.
+fifoNetCDF.h, code is 18, comment is 14, blank is 4.
+fileio.h, code is 17, comment is 18, blank is 9.
+FileIOBin.c, code is 105, comment is 86, blank is 32.
+FileIOBin.o, it is a binary file.
+FileIONetCDF.c, code is 499, comment is 256, blank is 83.
+FileIONetCDF.o, it is a binary file.
+Files.c, code is 64, comment is 43, blank is 19.
+Files.o, it is a binary file.
+FinalMassBalance.c, code is 172, comment is 38, blank is 17.
+FinalMassBalance.o, it is a binary file.
+FindValue.c, code is 48, comment is 18, blank is 12.
+FindValue.o, it is a binary file.
+fixLib.sh, code is 1, comment is 1, blank is 1.
+functions.h, code is 298, comment is 15, blank is 123.
+GetInit.c, code is 313, comment is 86, blank is 62.
+getinit.h, code is 63, comment is 10, blank is 26.
+GetInit.o, it is a binary file.
+GetMetData.c, code is 37, comment is 18, blank is 5.
+GetMetData.o, it is a binary file.
+globals.c, code is 26, comment is 19, blank is 1.
+globals.o, it is a binary file.
+gmon.out, it is a binary file.
+InArea.c, code is 13, comment is 17, blank is 2.
+InArea.o, it is a binary file.
+InitAggregated.c, code is 32, comment is 20, blank is 12.
+InitAggregated.o, it is a binary file.
+InitArray.c, code is 8, comment is 14, blank is 3.
+InitArray.o, it is a binary file.
+InitConstants.c, code is 409, comment is 69, blank is 70.
+InitConstants.o, it is a binary file.
+InitDump.c, code is 331, comment is 166, blank is 82.
+InitDump.o, it is a binary file.
+InitFileIO.c, code is 33, comment is 74, blank is 4.
+InitFileIO.o, it is a binary file.
+InitFineMaps.c, code is 168, comment is 37, blank is 24.
+InitFineMaps.o, it is a binary file.
+InitInterpolationWeights.c, code is 55, comment is 17, blank is 12.
+InitInterpolationWeights.o, it is a binary file.
+InitMetMaps.c, code is 304, comment is 49, blank is 60.
+InitMetMaps.o, it is a binary file.
+InitMetSources.c, code is 308, comment is 158, blank is 67.
+InitMetSources.o, it is a binary file.
+InitModelState.c, code is 394, comment is 48, blank is 32.
+InitModelState.o, it is a binary file.
+InitNetwork.c, code is 146, comment is 31, blank is 12.
+InitNetwork.o, it is a binary file.
+InitNewMonth.c, code is 234, comment is 89, blank is 30.
+InitNewMonth.o, it is a binary file.
+InitParameters.c, code is 176, comment is 89, blank is 40.
+InitParameters.o, it is a binary file.
+InitSedMap.c, code is 13, comment is 16, blank is 3.
+InitSedMap.o, it is a binary file.
+InitSedTables.c, code is 192, comment is 65, blank is 60.
+InitSedTables.o, it is a binary file.
+InitSnowMap.c, code is 18, comment is 30, blank is 5.
+InitSnowMap.o, it is a binary file.
+InitTables.c, code is 434, comment is 90, blank is 89.
+InitTables.o, it is a binary file.
+InitTerrainMaps.c, code is 255, comment is 52, blank is 30.
+InitTerrainMaps.o, it is a binary file.
+InitUnitHydrograph.c, code is 77, comment is 32, blank is 17.
+InitUnitHydrograph.o, it is a binary file.
+InitXGraphics.c, code is 150, comment is 37, blank is 35.
+InitXGraphics.o, it is a binary file.
+InterceptionStorage.c, code is 34, comment is 34, blank is 6.
+InterceptionStorage.o, it is a binary file.
+IsStationLocation.c, code is 18, comment is 26, blank is 5.
+IsStationLocation.o, it is a binary file.
+LapseT.c, code is 21, comment is 49, blank is 8.
+LapseT.o, it is a binary file.
+LookupTable.c, code is 27, comment is 49, blank is 8.
+lookuptable.h, code is 12, comment is 12, blank is 4.
+LookupTable.o, it is a binary file.
+MainDHSVM.c, code is 463, comment is 65, blank is 77.
+MainDHSVM.o, it is a binary file.
+MainMWM.c, code is 530, comment is 164, blank is 128.
+MainMWM.o, it is a binary file.
+makefile_for_binary, code is 322, comment is 0, blank is 28.
+makefile_for_mac, code is 325, comment is 0, blank is 28.
+makefile_for_netcdf, code is 322, comment is 0, blank is 28.
+MakeLocalMetData.c, code is 191, comment is 107, blank is 28.
+MakeLocalMetData.o, it is a binary file.
+MassBalance.c, code is 81, comment is 53, blank is 22.
+MassBalance.o, it is a binary file.
+massenergy.h, code is 48, comment is 14, blank is 18.
+MassEnergyBalance.c, code is 370, comment is 126, blank is 79.
+MassEnergyBalance.o, it is a binary file.
+MassRelease.c, code is 35, comment is 36, blank is 10.
+MassRelease.o, it is a binary file.
+MaxRoadInfiltration.c, code is 22, comment is 18, blank is 5.
+MaxRoadInfiltration.o, it is a binary file.
+NoEvap.c, code is 13, comment is 17, blank is 4.
+NoEvap.o, it is a binary file.
+pgopti.dpi, it is a binary file.
+pgopti.dpi.lock, code is 0, comment is 0, blank is 0.
+rad.h, code is 22, comment is 14, blank is 8.
+RadiationBalance.c, code is 137, comment is 147, blank is 18.
+RadiationBalance.o, it is a binary file.
+ReadMetRecord.c, code is 100, comment is 26, blank is 15.
+ReadMetRecord.o, it is a binary file.
+ReadRadarMap.c, code is 31, comment is 18, blank is 11.
+ReadRadarMap.o, it is a binary file.
+ReportError.c, code is 107, comment is 21, blank is 17.
+ReportError.o, it is a binary file.
+ResetAggregate.c, code is 103, comment is 25, blank is 11.
+ResetAggregate.o, it is a binary file.
+RootBrent.c, code is 118, comment is 75, blank is 21.
+RootBrent.o, it is a binary file.
+Round.c, code is 18, comment is 17, blank is 4.
+Round.o, it is a binary file.
+RouteChannelSediment.c, code is 315, comment is 100, blank is 54.
+RouteChannelSediment.o, it is a binary file.
+RouteRoad.c, code is 279, comment is 105, blank is 69.
+RouteRoad.o, it is a binary file.
+RouteSubSurface.c, code is 264, comment is 134, blank is 51.
+RouteSubSurface.o, it is a binary file.
+RouteSurface.c, code is 492, comment is 140, blank is 63.
+RouteSurface.o, it is a binary file.
+SatVaporPressure.c, code is 16, comment is 90, blank is 10.
+SatVaporPressure.o, it is a binary file.
+SensibleHeatFlux.c, code is 73, comment is 55, blank is 30.
+SensibleHeatFlux.o, it is a binary file.
+SeparateRadiation.c, code is 15, comment is 57, blank is 4.
+SeparateRadiation.o, it is a binary file.
+settings.h, code is 115, comment is 55, blank is 23.
+SizeOfNT.c, code is 32, comment is 33, blank is 4.
+sizeofnt.h, code is 17, comment is 16, blank is 3.
+SizeOfNT.o, it is a binary file.
+SlopeAspect.c, code is 315, comment is 125, blank is 48.
+slopeaspect.h, code is 17, comment is 21, blank is 5.
+SlopeAspect.o, it is a binary file.
+snow.h, code is 24, comment is 15, blank is 8.
+SnowInterception.c, code is 177, comment is 162, blank is 71.
+SnowInterception.o, it is a binary file.
+SnowMelt.c, code is 215, comment is 127, blank is 49.
+SnowMelt.o, it is a binary file.
+SnowPackEnergyBalance.c, code is 93, comment is 79, blank is 30.
+SnowPackEnergyBalance.o, it is a binary file.
+SoilEvaporation.c, code is 33, comment is 36, blank is 13.
+SoilEvaporation.o, it is a binary file.
+soilmoisture.h, code is 26, comment is 15, blank is 9.
+StabilityCorrection.c, code is 31, comment is 68, blank is 23.
+StabilityCorrection.o, it is a binary file.
+StoreModelState.c, code is 397, comment is 46, blank is 57.
+StoreModelState.o, it is a binary file.
+SurfaceEnergyBalance.c, code is 81, comment is 65, blank is 25.
+SurfaceEnergyBalance.o, it is a binary file.
+tableio.c, code is 1364, comment is 410, blank is 383.
+tableio.h, code is 28, comment is 18, blank is 9.
+tableio.lex, code is 287, comment is 39, blank is 69.
+tableio.o, it is a binary file.
+UnsaturatedFlow.c, code is 90, comment is 129, blank is 26.
+UnsaturatedFlow.o, it is a binary file.
+VarID.c, code is 354, comment is 58, blank is 30.
+varid.h, code is 18, comment is 14, blank is 4.
+VarID.o, it is a binary file.
+WaterTableDepth.c, code is 68, comment is 76, blank is 14.
+WaterTableDepth.o, it is a binary file.
+===============================================================================

@@ -10,65 +10,65 @@
  * DESCRIP-END.
  * FUNCTIONS:    EvapoTranspiration()
  * COMMENTS:
- * $Id: EvapoTranspiration.c,v 1.5 2007/03/02 22:02:01 lancuo Exp $     
+ * $Id: EvapoTranspiration.c,v 1.5 2007/03/02 22:02:01 lancuo Exp $
  */
 
+#include "DHSVMerror.h"
+#include "constants.h"
+#include "data.h"
+#include "functions.h"
+#include "massenergy.h"
+#include "settings.h"
+#include <float.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <float.h>
-#include "settings.h"
-#include "data.h"
-#include "DHSVMerror.h"
-#include "massenergy.h"
-#include "constants.h"
-#include "functions.h"
 
 /*****************************************************************************
   EvapoTranspiration()
 *****************************************************************************/
-void EvapoTranspiration(int Layer, int Dt, PIXMET * Met, float NetRad,
-			float Rp, VEGTABLE * VType, SOILTABLE * SType,
-			float MoistureFlux, SOILPIX * LocalSoil, float *Int,
-			EVAPPIX * LocalEvap, float *Adjust, float Ra)
-{
-  float *Rc;			/* canopy resistance associated with 
-				   conditions in each soil layer (s/m) */
-  float DryArea;		/* relative dry leaf area  */
-  float DryEvapTime;		/* amount of time remaining during a timestep
-				   after the interception storage is depleted 
-				   (sec) */
-  float F;			/* Fractional coverage by vegetation layer */
-  float SoilMoisture;		/* Amount of water in each soil layer (m) */
-  float WetArea;		/* relative leaf area wetted by interception 
-				   storage */
-  float WetEvapRate;		/* evaporation rate from wetted fraction per 
-				   unit ground area (m/s) */
-  float WetEvapTime;		/* amount of time needed to evaporate the 
-				   amount of water in interception storage 
-				   (sec) */
-  int i;			/* counter */
+void EvapoTranspiration(int Layer, int Dt, PIXMET *Met, float NetRad, float Rp,
+                        VEGTABLE *VType, SOILTABLE *SType, float MoistureFlux,
+                        SOILPIX *LocalSoil, float *Int, EVAPPIX *LocalEvap,
+                        float *Adjust, float Ra) {
+  float *Rc = NULL;          /* canopy resistance associated with
+                         conditions in each soil layer (s/m) */
+  float DryArea = 0;      /* relative dry leaf area  */
+  float DryEvapTime = 0;  /* amount of time remaining during a timestep
+                         after the interception storage is depleted
+                         (sec) */
+  float F = 0;            /* Fractional coverage by vegetation layer */
+  float SoilMoisture = 0; /* Amount of water in each soil layer (m) */
+  float WetArea = 0;      /* relative leaf area wetted by interception
+                         storage */
+  float WetEvapRate = 0;  /* evaporation rate from wetted fraction per
+                         unit ground area (m/s) */
+  float WetEvapTime = 0;  /* amount of time needed to evaporate the
+                         amount of water in interception storage
+                         (sec) */
+  int i = 0;              /* counter */
+  float LayerMaxInt = 0;
 
-  /* Convert the water amounts related to partial canopy cover to a pixel depth 
-     as if the entire pixel is covered.  These depths will be converted 
+  /* Convert the water amounts related to partial canopy cover to a pixel depth
+     as if the entire pixel is covered.  These depths will be converted
      back later on. */
 
   F = VType->Fract[Layer];
   *Int /= F;
   NetRad /= F;
   MoistureFlux /= F;
-  VType->MaxInt[Layer] /= F;
+  LayerMaxInt = VType->MaxInt[Layer] / F;
 
   /* allocate memory for the canopy resistance array */
 
-  if (!(Rc = (float *) calloc(VType->NSoilLayers, sizeof(float))))
+  if (!(Rc = (float *)calloc(VType->NSoilLayers, sizeof(float))))
     ReportError("EvapoTranspiration()", 1);
 
   /* Calculate the evaporation rate in m/s */
 
-  LocalEvap->EPot[Layer] = (Met->Slope * NetRad +
-			    Met->AirDens * CP * Met->Vpd / Ra) /
-    (WATER_DENSITY * Met->Lv * (Met->Slope + Met->Gamma));
+  LocalEvap->EPot[Layer] =
+      (Met->Slope * NetRad + Met->AirDens * CP * Met->Vpd / Ra) /
+      (WATER_DENSITY * Met->Lv * (Met->Slope + Met->Gamma));
 
   /* The potential evaporation rate accounts for the amount of moisture that
      the atmosphere can absorb.  If we do not account for the amount of
@@ -77,7 +77,7 @@ void EvapoTranspiration(int Layer, int Dt, PIXMET * Met, float NetRad,
      potential rate, resulting in an overprediction of the actual evaporation
      rate.  Thus we subtract the amount of evaporation that has already
      been calculated for overlying layers from the potential evaporation.
-     Another mechanism that could be used to account for this would be to 
+     Another mechanism that could be used to account for this would be to
      decrease the vapor pressure deficit while going down through the canopy
      (not implemented here) */
 
@@ -87,18 +87,18 @@ void EvapoTranspiration(int Layer, int Dt, PIXMET * Met, float NetRad,
     LocalEvap->EPot[Layer] = 0;
 
   /* WetArea = pow(*Int/VType->MaxInt[Layer], (double) 2.0/3.0); */
-  WetArea = cbrt(*Int / VType->MaxInt[Layer]);
+  WetArea = cbrt(*Int / LayerMaxInt);
   WetArea = WetArea * WetArea;
   DryArea = 1 - WetArea;
 
-  /* calculate the amount of water that can evaporate from the interception 
-     storage.  Given this evaporation rate, calculate the amount of time it 
-     will take to evaporate the entire amount of intercepted water.  If this 
-     time period is shorter than the length of the time interval, the 
-     previously wetted leaves can transpire during the remaining part of the 
+  /* calculate the amount of water that can evaporate from the interception
+     storage.  Given this evaporation rate, calculate the amount of time it
+     will take to evaporate the entire amount of intercepted water.  If this
+     time period is shorter than the length of the time interval, the
+     previously wetted leaves can transpire during the remaining part of the
      time interval */
 
-  /* WORK IN PROGRESS:  the amount of interception storage can be replenished 
+  /* WORK IN PROGRESS:  the amount of interception storage can be replenished
      during (low intensity) rainstorms */
 
   WetEvapRate = WetArea * LocalEvap->EPot[Layer];
@@ -107,8 +107,7 @@ void EvapoTranspiration(int Layer, int Dt, PIXMET * Met, float NetRad,
     if (WetEvapTime > Dt) {
       WetEvapTime = Dt;
     }
-  }
-  else if (*Int > 0)
+  } else if (*Int > 0)
     WetEvapTime = Dt;
   else
     WetEvapTime = 0;
@@ -118,14 +117,12 @@ void EvapoTranspiration(int Layer, int Dt, PIXMET * Met, float NetRad,
       LocalEvap->EInt[Layer] = *Int;
       *Int = 0.0;
       DryEvapTime = Dt - WetEvapTime;
-    }
-    else {
+    } else {
       LocalEvap->EInt[Layer] = Dt * WetEvapRate;
       *Int -= LocalEvap->EInt[Layer];
       DryEvapTime = 0.0;
     }
-  }
-  else {
+  } else {
     LocalEvap->EInt[Layer] = 0.0;
     if (*Int > 0)
       DryEvapTime = 0.0;
@@ -139,32 +136,30 @@ void EvapoTranspiration(int Layer, int Dt, PIXMET * Met, float NetRad,
   LocalEvap->EInt[Layer] *= F;
   LocalEvap->ETot += LocalEvap->EInt[Layer];
   *Int *= F;
-  VType->MaxInt[Layer] *= F;   
+  LayerMaxInt *= F;
 
-  /* calculate the canopy conductances associated with the conditions in 
+  /* calculate the canopy conductances associated with the conditions in
      each of the soil layers */
 
   for (i = 0; i < VType->NSoilLayers; i++)
-    Rc[i] = CanopyResistance(VType->LAI[Layer], VType->RsMin[Layer],
-			     VType->RsMax[Layer], VType->Rpc[Layer],
-			     VType->VpdThres[Layer], VType->MoistThres[Layer],
-			     SType->WP[i], LocalSoil->Temp[i],
-			     LocalSoil->Moist[i], Met->Vpd, Rp);
+    Rc[i] = CanopyResistance(
+        VType->LAI[Layer], VType->RsMin[Layer], VType->RsMax[Layer],
+        VType->Rpc[Layer], VType->VpdThres[Layer], VType->MoistThres[Layer],
+        SType->WP[i], LocalSoil->Temp[i], LocalSoil->Moist[i], Met->Vpd, Rp);
 
   /* calculate the transpiration rate for the current vegetation layer,
      and adjust the soil moisture content in each of the soil layers */
 
   for (i = 0; i < VType->NSoilLayers; i++) {
     LocalEvap->ESoil[Layer][i] = (Met->Slope + Met->Gamma) /
-      (Met->Slope +
-       Met->Gamma * (1 +
-		     Rc[i] / Ra)) * VType->RootFract[Layer][i] *
-      LocalEvap->EPot[Layer] * Adjust[i];
+                                 (Met->Slope + Met->Gamma * (1 + Rc[i] / Ra)) *
+                                 VType->RootFract[Layer][i] *
+                                 LocalEvap->EPot[Layer] * Adjust[i];
 
-    /* calculate the amounts of water transpirated during each timestep based 
+    /* calculate the amounts of water transpirated during each timestep based
        on the evaporation and transpiration rates.  While there is still water
        in interception storage only the area that is not covered by intercep-
-       ted water will transpire.  When all of the interception storage has 
+       ted water will transpire.  When all of the interception storage has
        disappeared all leaves will contribute to the transpiration */
 
     LocalEvap->ESoil[Layer][i] *= WetEvapTime * (1 - WetArea) + DryEvapTime;
@@ -190,4 +185,3 @@ void EvapoTranspiration(int Layer, int Dt, PIXMET * Met, float NetRad,
   /* clean up */
   free(Rc);
 }
-

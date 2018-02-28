@@ -7,23 +7,22 @@
  * E-MAIL:       nijssen@u.washington.edu
  * ORIG-DATE:    Apr-96
  * DESCRIPTION:  Determine surface temperature iteratively using the Brent
- *               method.  
+ *               method.
  * DESCRIP-END.
  * FUNCTIONS:    RootBrent()
  * COMMENTS:
- * $Id: RootBrent.c,v 1.4 2003/07/01 21:26:23 olivier Exp $     
+ * $Id: RootBrent.c,v 1.4 2003/07/01 21:26:23 olivier Exp $
  */
 
+#include "DHSVMerror.h"
+#include "brent.h"
+#include "functions.h"
+#include "massenergy.h"
+#include "settings.h"
 #include <math.h>
-#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "settings.h"
-#include "brent.h"
-#include "massenergy.h"
-#include "functions.h"
-#include "DHSVMerror.h"
 
 /*****************************************************************************
   GENERAL DOCUMENTATION FOR THIS MODULE
@@ -31,20 +30,20 @@
 
   Source: Brent, R. P., 1973, Algorithms for minimization without derivatives,
                         Prentice Hall, Inc., Englewood Cliffs, New Jersey
-			Chapter 4
+                        Chapter 4
   This source includes an implementation of the algorithm in ALGOL-60, which
   was translated into C for this application.
 
   The method is also discussed in:
   Press, W. H., S. A. Teukolsky, W. T. Vetterling, B. P. Flannery, 1992,
                 Numerical Recipes in FORTRAN, The art of scientific computing,
-		Second edition, Cambridge University Press
-  (Be aware that this book discusses a Brent method for minimization (brent), 
-  and one for root finding (zbrent).  The latter one is similar to the one 
+                Second edition, Cambridge University Press
+  (Be aware that this book discusses a Brent method for minimization (brent),
+  and one for root finding (zbrent).  The latter one is similar to the one
   implemented here and is also copied from Brent [1973].)
 
   The function returns the surface temperature, TSurf, for which the sum
-  of the energy balance terms is zero, with TSurf in the interval 
+  of the energy balance terms is zero, with TSurf in the interval
   [MinTSurf, MaxTSurf].  The surface temperature is calculated to within
   a tolerance (6 * MACHEPS * |TSurf| + 2 * T), where MACHEPS is the relative
   machine precision and T is a positive tolerance, as specified in brent.h.
@@ -62,17 +61,17 @@
 
   Required     :
     int y                 - Row number of current pixel
-    int x                 - Column number of current pixel 
+    int x                 - Column number of current pixel
     float LowerBound      - Lower bound for root
     float UpperBound      - Upper bound for root
     float (*Function)(float Estimate, va_list ap)
-    ...                   - Variable arguments 
+    ...                   - Variable arguments
                             The number and order of arguments has to be
                             appropriate for the Function pointed to, since
                             the list of arguments after Nargs will be passed
                             on to Function.
                             See the appropriate Function for the correct
-                            arguments. 
+                            arguments.
 
   Returns      :
     float b               - Effective surface temperature (C)
@@ -82,28 +81,27 @@
   Comments     :
 *****************************************************************************/
 float RootBrent(int y, int x, float LowerBound, float UpperBound,
-		float (*Function) (float Estimate, va_list ap), ...)
-{
+                float (*Function)(float Estimate, va_list ap), ...) {
   const char *Routine = "RootBrent";
   char ErrorString[MAXSTRING + 1];
-  va_list ap;			/* Used in traversing variable argument list
-				 */
-  float a;
-  float b;
-  float c;
-  float d;
-  float e;
-  float fa;
-  float fb;
-  float fc;
-  float m;
-  float p;
-  float q;
-  float r;
-  float s;
-  float tol;
-  int i;
-  int j;
+  va_list ap; /* Used in traversing variable argument list
+               */
+  float a = 0;
+  float b = 0;
+  float c = 0;
+  float d = 0;
+  float e = 0;
+  float fa = 0;
+  float fb = 0;
+  float fc = 0;
+  float m = 0;
+  float p = 0;
+  float q = 0;
+  float r = 0;
+  float s = 0;
+  float tol = 0;
+  int i = 0;
+  int j = 0;
   int eval = 0;
 
   sprintf(ErrorString, "%s: y = %d, x = %d", Routine, y, x);
@@ -111,7 +109,8 @@ float RootBrent(int y, int x, float LowerBound, float UpperBound,
   /* initialize variable argument list */
 
   a = LowerBound;
-  b = UpperBound;;
+  b = UpperBound;
+  ;
   va_start(ap, Function);
   fa = Function(a, ap);
   eval++;
@@ -166,42 +165,41 @@ float RootBrent(int y, int x, float LowerBound, float UpperBound,
 
     else {
       if (fabs(e) < tol || fabs(fa) <= fabs(fb)) {
-	d = m;
-	e = d;
-      }
-      else {
-	s = fb / fa;
+        d = m;
+        e = d;
+      } else {
+        s = fb / fa;
 
-	if (fequal(a, c)) {
+        if (fequal(a, c)) {
 
-	  /* linear interpolation */
+          /* linear interpolation */
 
-	  p = 2 * m * s;
-	  q = 1 - s;
-	}
+          p = 2 * m * s;
+          q = 1 - s;
+        }
 
-	else {
+        else {
 
-	  /* inverse quadratic interpolation */
+          /* inverse quadratic interpolation */
 
-	  q = fa / fc;
-	  r = fb / fc;
-	  p = s * (2 * m * q * (q - r) - (b - a) * (r - 1));
-	  q = (q - 1) * (r - 1) * (s - 1);
-	}
+          q = fa / fc;
+          r = fb / fc;
+          p = s * (2 * m * q * (q - r) - (b - a) * (r - 1));
+          q = (q - 1) * (r - 1) * (s - 1);
+        }
 
-	if (p > 0)
-	  q = -q;
-	else
-	  p = -p;
-	s = e;
-	e = d;
-	if ((2 * p) < (3 * m * q - fabs(tol * q)) && p < fabs(0.5 * s * q))
-	  d = p / q;
-	else {
-	  d = m;
-	  e = d;
-	}
+        if (p > 0)
+          q = -q;
+        else
+          p = -p;
+        s = e;
+        e = d;
+        if ((2 * p) < (3 * m * q - fabs(tol * q)) && p < fabs(0.5 * s * q))
+          d = p / q;
+        else {
+          d = m;
+          e = d;
+        }
       }
       a = b;
       fa = fb;
@@ -212,4 +210,5 @@ float RootBrent(int y, int x, float LowerBound, float UpperBound,
     }
   }
   ReportError(ErrorString, 33);
+  return 0;
 }

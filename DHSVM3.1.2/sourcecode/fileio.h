@@ -15,7 +15,8 @@
 
 #ifndef FILEIO_H
 #define FILEIO_H
-
+#include <sys/types.h>
+#include <stdio.h>
 /* define identifiers for different file formats */
 
 #define BIN 1			/* binary IO */

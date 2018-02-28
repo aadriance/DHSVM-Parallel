@@ -11,20 +11,20 @@
  * DESCRIP-END.
  * FUNCTIONS:    StoreModelState()
  * COMMENTS:
- * $Id: StoreModelState.c,v 1.8 2004/08/16 18:26:38 colleen Exp $     
+ * $Id: StoreModelState.c,v 1.8 2004/08/16 18:26:38 colleen Exp $
  */
 
+#include "DHSVMerror.h"
+#include "constants.h"
+#include "data.h"
+#include "fileio.h"
+#include "functions.h"
+#include "settings.h"
+#include "sizeofnt.h"
+#include "varid.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "settings.h"
-#include "data.h"
-#include "DHSVMerror.h"
-#include "fileio.h"
-#include "functions.h"
-#include "constants.h"
-#include "sizeofnt.h"
-#include "varid.h"
 
 /*****************************************************************************
   StoreModelState()
@@ -51,29 +51,28 @@
       - surface temperature
       - ground heat storage
 *****************************************************************************/
-void StoreModelState(char *Path, DATE * Current, MAPSIZE * Map,
-		     OPTIONSTRUCT * Options, TOPOPIX ** TopoMap,
-		     PRECIPPIX ** PrecipMap, SNOWPIX ** SnowMap,
-		     MET_MAP_PIX ** MetMap, RADCLASSPIX ** RadMap,
-		     VEGPIX ** VegMap, LAYER * Veg, SOILPIX ** SoilMap,
-		     LAYER * Soil, ROADSTRUCT ** Network, 
-		     UNITHYDRINFO * HydrographInfo, float *Hydrograph,
-		     CHANNEL * ChannelData)
-{
+void StoreModelState(char *Path, DATE *Current, MAPSIZE *Map,
+                     OPTIONSTRUCT *Options, TOPOPIX **TopoMap,
+                     PRECIPPIX **PrecipMap, SNOWPIX **SnowMap,
+                     MET_MAP_PIX **MetMap, RADCLASSPIX **RadMap,
+                     VEGPIX **VegMap, LAYER *Veg, SOILPIX **SoilMap,
+                     LAYER *Soil, ROADSTRUCT **Network,
+                     UNITHYDRINFO *HydrographInfo, float *Hydrograph,
+                     CHANNEL *ChannelData) {
   const char *Routine = "StoreModelState";
   char Str[NAMESIZE + 1];
   char FileLabel[MAXSTRING + 1];
   char FileName[NAMESIZE + 1];
   FILE *HydroStateFile;
-  int i;			/* counter */
-  int x;			/* counter */
-  int y;			/* counter */
-  int NSoil;			/* Number of soil layers for current pixel */
-  int NVeg;			/* Number of veg layers for current pixel */
-  MAPDUMP DMap;			/* Dump Info */
+  int i;        /* counter */
+  int x;        /* counter */
+  int y;        /* counter */
+  int NSoil;    /* Number of soil layers for current pixel */
+  int NVeg;     /* Number of veg layers for current pixel */
+  MAPDUMP DMap; /* Dump Info */
   void *Array;
   float RoadIExcess = 0.0;
- 
+
   /* print a message to stdout that state is being stored */
 
   printf("Storing model state\n");
@@ -83,24 +82,23 @@ void StoreModelState(char *Path, DATE * Current, MAPSIZE * Map,
   if (MetMap != NULL) {
 
     sprintf(Str, "%02d.%02d.%04d.%02d.%02d.%02d", Current->Month, Current->Day,
-	    Current->Year, Current->Hour, Current->Min, Current->Sec);
+            Current->Year, Current->Hour, Current->Min, Current->Sec);
     sprintf(FileName, "%sMet.State.%s%s", Path, Str, fileext);
     strcpy(FileLabel, "Basic Meteorology at time step");
 
     CreateMapFile(FileName, FileLabel, Map);
 
-    if (!(Array = (float *) calloc(Map->NY * Map->NX, sizeof(float))))
-      ReportError((char *) Routine, 1);
+    if (!(Array = (float *)calloc(Map->NY * Map->NX, sizeof(float))))
+      ReportError((char *)Routine, 1);
 
     for (y = 0; y < Map->NY; y++) {
       for (x = 0; x < Map->NX; x++) {
-	if (INBASIN(TopoMap[y][x].Mask)) {
+        if (INBASIN(TopoMap[y][x].Mask)) {
 
-	  ((float *) Array)[y * Map->NX + x] = PrecipMap[y][x].Precip;
+          ((float *)Array)[y * Map->NX + x] = PrecipMap[y][x].Precip;
 
-	}
-	else
-	  ((float *) Array)[y * Map->NX + x] = NA;
+        } else
+          ((float *)Array)[y * Map->NX + x] = NA;
       }
     }
     DMap.ID = 201;
@@ -111,13 +109,12 @@ void StoreModelState(char *Path, DATE * Current, MAPSIZE * Map,
 
     for (y = 0; y < Map->NY; y++) {
       for (x = 0; x < Map->NX; x++) {
-	if (INBASIN(TopoMap[y][x].Mask)) {
+        if (INBASIN(TopoMap[y][x].Mask)) {
 
-	  ((float *) Array)[y * Map->NX + x] = MetMap[y][x].accum_precip;
+          ((float *)Array)[y * Map->NX + x] = MetMap[y][x].accum_precip;
 
-	}
-	else
-	  ((float *) Array)[y * Map->NX + x] = NA;
+        } else
+          ((float *)Array)[y * Map->NX + x] = NA;
       }
     }
     DMap.ID = 701;
@@ -128,13 +125,12 @@ void StoreModelState(char *Path, DATE * Current, MAPSIZE * Map,
 
     for (y = 0; y < Map->NY; y++) {
       for (x = 0; x < Map->NX; x++) {
-	if (INBASIN(TopoMap[y][x].Mask)) {
+        if (INBASIN(TopoMap[y][x].Mask)) {
 
-	  ((float *) Array)[y * Map->NX + x] = MetMap[y][x].air_temp;
+          ((float *)Array)[y * Map->NX + x] = MetMap[y][x].air_temp;
 
-	}
-	else
-	  ((float *) Array)[y * Map->NX + x] = NA;
+        } else
+          ((float *)Array)[y * Map->NX + x] = NA;
       }
     }
     DMap.ID = 702;
@@ -145,13 +141,12 @@ void StoreModelState(char *Path, DATE * Current, MAPSIZE * Map,
 
     for (y = 0; y < Map->NY; y++) {
       for (x = 0; x < Map->NX; x++) {
-	if (INBASIN(TopoMap[y][x].Mask)) {
+        if (INBASIN(TopoMap[y][x].Mask)) {
 
-	  ((float *) Array)[y * Map->NX + x] = MetMap[y][x].wind_speed;
+          ((float *)Array)[y * Map->NX + x] = MetMap[y][x].wind_speed;
 
-	}
-	else
-	  ((float *) Array)[y * Map->NX + x] = NA;
+        } else
+          ((float *)Array)[y * Map->NX + x] = NA;
       }
     }
     DMap.ID = 703;
@@ -162,13 +157,12 @@ void StoreModelState(char *Path, DATE * Current, MAPSIZE * Map,
 
     for (y = 0; y < Map->NY; y++) {
       for (x = 0; x < Map->NX; x++) {
-	if (INBASIN(TopoMap[y][x].Mask)) {
+        if (INBASIN(TopoMap[y][x].Mask)) {
 
-	  ((float *) Array)[y * Map->NX + x] = MetMap[y][x].humidity;
+          ((float *)Array)[y * Map->NX + x] = MetMap[y][x].humidity;
 
-	}
-	else
-	  ((float *) Array)[y * Map->NX + x] = NA;
+        } else
+          ((float *)Array)[y * Map->NX + x] = NA;
       }
     }
     DMap.ID = 704;
@@ -179,14 +173,13 @@ void StoreModelState(char *Path, DATE * Current, MAPSIZE * Map,
 
     for (y = 0; y < Map->NY; y++) {
       for (x = 0; x < Map->NX; x++) {
-	if (INBASIN(TopoMap[y][x].Mask)) {
+        if (INBASIN(TopoMap[y][x].Mask)) {
 
-	  ((float *) Array)[y * Map->NX + x] = RadMap[y][x].Beam +
-	    RadMap[y][x].Diffuse;
+          ((float *)Array)[y * Map->NX + x] =
+              RadMap[y][x].Beam + RadMap[y][x].Diffuse;
 
-	}
-	else
-	  ((float *) Array)[y * Map->NX + x] = NA;
+        } else
+          ((float *)Array)[y * Map->NX + x] = NA;
       }
     }
     DMap.ID = 303;
@@ -200,27 +193,26 @@ void StoreModelState(char *Path, DATE * Current, MAPSIZE * Map,
   /* Store the canopy interception */
 
   sprintf(Str, "%02d.%02d.%04d.%02d.%02d.%02d", Current->Month, Current->Day,
-	  Current->Year, Current->Hour, Current->Min, Current->Sec);
+          Current->Year, Current->Hour, Current->Min, Current->Sec);
   sprintf(FileName, "%sInterception.State.%s%s", Path, Str, fileext);
   strcpy(FileLabel, "Interception storage for each vegetation layer");
 
   CreateMapFile(FileName, FileLabel, Map);
 
-  if (!(Array = (float *) calloc(Map->NY * Map->NX, sizeof(float))))
-    ReportError((char *) Routine, 1);
+  if (!(Array = (float *)calloc(Map->NY * Map->NX, sizeof(float))))
+    ReportError((char *)Routine, 1);
 
   for (i = 0; i < Veg->MaxLayers; i++) {
     for (y = 0; y < Map->NY; y++) {
       for (x = 0; x < Map->NX; x++) {
-	if (INBASIN(TopoMap[y][x].Mask)) {
-	  NVeg = Veg->NLayers[(VegMap[y][x].Veg - 1)];
-	  if (i < NVeg)
-	    ((float *) Array)[y * Map->NX + x] = PrecipMap[y][x].IntRain[i];
-	  else
-	    ((float *) Array)[y * Map->NX + x] = NA;
-	}
-	else
-	  ((float *) Array)[y * Map->NX + x] = NA;
+        if (INBASIN(TopoMap[y][x].Mask)) {
+          NVeg = Veg->NLayers[(VegMap[y][x].Veg - 1)];
+          if (i < NVeg)
+            ((float *)Array)[y * Map->NX + x] = PrecipMap[y][x].IntRain[i];
+          else
+            ((float *)Array)[y * Map->NX + x] = NA;
+        } else
+          ((float *)Array)[y * Map->NX + x] = NA;
       }
     }
     DMap.ID = 202;
@@ -234,15 +226,14 @@ void StoreModelState(char *Path, DATE * Current, MAPSIZE * Map,
   for (i = 0; i < Veg->MaxLayers; i++) {
     for (y = 0; y < Map->NY; y++) {
       for (x = 0; x < Map->NX; x++) {
-	if (INBASIN(TopoMap[y][x].Mask)) {
-	  NVeg = Veg->NLayers[(VegMap[y][x].Veg - 1)];
-	  if (i < NVeg)
-	    ((float *) Array)[y * Map->NX + x] = PrecipMap[y][x].IntSnow[i];
-	  else
-	    ((float *) Array)[y * Map->NX + x] = NA;
-	}
-	else
-	  ((float *) Array)[y * Map->NX + x] = NA;
+        if (INBASIN(TopoMap[y][x].Mask)) {
+          NVeg = Veg->NLayers[(VegMap[y][x].Veg - 1)];
+          if (i < NVeg)
+            ((float *)Array)[y * Map->NX + x] = PrecipMap[y][x].IntSnow[i];
+          else
+            ((float *)Array)[y * Map->NX + x] = NA;
+        } else
+          ((float *)Array)[y * Map->NX + x] = NA;
       }
     }
     DMap.ID = 203;
@@ -256,10 +247,9 @@ void StoreModelState(char *Path, DATE * Current, MAPSIZE * Map,
   for (y = 0; y < Map->NY; y++) {
     for (x = 0; x < Map->NX; x++) {
       if (INBASIN(TopoMap[y][x].Mask)) {
-	((float *) Array)[y * Map->NX + x] = PrecipMap[y][x].TempIntStorage;
-      }
-      else {
-	((float *) Array)[y * Map->NX + x] = NA;
+        ((float *)Array)[y * Map->NX + x] = PrecipMap[y][x].TempIntStorage;
+      } else {
+        ((float *)Array)[y * Map->NX + x] = NA;
       }
     }
   }
@@ -277,15 +267,15 @@ void StoreModelState(char *Path, DATE * Current, MAPSIZE * Map,
   strcpy(FileLabel, "Snow pack moisture and temperature state");
   CreateMapFile(FileName, FileLabel, Map);
 
-  if (!(Array = (float *) calloc(Map->NY * Map->NX, sizeof(float))))
-    ReportError((char *) Routine, 1);
+  if (!(Array = (float *)calloc(Map->NY * Map->NX, sizeof(float))))
+    ReportError((char *)Routine, 1);
 
   for (y = 0; y < Map->NY; y++) {
     for (x = 0; x < Map->NX; x++) {
       if (INBASIN(TopoMap[y][x].Mask))
-	((float *) Array)[y * Map->NX + x] = (float) SnowMap[y][x].HasSnow;
+        ((float *)Array)[y * Map->NX + x] = (float)SnowMap[y][x].HasSnow;
       else
-	((float *) Array)[y * Map->NX + x] = NA;
+        ((float *)Array)[y * Map->NX + x] = NA;
     }
   }
   DMap.ID = 401;
@@ -297,9 +287,9 @@ void StoreModelState(char *Path, DATE * Current, MAPSIZE * Map,
   for (y = 0; y < Map->NY; y++) {
     for (x = 0; x < Map->NX; x++) {
       if (INBASIN(TopoMap[y][x].Mask))
-	((float *) Array)[y * Map->NX + x] = (float) SnowMap[y][x].LastSnow;
+        ((float *)Array)[y * Map->NX + x] = (float)SnowMap[y][x].LastSnow;
       else
-	((float *) Array)[y * Map->NX + x] = NA;
+        ((float *)Array)[y * Map->NX + x] = NA;
     }
   }
   DMap.ID = 403;
@@ -311,9 +301,9 @@ void StoreModelState(char *Path, DATE * Current, MAPSIZE * Map,
   for (y = 0; y < Map->NY; y++) {
     for (x = 0; x < Map->NX; x++) {
       if (INBASIN(TopoMap[y][x].Mask))
-	((float *) Array)[y * Map->NX + x] = SnowMap[y][x].Swq;
+        ((float *)Array)[y * Map->NX + x] = SnowMap[y][x].Swq;
       else
-	((float *) Array)[y * Map->NX + x] = NA;
+        ((float *)Array)[y * Map->NX + x] = NA;
     }
   }
   DMap.ID = 404;
@@ -325,9 +315,9 @@ void StoreModelState(char *Path, DATE * Current, MAPSIZE * Map,
   for (y = 0; y < Map->NY; y++) {
     for (x = 0; x < Map->NX; x++) {
       if (INBASIN(TopoMap[y][x].Mask))
-	((float *) Array)[y * Map->NX + x] = SnowMap[y][x].PackWater;
+        ((float *)Array)[y * Map->NX + x] = SnowMap[y][x].PackWater;
       else
-	((float *) Array)[y * Map->NX + x] = NA;
+        ((float *)Array)[y * Map->NX + x] = NA;
     }
   }
   DMap.ID = 406;
@@ -339,9 +329,9 @@ void StoreModelState(char *Path, DATE * Current, MAPSIZE * Map,
   for (y = 0; y < Map->NY; y++) {
     for (x = 0; x < Map->NX; x++) {
       if (INBASIN(TopoMap[y][x].Mask))
-	((float *) Array)[y * Map->NX + x] = SnowMap[y][x].TPack;
+        ((float *)Array)[y * Map->NX + x] = SnowMap[y][x].TPack;
       else
-	((float *) Array)[y * Map->NX + x] = NA;
+        ((float *)Array)[y * Map->NX + x] = NA;
     }
   }
   DMap.ID = 407;
@@ -353,9 +343,9 @@ void StoreModelState(char *Path, DATE * Current, MAPSIZE * Map,
   for (y = 0; y < Map->NY; y++) {
     for (x = 0; x < Map->NX; x++) {
       if (INBASIN(TopoMap[y][x].Mask))
-	((float *) Array)[y * Map->NX + x] = SnowMap[y][x].SurfWater;
+        ((float *)Array)[y * Map->NX + x] = SnowMap[y][x].SurfWater;
       else
-	((float *) Array)[y * Map->NX + x] = NA;
+        ((float *)Array)[y * Map->NX + x] = NA;
     }
   }
   DMap.ID = 408;
@@ -367,9 +357,9 @@ void StoreModelState(char *Path, DATE * Current, MAPSIZE * Map,
   for (y = 0; y < Map->NY; y++) {
     for (x = 0; x < Map->NX; x++) {
       if (INBASIN(TopoMap[y][x].Mask))
-	((float *) Array)[y * Map->NX + x] = SnowMap[y][x].TSurf;
+        ((float *)Array)[y * Map->NX + x] = SnowMap[y][x].TSurf;
       else
-	((float *) Array)[y * Map->NX + x] = NA;
+        ((float *)Array)[y * Map->NX + x] = NA;
     }
   }
   DMap.ID = 409;
@@ -381,9 +371,9 @@ void StoreModelState(char *Path, DATE * Current, MAPSIZE * Map,
   for (y = 0; y < Map->NY; y++) {
     for (x = 0; x < Map->NX; x++) {
       if (INBASIN(TopoMap[y][x].Mask))
-	((float *) Array)[y * Map->NX + x] = SnowMap[y][x].ColdContent;
+        ((float *)Array)[y * Map->NX + x] = SnowMap[y][x].ColdContent;
       else
-	((float *) Array)[y * Map->NX + x] = NA;
+        ((float *)Array)[y * Map->NX + x] = NA;
     }
   }
   DMap.ID = 410;
@@ -400,21 +390,20 @@ void StoreModelState(char *Path, DATE * Current, MAPSIZE * Map,
   strcpy(FileLabel, "Soil moisture and temperature state");
   CreateMapFile(FileName, FileLabel, Map);
 
-  if (!(Array = (float *) calloc(Map->NY * Map->NX, sizeof(float))))
-    ReportError((char *) Routine, 1);
+  if (!(Array = (float *)calloc(Map->NY * Map->NX, sizeof(float))))
+    ReportError((char *)Routine, 1);
 
   for (i = 0; i < Soil->MaxLayers + 1; i++) {
     for (y = 0; y < Map->NY; y++) {
       for (x = 0; x < Map->NX; x++) {
-	if (INBASIN(TopoMap[y][x].Mask)) {
-	  NSoil = Soil->NLayers[(SoilMap[y][x].Soil - 1)];
-	  if (i <= NSoil)
-	    ((float *) Array)[y * Map->NX + x] = SoilMap[y][x].Moist[i];
-	  else
-	    ((float *) Array)[y * Map->NX + x] = NA;
-	}
-	else
-	  ((float *) Array)[y * Map->NX + x] = NA;
+        if (INBASIN(TopoMap[y][x].Mask)) {
+          NSoil = Soil->NLayers[(SoilMap[y][x].Soil - 1)];
+          if (i <= NSoil)
+            ((float *)Array)[y * Map->NX + x] = SoilMap[y][x].Moist[i];
+          else
+            ((float *)Array)[y * Map->NX + x] = NA;
+        } else
+          ((float *)Array)[y * Map->NX + x] = NA;
       }
     }
     DMap.ID = 501;
@@ -428,9 +417,9 @@ void StoreModelState(char *Path, DATE * Current, MAPSIZE * Map,
   for (y = 0; y < Map->NY; y++) {
     for (x = 0; x < Map->NX; x++) {
       if (INBASIN(TopoMap[y][x].Mask))
-	((float *) Array)[y * Map->NX + x] = SoilMap[y][x].TSurf;
+        ((float *)Array)[y * Map->NX + x] = SoilMap[y][x].TSurf;
       else
-	((float *) Array)[y * Map->NX + x] = SoilMap[y][x].TSurf;
+        ((float *)Array)[y * Map->NX + x] = SoilMap[y][x].TSurf;
     }
   }
   DMap.ID = 505;
@@ -442,15 +431,14 @@ void StoreModelState(char *Path, DATE * Current, MAPSIZE * Map,
   for (i = 0; i < Soil->MaxLayers; i++) {
     for (y = 0; y < Map->NY; y++) {
       for (x = 0; x < Map->NX; x++) {
-	if (INBASIN(TopoMap[y][x].Mask)) {
-	  NSoil = Soil->NLayers[SoilMap[y][x].Soil - 1];
-	  if (i < NSoil)
-	    ((float *) Array)[y * Map->NX + x] = SoilMap[y][x].Temp[i];
-	  else
-	    ((float *) Array)[y * Map->NX + x] = NA;
-	}
-	else
-	  ((float *) Array)[y * Map->NX + x] = NA;
+        if (INBASIN(TopoMap[y][x].Mask)) {
+          NSoil = Soil->NLayers[SoilMap[y][x].Soil - 1];
+          if (i < NSoil)
+            ((float *)Array)[y * Map->NX + x] = SoilMap[y][x].Temp[i];
+          else
+            ((float *)Array)[y * Map->NX + x] = NA;
+        } else
+          ((float *)Array)[y * Map->NX + x] = NA;
       }
     }
     DMap.ID = 511;
@@ -464,9 +452,9 @@ void StoreModelState(char *Path, DATE * Current, MAPSIZE * Map,
   for (y = 0; y < Map->NY; y++) {
     for (x = 0; x < Map->NX; x++) {
       if (INBASIN(TopoMap[y][x].Mask))
-	((float *) Array)[y * Map->NX + x] = SoilMap[y][x].Qst;
+        ((float *)Array)[y * Map->NX + x] = SoilMap[y][x].Qst;
       else
-	((float *) Array)[y * Map->NX + x] = NA;
+        ((float *)Array)[y * Map->NX + x] = NA;
     }
   }
   DMap.ID = 510;
@@ -477,19 +465,18 @@ void StoreModelState(char *Path, DATE * Current, MAPSIZE * Map,
 
   for (y = 0; y < Map->NY; y++) {
     for (x = 0; x < Map->NX; x++) {
-      if (INBASIN(TopoMap[y][x].Mask)){
-	RoadIExcess = 0.0; 
-	if(Options->RoadRouting){
-	  if (channel_grid_has_channel(ChannelData->road_map, x, y)) {
-	    for (i = 0; i < CELLFACTOR; i++)
-	      RoadIExcess += (Network[y][x].h[i] * Network[y][x].RoadArea)/
-		((float)CELLFACTOR * (Map->DX*Map->DY));
-	  } 
-	}
-	((float *) Array)[y * Map->NX + x] = SoilMap[y][x].IExcess + RoadIExcess;
-      }
-      else
-	((float *) Array)[y * Map->NX + x] = NA;
+      if (INBASIN(TopoMap[y][x].Mask)) {
+        RoadIExcess = 0.0;
+        if (Options->RoadRouting) {
+          if (channel_grid_has_channel(ChannelData->road_map, x, y)) {
+            for (i = 0; i < CELLFACTOR; i++)
+              RoadIExcess += (Network[y][x].h[i] * Network[y][x].RoadArea) /
+                             ((float)CELLFACTOR * (Map->DX * Map->DY));
+          }
+        }
+        ((float *)Array)[y * Map->NX + x] = SoilMap[y][x].IExcess + RoadIExcess;
+      } else
+        ((float *)Array)[y * Map->NX + x] = NA;
     }
   }
   DMap.ID = 512;
@@ -500,7 +487,7 @@ void StoreModelState(char *Path, DATE * Current, MAPSIZE * Map,
 
   free(Array);
 
-  /* If the unit hydrograph is used for flow routing, store the unit 
+  /* If the unit hydrograph is used for flow routing, store the unit
      hydrograph array */
 
   if (Options->Extent == BASIN && Options->HasNetwork == FALSE) {

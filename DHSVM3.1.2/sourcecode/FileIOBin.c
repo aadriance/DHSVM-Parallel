@@ -17,36 +17,35 @@
  *               byte_swap_long()
  *               byte_swap_short()
  * COMMENTS:
- * $Id: FileIOBin.c,v 1.4 2003/07/01 21:26:14 olivier Exp $     
+ * $Id: FileIOBin.c,v 1.4 2003/07/01 21:26:14 olivier Exp $
  */
 
+#include "DHSVMerror.h"
+#include "fifobin.h"
+#include "fileio.h"
+#include "settings.h"
+#include "sizeofnt.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
-#include "fifobin.h"
-#include "fileio.h"
-#include "sizeofnt.h"
-#include "settings.h"
-#include "DHSVMerror.h"
 
 /*****************************************************************************
   Function name: CreateMapFileBin()
 
-  Purpose      : Open and close a new file.  If the file already exists it 
+  Purpose      : Open and close a new file.  If the file already exists it
                  will be overwritten.
 
-  Required     : 
+  Required     :
     FileName  - Name of the new file
 
   Returns      : void
 
-  Modifies     : 
+  Modifies     :
 
   Comments     :
 *****************************************************************************/
-void CreateMapFileBin(char *FileName, ...)
-{
+void CreateMapFileBin(char *FileName, ...) {
   FILE *NewFile;
 
   OpenFile(&NewFile, FileName, "w", TRUE);
@@ -64,7 +63,7 @@ void CreateMapFileBin(char *FileName, ...)
                  beginning of InitFileIO.c for more detail)
     NY         - Number of rows
     NX         - Number of columns
-    NDataSet   - number of the dataset to read, i.e. the first matrix in a 
+    NDataSet   - number of the dataset to read, i.e. the first matrix in a
                  file is number 0, etc.
     Any remaining arguments are not used in straight binary
 
@@ -75,14 +74,13 @@ void CreateMapFileBin(char *FileName, ...)
   Comments     :
 *****************************************************************************/
 int Read2DMatrixBin(char *FileName, void *Matrix, int NumberType, int NY,
-		    int NX, int NDataSet, ...)
-{
+                    int NX, int NDataSet, ...) {
   FILE *InFile;
-  int NElements = 0;		/* number of elements read */
+  int NElements = 0; /* number of elements read */
   size_t ElemSize;
-  unsigned long OffSet;		/* number of bytes to OffSet (is non-zero when
-				   reading matrices other than the first one
-				   in the file */
+  unsigned long OffSet; /* number of bytes to OffSet (is non-zero when
+                           reading matrices other than the first one
+                           in the file */
 
   OpenFile(&InFile, FileName, "rb", FALSE);
 
@@ -103,14 +101,13 @@ int Read2DMatrixBin(char *FileName, void *Matrix, int NumberType, int NY,
 
 /******************************************************************************/
 int Read2DMatrixByteSwapBin(char *FileName, void *Matrix, int NumberType,
-			    int NY, int NX, int NDataSet, ...)
-{
+                            int NY, int NX, int NDataSet, ...) {
   FILE *InFile;
-  int NElements = 0;		/* number of elements read */
+  int NElements = 0; /* number of elements read */
   size_t ElemSize;
-  unsigned long OffSet;		/* number of bytes to OffSet (is non-zero when
-				   reading matrices other than the first one
-				   in the file */
+  unsigned long OffSet; /* number of bytes to OffSet (is non-zero when
+                           reading matrices other than the first one
+                           in the file */
 
   OpenFile(&InFile, FileName, "rb", FALSE);
 
@@ -129,11 +126,9 @@ int Read2DMatrixByteSwapBin(char *FileName, void *Matrix, int NumberType,
 
   if (ElemSize == 4) {
     byte_swap_long(Matrix, NElements);
-  }
-  else if (ElemSize == 2) {
+  } else if (ElemSize == 2) {
     byte_swap_short(Matrix, NElements);
-  }
-  else if (ElemSize != 1) {
+  } else if (ElemSize != 1) {
     ReportError(FileName, 61);
   }
 
@@ -146,7 +141,7 @@ int Read2DMatrixByteSwapBin(char *FileName, void *Matrix, int NumberType,
   Purpose      : Function to write a 2D array to a file.  Data is appended to
                  the end of the file.
 
-  Required     :   
+  Required     :
     FileName   - name of output file
     Matrix     - address of array containing matrix elements
     NumberType - code for number type (see comments at the
@@ -154,17 +149,16 @@ int Read2DMatrixByteSwapBin(char *FileName, void *Matrix, int NumberType,
     NY         - Number of rows
     NX         - Number of columns
 
-  Returns      : Number of elements written 
+  Returns      : Number of elements written
 
   Modifies     :
 
   Comments     :
 *****************************************************************************/
 int Write2DMatrixBin(char *FileName, void *Matrix, int NumberType, int NY,
-		     int NX, ...)
-{
-  FILE *OutFile;		/* output file */
-  size_t ElemSize = 0;		/* size of number type in bytes */
+                     int NX, ...) {
+  FILE *OutFile;       /* output file */
+  size_t ElemSize = 0; /* size of number type in bytes */
 
   OpenFile(&OutFile, FileName, "ab", FALSE);
   ElemSize = SizeOfNumberType(NumberType);
@@ -179,10 +173,9 @@ int Write2DMatrixBin(char *FileName, void *Matrix, int NumberType, int NY,
 
 /******************************************************************************/
 int Write2DMatrixByteSwapBin(char *FileName, void *Matrix, int NumberType,
-			     int NY, int NX, ...)
-{
-  FILE *OutFile;		/* output file */
-  size_t ElemSize = 0;		/* size of number type in bytes */
+                             int NY, int NX, ...) {
+  FILE *OutFile;       /* output file */
+  size_t ElemSize = 0; /* size of number type in bytes */
   int NElements;
   NElements = NX * NY;
 
@@ -191,11 +184,9 @@ int Write2DMatrixByteSwapBin(char *FileName, void *Matrix, int NumberType,
 
   if (ElemSize == 4) {
     byte_swap_long(Matrix, NElements);
-  }
-  else if (ElemSize == 2) {
+  } else if (ElemSize == 2) {
     byte_swap_short(Matrix, NElements);
-  }
-  else if (ElemSize != 1) {
+  } else if (ElemSize != 1) {
     ReportError(FileName, 61);
   }
 
@@ -209,8 +200,7 @@ int Write2DMatrixByteSwapBin(char *FileName, void *Matrix, int NumberType,
 }
 
 /******************************************************************************/
-void byte_swap_short(short *buffer, int number_of_swaps)
-{
+void byte_swap_short(short *buffer, int number_of_swaps) {
   short *temp;
   int swap_loop;
 
@@ -221,14 +211,13 @@ void byte_swap_short(short *buffer, int number_of_swaps)
 }
 
 /******************************************************************************/
-void byte_swap_long(long *buffer, int number_of_swaps)
-{
+void byte_swap_long(long *buffer, int number_of_swaps) {
   long *temp;
   int swap_loop;
 
   for (swap_loop = 0, temp = buffer; swap_loop < number_of_swaps;
        swap_loop++, temp++) {
     *temp = ((*temp & 0x000000ff) << 24) | ((*temp & 0x0000ff00) << 8) |
-      ((*temp & 0x00ff0000) >> 8) | ((*temp & 0xff000000) >> 24);
+            ((*temp & 0x00ff0000) >> 8) | ((*temp & 0xff000000) >> 24);
   }
 }
