@@ -344,7 +344,7 @@ void HeadSlopeAspect(MAPSIZE *Map, TOPOPIX **TopoMap, SOILPIX **SoilMap,
 
   /* let's assume for now that WaterLevel is the SOILPIX map is
      computed elsewhere */
-  #pragma omp parallel for
+  #pragma omp parallel for collapse(2)
   for (int x = 0; x < Map->NX; x++) {
     for (int y = 0; y < Map->NY; y++) {
       if (INBASIN(TopoMap[y][x].Mask)) {

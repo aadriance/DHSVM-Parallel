@@ -49,10 +49,12 @@ DEFS =  -DHAVE_X11
 CC = gcc-7
 #ICC = -prof-gen
 ICC = -prof-use -Wl,-rpath,/opt/intel/compilers_and_libraries_2018.1.126/mac/compiler/lib -std=c99 -qopenmp -parallel -xCORE-AVX2 -ipo -no-prec-div
-CFLAGS = -O3 -g -I/usr/X11R6/include -Wall -I/usr/local/include/ -fopenmp $(DEFS)
+NICC = -fopenmp
+TCMALLOC = -fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free -ltcmalloc
+CFLAGS = -O3 -g -I/usr/X11R6/include -Wall -I/usr/local/include/ $(TCMALLOC) $(NICC) $(DEFS)
 
 FLEX = /usr/bin/flex
-LIBS = -lm -L/usr/X11R6/lib -lX11 -L/sw/lib -L/usr/local/lib
+LIBS = -lm -L/usr/X11R6/lib -L/sw/lib -L/usr/local/lib -lX11
 
 # possible libs:   
 #LIBS = -lm -L/usr/X11R6/lib -lX11 -L/sw/lib -L/usr/local/lib -lnetcdf

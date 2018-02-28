@@ -48,6 +48,9 @@ char *version = "Version 3.1.1";    /* store version string */
 char commandline[BUFSIZE + 1] = ""; /* store command line */
 char fileext[BUFSIZ + 1] = "";      /* file extension */
 char errorstr[BUFSIZ + 1] = "";     /* error message */
+
+#define PRINT 0
+
 /******************************************************************************/
 /*				      MAIN                                    */
 /******************************************************************************/
@@ -341,27 +344,27 @@ int main(int argc, char **argv) {
                    &InFiles, Veg.NTypes, VType, NStats, Stat,
                    Dump.InitStatePath);
 
-    if (IsNewDay(Time.DayStep)) {
+    if (IsNewDay(Time.DayStep) && PRINT) {
       InitNewDay(Time.Current.JDay, &SolarGeo);
       PrintDate(&(Time.Current), stdout);
       printf("\n");
     }
 
-    /* determine surface erosion and routing scheme */
+    // determine surface erosion and routing scheme
     SedimentFlag(&Options, &Time);
 
     InitNewStep(&InFiles, &Map, &Time, Soil.MaxLayers, &Options, NStats, Stat,
                 InFiles.RadarFile, &Radar, RadarMap, &SolarGeo, TopoMap, RadMap,
                 SoilMap, MM5Input, WindModel, &MM5Map);
 
-    /* initialize channel/road networks for time step */
+    // initialize channel/road networks for time step
     if (Options.HasNetwork) {
       channel_step_initialize_network(ChannelData.streams);
       channel_step_initialize_network(ChannelData.roads);
     }
   
     //omp_set_num_threads(1);
-    #pragma omp parallel for
+    #pragma omp parallel for collapse(2)
     for (int y = 0; y < Map.NY; y++) {
       for (int x = 0; x < Map.NX; x++) {
         if (INBASIN(TopoMap[y][x].Mask)) {
@@ -438,7 +441,7 @@ int main(int argc, char **argv) {
         break;
     }
 
-    /* Average all RBM inputs over each segment */
+    // Average all RBM inputs over each segment
     if (Options.StreamTemp) {
       channel_grid_avg(ChannelData.streams);
       if (Options.CanopyShading)
@@ -447,7 +450,7 @@ int main(int argc, char **argv) {
 
 #ifndef SNOW_ONLY
 
-    /* set sediment inflows to zero - they are incremented elsewhere */
+    // set sediment inflows to zero - they are incremented elsewhere
     if ((Options.HasNetwork) && (Options.Sediment)) {
       InitChannelSedInflow(ChannelData.streams);
       InitChannelSedInflow(ChannelData.roads);
@@ -462,9 +465,9 @@ int main(int argc, char **argv) {
                    &Options, Network, SType, PrecipMap, SedMap, LocalMet.Tair,
                    LocalMet.Rh, SedDiams);
 
-    /* Sediment Routing in Channel and output to sediment files */
+    // Sediment Routing in Channel and output to sediment files
     if ((Options.HasNetwork) && (Options.Sediment)) {
-      SPrintDate(&(Time.Current), buffer);
+      //SPrintDate(&(Time.Current), buffer);
       flag = IsEqualTime(&(Time.Current), &(Time.Start));
 
       if (Options.ChannelRouting) {

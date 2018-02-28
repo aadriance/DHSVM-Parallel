@@ -211,14 +211,12 @@ void RouteChannel(CHANNEL *ChannelData, TIMESTRUCT *Time, MAPSIZE *Map,
                   OPTIONSTRUCT *Options, ROADSTRUCT **Network, SOILTABLE *SType,
                   PRECIPPIX **PrecipMap, SEDPIX **SedMap, float Tair, float Rh,
                   float *SedDiams) {
-  int x, y;
   int flag;
   char buffer[32];
-  float CulvertFlow;
 
   /* give any surface water to roads w/o sinks */
-  for (y = 0; y < Map->NY; y++) {
-    for (x = 0; x < Map->NX; x++) {
+  for (int y = 0; y < Map->NY; y++) {
+    for (int x = 0; x < Map->NX; x++) {
       if (INBASIN(TopoMap[y][x].Mask)) {
         SoilMap[y][x].IExcessSed = SoilMap[y][x].IExcess;
         if (channel_grid_has_channel(ChannelData->road_map, x, y) &&
@@ -250,11 +248,12 @@ void RouteChannel(CHANNEL *ChannelData, TIMESTRUCT *Time, MAPSIZE *Map,
 
   /* add culvert outflow to surface water */
   Total->CulvertReturnFlow = 0.0;
-  for (y = 0; y < Map->NY; y++) {
-    for (x = 0; x < Map->NX; x++) {
+  #pragma omp parallel for collapse(2)
+  for (int y = 0; y < Map->NY; y++) {
+    for (int x = 0; x < Map->NX; x++) {
       if (INBASIN(TopoMap[y][x].Mask)) {
 
-        CulvertFlow = ChannelCulvertFlow(y, x, ChannelData);
+        float CulvertFlow = ChannelCulvertFlow(y, x, ChannelData);
         CulvertFlow /= Map->DX * Map->DY;
         /* CulvertFlow = (CulvertFlow > 0.0) ? CulvertFlow : 0.0; */
 
@@ -263,14 +262,17 @@ void RouteChannel(CHANNEL *ChannelData, TIMESTRUCT *Time, MAPSIZE *Map,
                                   (SoilMap[y][x].IExcess + CulvertFlow) *
                                       Map->DX * Map->DY);
           SoilMap[y][x].ChannelInt += SoilMap[y][x].IExcess;
-
+          #pragma omp atomic
           Total->CulvertToChannel += CulvertFlow;
+          #pragma omp atomic
           Total->RunoffToChannel += SoilMap[y][x].IExcess;
 
           SoilMap[y][x].IExcess = 0.0f;
 
         } else {
+          #pragma omp atomic
           SoilMap[y][x].IExcess += CulvertFlow;
+          #pragma omp atomic
           Total->CulvertReturnFlow += CulvertFlow;
         }
       }

@@ -45,32 +45,21 @@ void Aggregate(MAPSIZE *Map, OPTIONSTRUCT *Options, TOPOPIX **TopoMap,
                CHANNEL *ChannelData, float *roadarea) {
   int NPixels;     /* Number of pixels in the basin */
   int NPixelsfine; /* Number of pixels in the finemap */
-  int NSoilL;      /* Number of soil layers for current pixel */
-  int NVegL;       /* Number of vegetation layers for current pixel */
-  int i;           /* counter */
-  int j;           /* counter */
-  int x;
-  int y;
-  float DeepDepth; /* depth to bottom of lowest rooting zone */
-  int ii;          /* FineMap counter */
-  int jj;          /* FineMap counter */
-  int xx;          /* x-coordinate on FineMap grid */
-  int yy;          /* y-coordinate on FineMap grid */
 
   NPixels = 0;
   *roadarea = 0.;
   NPixelsfine = 0;
 
-  for (y = 0; y < Map->NY; y++) {
-    for (x = 0; x < Map->NX; x++) {
+  for (int y = 0; y < Map->NY; y++) {
+    for (int x = 0; x < Map->NX; x++) {
       if (INBASIN(TopoMap[y][x].Mask)) {
         NPixels++;
-        NSoilL = Soil->NLayers[SoilMap[y][x].Soil - 1];
-        NVegL = Veg->NLayers[VegMap[y][x].Veg - 1];
+        int NSoilL = Soil->NLayers[SoilMap[y][x].Soil - 1];
+        int NVegL = Veg->NLayers[VegMap[y][x].Veg - 1];
 
         /* aggregate the evaporation data */
         Total->Evap.ETot += Evap[y][x].ETot;
-        for (i = 0; i < NVegL; i++) {
+        for (int i = 0; i < NVegL; i++) {
           Total->Evap.EPot[i] += Evap[y][x].EPot[i];
           Total->Evap.EAct[i] += Evap[y][x].EAct[i];
           Total->Evap.EInt[i] += Evap[y][x].EInt[i];
@@ -78,8 +67,8 @@ void Aggregate(MAPSIZE *Map, OPTIONSTRUCT *Options, TOPOPIX **TopoMap,
         Total->Evap.EPot[Veg->MaxLayers] += Evap[y][x].EPot[NVegL];
         Total->Evap.EAct[Veg->MaxLayers] += Evap[y][x].EAct[NVegL];
 
-        for (i = 0; i < NVegL; i++) {
-          for (j = 0; j < NSoilL; j++) {
+        for (int i = 0; i < NVegL; i++) {
+          for (int j = 0; j < NSoilL; j++) {
             Total->Evap.ESoil[i][j] += Evap[y][x].ESoil[i][j];
           }
         }
@@ -87,7 +76,7 @@ void Aggregate(MAPSIZE *Map, OPTIONSTRUCT *Options, TOPOPIX **TopoMap,
 
         /* aggregate precipitation data */
         Total->Precip.Precip += Precip[y][x].Precip;
-        for (i = 0; i < NVegL; i++) {
+        for (int i = 0; i < NVegL; i++) {
           Total->Precip.IntRain[i] += Precip[y][x].IntRain[i];
           Total->Precip.IntSnow[i] += Precip[y][x].IntSnow[i];
           Total->CanopyWater +=
@@ -122,9 +111,9 @@ void Aggregate(MAPSIZE *Map, OPTIONSTRUCT *Options, TOPOPIX **TopoMap,
 
         /* aggregate soil moisture data */
         Total->Soil.Depth += SoilMap[y][x].Depth;
-        DeepDepth = 0.0;
+        float DeepDepth = 0.0;
 
-        for (i = 0; i < NSoilL; i++) {
+        for (int i = 0; i < NSoilL; i++) {
           Total->Soil.Moist[i] += SoilMap[y][x].Moist[i];
           assert(SoilMap[y][x].Moist[i] >= 0.0);
           Total->Soil.Perc[i] += SoilMap[y][x].Perc[i];
@@ -156,7 +145,7 @@ void Aggregate(MAPSIZE *Map, OPTIONSTRUCT *Options, TOPOPIX **TopoMap,
         Total->Soil.DetentionStorage += SoilMap[y][x].DetentionStorage;
         if (Options->RoadRouting) {
           if (Network[y][x].RoadArea > 0) {
-            for (i = 0; i < CELLFACTOR; i++)
+            for (int i = 0; i < CELLFACTOR; i++)
               Total->Road.IExcess +=
                   (Network[y][x].h[i] * Network[y][x].RoadArea) /
                   ((float)CELLFACTOR * (Map->DX * Map->DY));
@@ -180,10 +169,10 @@ void Aggregate(MAPSIZE *Map, OPTIONSTRUCT *Options, TOPOPIX **TopoMap,
           *roadarea += Network[y][x].RoadArea;
           Total->Road.Erosion += Network[y][x].Erosion;
           Total->Sediment.RoadSed += SedMap[y][x].RoadSed;
-          for (ii = 0; ii < Map->DY / Map->DMASS; ii++) {
-            for (jj = 0; jj < Map->DX / Map->DMASS; jj++) {
-              yy = (int)y * Map->DY / Map->DMASS + ii;
-              xx = (int)x * Map->DX / Map->DMASS + jj;
+          for (int ii = 0; ii < Map->DY / Map->DMASS; ii++) {
+            for (int jj = 0; jj < Map->DX / Map->DMASS; jj++) {
+              int yy = (int)y * Map->DY / Map->DMASS + ii;
+              int xx = (int)x * Map->DX / Map->DMASS + jj;
               Total->Fine.SatThickness += (*FineMap[yy][xx]).SatThickness;
               Total->Fine.DeltaDepth += (*FineMap[yy][xx]).DeltaDepth;
               Total->Fine.Probability += (*FineMap[yy][xx]).Probability;
@@ -205,14 +194,14 @@ void Aggregate(MAPSIZE *Map, OPTIONSTRUCT *Options, TOPOPIX **TopoMap,
 
   /* average evaporation data */
   Total->Evap.ETot /= NPixels;
-  for (i = 0; i < Veg->MaxLayers + 1; i++) {
+  for (int i = 0; i < Veg->MaxLayers + 1; i++) {
     Total->Evap.EPot[i] /= NPixels;
     Total->Evap.EAct[i] /= NPixels;
   }
-  for (i = 0; i < Veg->MaxLayers; i++)
+  for (int i = 0; i < Veg->MaxLayers; i++)
     Total->Evap.EInt[i] /= NPixels;
-  for (i = 0; i < Veg->MaxLayers; i++) {
-    for (j = 0; j < Soil->MaxLayers; j++) {
+  for (int i = 0; i < Veg->MaxLayers; i++) {
+    for (int j = 0; j < Soil->MaxLayers; j++) {
       Total->Evap.ESoil[i][j] /= NPixels;
     }
   }
@@ -221,14 +210,14 @@ void Aggregate(MAPSIZE *Map, OPTIONSTRUCT *Options, TOPOPIX **TopoMap,
 
   /* average precipitation data */
   Total->Precip.Precip /= NPixels;
-  for (i = 0; i < Veg->MaxLayers; i++) {
+  for (int i = 0; i < Veg->MaxLayers; i++) {
     Total->Precip.IntRain[i] /= NPixels;
     Total->Precip.IntSnow[i] /= NPixels;
   }
   Total->CanopyWater /= NPixels;
 
   /* average radiation data */
-  for (i = 0; i < Veg->MaxLayers + 1; i++) {
+  for (int i = 0; i < Veg->MaxLayers + 1; i++) {
     Total->Rad.NetShort[i] /= NPixels;
     Total->Rad.LongIn[i] /= NPixels;
     Total->Rad.LongOut[i] /= NPixels;
@@ -255,7 +244,7 @@ void Aggregate(MAPSIZE *Map, OPTIONSTRUCT *Options, TOPOPIX **TopoMap,
 
   /* average soil moisture data */
   Total->Soil.Depth /= NPixels;
-  for (i = 0; i < Soil->MaxLayers; i++) {
+  for (int i = 0; i < Soil->MaxLayers; i++) {
     Total->Soil.Moist[i] /= NPixels;
     Total->Soil.Perc[i] /= NPixels;
     Total->Soil.Temp[i] /= NPixels;

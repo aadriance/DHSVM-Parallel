@@ -26,6 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <omp.h>
 
 /*****************************************************************************
   ExecDump()
@@ -38,18 +39,17 @@ void ExecDump(MAPSIZE *Map, DATE *Current, DATE *Start, OPTIONSTRUCT *Options,
               ROADSTRUCT **Network, CHANNEL *ChannelData, FINEPIX ***FineMap,
               LAYER *Soil, AGGREGATED *Total, UNITHYDRINFO *HydrographInfo,
               float *Hydrograph) {
-  int i; /* counter */
-  int j; /* counter */
-  int x;
-  int y;
-  int ii;               /* FineMap counter */
-  int jj;               /* FineMap counter */
-  int xx;               /* FineMap x-coordinate */
-  int yy;               /* FineMap y-coordinate */
-  float overlandinflow; /* Hillslope erosion that enters the channel network */
-  float
-      overroadinflow; /* Road surface erosion that enters the channel network */
-  FINEPIX PixAggFineMap; /* FineMap quanitities aggregated over a pixel */
+  //int i; /* counter */
+  //int j; /* counter */
+  //int x;
+  //int y;
+  //int ii;               /* FineMap counter */
+  //int jj;               /* FineMap counter */
+  //int xx;               /* FineMap x-coordinate */
+  //int yy;               /* FineMap y-coordinate */
+  //float overlandinflow; /* Hillslope erosion that enters the channel network */
+  //float overroadinflow; /* Road surface erosion that enters the channel network */
+  //FINEPIX PixAggFineMap; /* FineMap quanitities aggregated over a pixel */
 
   /* dump the aggregated basin values for this timestep */
   DumpPix(Current, IsEqualTime(Current, Start), &(Dump->Aggregate),
@@ -74,7 +74,7 @@ void ExecDump(MAPSIZE *Map, DATE *Current, DATE *Start, OPTIONSTRUCT *Options,
       if (Options->HasNetwork)
         StoreChannelState(Dump->Path, Current, ChannelData->streams);
     } else {
-      for (i = 0; i < Dump->NStates; i++) {
+      for (int i = 0; i < Dump->NStates; i++) {
         if (IsEqualTime(Current, &(Dump->DState[i]))) {
           StoreModelState(Dump->Path, Current, Map, Options, TopoMap, PrecipMap,
                           SnowMap, MetMap, RadMap, VegMap, Veg, SoilMap, Soil,
@@ -86,9 +86,10 @@ void ExecDump(MAPSIZE *Map, DATE *Current, DATE *Start, OPTIONSTRUCT *Options,
     }
 
     /* check which pixels need to be dumped, and dump if needed */
-    for (i = 0; i < Dump->NPix; i++) {
-      y = Dump->Pix[i].Loc.N;
-      x = Dump->Pix[i].Loc.E;
+    for (int i = 0; i < Dump->NPix; i++) {
+      int y = Dump->Pix[i].Loc.N;
+      int x = Dump->Pix[i].Loc.E;
+      FINEPIX PixAggFineMap;
       // If we include any FineMap quantities, we need to aggregate them over
       // the pixel, which is on the coarse grid
       if (Options->MassWaste) {
@@ -100,10 +101,10 @@ void ExecDump(MAPSIZE *Map, DATE *Current, DATE *Start, OPTIONSTRUCT *Options,
         PixAggFineMap.MassDeposition = 0.0;
         PixAggFineMap.SedimentToChannel = 0.0;
         // Sum up PixAggFineMap quantities
-        for (ii = 0; ii < Map->DY / Map->DMASS; ii++) {
-          for (jj = 0; jj < Map->DX / Map->DMASS; jj++) {
-            yy = (int)y * Map->DY / Map->DMASS + ii;
-            xx = (int)x * Map->DX / Map->DMASS + jj;
+        for (int ii = 0; ii < Map->DY / Map->DMASS; ii++) {
+          for (int jj = 0; jj < Map->DX / Map->DMASS; jj++) {
+            int yy = (int)y * Map->DY / Map->DMASS + ii;
+            int xx = (int)x * Map->DX / Map->DMASS + jj;
             PixAggFineMap.SatThickness += (*FineMap[yy][xx]).SatThickness;
             PixAggFineMap.DeltaDepth += (*FineMap[yy][xx]).DeltaDepth;
             PixAggFineMap.Probability += (*FineMap[yy][xx]).Probability;
@@ -127,7 +128,8 @@ void ExecDump(MAPSIZE *Map, DATE *Current, DATE *Start, OPTIONSTRUCT *Options,
         PixAggFineMap.MassDeposition = -999.;
         PixAggFineMap.SedimentToChannel = -999.;
       }
-
+      float overlandinflow = 0.;
+      float overroadinflow = 0.;
       if (Options->InitSedFlag &&
           channel_grid_has_channel(ChannelData->stream_map, x, y)) {
         overlandinflow = 0.;
@@ -166,8 +168,8 @@ void ExecDump(MAPSIZE *Map, DATE *Current, DATE *Start, OPTIONSTRUCT *Options,
 
     /* check which maps need to be dumped at this timestep, and dump maps if
      * needed */
-    for (i = 0; i < Dump->NMaps; i++) {
-      for (j = 0; j < Dump->DMap[i].N; j++) {
+    for (int i = 0; i < Dump->NMaps; i++) {
+      for (int j = 0; j < Dump->DMap[i].N; j++) {
         if (IsEqualTime(Current, &(Dump->DMap[i].DumpDate[j]))) {
           fprintf(stdout, "Dumping Maps at ");
           PrintDate(Current, stdout);
