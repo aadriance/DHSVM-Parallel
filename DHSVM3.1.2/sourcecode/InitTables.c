@@ -89,7 +89,7 @@ int InitSoilTable(OPTIONSTRUCT *Options, SOILTABLE **SType, LISTPTR Input,
   /* Get the number of different soil types */
   GetInitString(SectionName, "NUMBER OF SOIL TYPES", "", VarStr[0],
                 (unsigned long)BUFSIZE, Input);
-  if (!CopyInt(&NSoils, VarStr[0], 1))
+  if (!CopyInt(&NSoils, VarStr[0], 1, "NUMBER OF SOIL TYPES"))
     ReportError("NUMBER OF SOIL TYPES", 51);
 
   if (NSoils == 0)
@@ -121,34 +121,34 @@ int InitSoilTable(OPTIONSTRUCT *Options, SOILTABLE **SType, LISTPTR Input,
     strcpy((*SType)[i].Desc, VarStr[soil_description]);
     (*SType)[i].Index = i;
 
-    if (!CopyFloat(&((*SType)[i].KsLat), VarStr[lateral_ks], 1))
+    if (!CopyFloat(&((*SType)[i].KsLat), VarStr[lateral_ks], 1, KeyName[lateral_ks]))
       ReportError(KeyName[lateral_ks], 51);
 
-    if (!CopyFloat(&((*SType)[i].KsLatExp), VarStr[exponent], 1))
+    if (!CopyFloat(&((*SType)[i].KsLatExp), VarStr[exponent], 1, KeyName[exponent]))
       ReportError(KeyName[exponent], 51);
 
-    if (!CopyFloat(&((*SType)[i].DepthThresh), VarStr[depth_thresh], 1))
+    if (!CopyFloat(&((*SType)[i].DepthThresh), VarStr[depth_thresh], 1, KeyName[depth_thresh]))
       ReportError(KeyName[depth_thresh], 51);
 
     if (!CopyFloat(&((*SType)[i].MaxInfiltrationRate), VarStr[max_infiltration],
-                   1))
+                   1, KeyName[max_infiltration]))
       ReportError(KeyName[max_infiltration], 51);
 
     if (InfiltOption == DYNAMIC) {
-      if (!CopyFloat(&((*SType)[i].G_Infilt), VarStr[capillary_drive], 1))
+      if (!CopyFloat(&((*SType)[i].G_Infilt), VarStr[capillary_drive], 1, KeyName[capillary_drive]))
         ReportError(KeyName[capillary_drive], 51);
     } else
       (*SType)[i].G_Infilt = NOT_APPLICABLE;
 
-    if (!CopyFloat(&((*SType)[i].Albedo), VarStr[soil_albedo], 1))
+    if (!CopyFloat(&((*SType)[i].Albedo), VarStr[soil_albedo], 1, KeyName[soil_albedo]))
       ReportError(KeyName[soil_albedo], 51);
 
-    if (!CopyInt(&(*SType)[i].NLayers, VarStr[number_of_layers], 1))
+    if (!CopyInt(&(*SType)[i].NLayers, VarStr[number_of_layers], 1, KeyName[number_of_layers]))
       ReportError(KeyName[number_of_layers], 51);
     Soil->NLayers[i] = (*SType)[i].NLayers;
 
     if (Options->Routing) {
-      if (!CopyFloat(&((*SType)[i].Manning), VarStr[manning], 1))
+      if (!CopyFloat(&((*SType)[i].Manning), VarStr[manning], 1, KeyName[manning]))
         ReportError(KeyName[manning], 51);
     } else if (!Options->Routing)
       (*SType)[i].Manning = NOT_APPLICABLE;
@@ -185,36 +185,36 @@ int InitSoilTable(OPTIONSTRUCT *Options, SOILTABLE **SType, LISTPTR Input,
     if (!((*SType)[i].Ch = (float *)calloc((*SType)[i].NLayers, sizeof(float))))
       ReportError((char *)Routine, 1);
 
-    if (!CopyFloat((*SType)[i].Porosity, VarStr[porosity], (*SType)[i].NLayers))
+    if (!CopyFloat((*SType)[i].Porosity, VarStr[porosity], (*SType)[i].NLayers, KeyName[porosity]))
       ReportError(KeyName[porosity], 51);
 
     if (!CopyFloat((*SType)[i].PoreDist, VarStr[pore_size],
-                   (*SType)[i].NLayers))
+                   (*SType)[i].NLayers, KeyName[pore_size]))
       ReportError(KeyName[pore_size], 51);
 
     if (!CopyFloat((*SType)[i].Press, VarStr[bubbling_pressure],
-                   (*SType)[i].NLayers))
+                   (*SType)[i].NLayers, KeyName[bubbling_pressure]))
       ReportError(KeyName[bubbling_pressure], 51);
 
     if (!CopyFloat((*SType)[i].FCap, VarStr[field_capacity],
-                   (*SType)[i].NLayers))
+                   (*SType)[i].NLayers, KeyName[field_capacity]))
       ReportError(KeyName[field_capacity], 51);
 
-    if (!CopyFloat((*SType)[i].WP, VarStr[wilting_point], (*SType)[i].NLayers))
+    if (!CopyFloat((*SType)[i].WP, VarStr[wilting_point], (*SType)[i].NLayers, KeyName[wilting_point]))
       ReportError(KeyName[wilting_point], 51);
 
-    if (!CopyFloat((*SType)[i].Dens, VarStr[bulk_density], (*SType)[i].NLayers))
+    if (!CopyFloat((*SType)[i].Dens, VarStr[bulk_density], (*SType)[i].NLayers, KeyName[bulk_density]))
       ReportError(KeyName[bulk_density], 51);
 
-    if (!CopyFloat((*SType)[i].Ks, VarStr[vertical_ks], (*SType)[i].NLayers))
+    if (!CopyFloat((*SType)[i].Ks, VarStr[vertical_ks], (*SType)[i].NLayers, KeyName[vertical_ks]))
       ReportError(KeyName[vertical_ks], 51);
 
     if (!CopyFloat((*SType)[i].KhSol, VarStr[solids_thermal],
-                   (*SType)[i].NLayers))
+                   (*SType)[i].NLayers, KeyName[solids_thermal]))
       ReportError(KeyName[solids_thermal], 51);
 
     if (!CopyFloat((*SType)[i].Ch, VarStr[thermal_capacity],
-                   (*SType)[i].NLayers))
+                   (*SType)[i].NLayers, KeyName[thermal_capacity]))
       ReportError(KeyName[thermal_capacity], 51);
   }
 
@@ -295,7 +295,7 @@ int InitVegTable(VEGTABLE **VType, LISTPTR Input, OPTIONSTRUCT *Options,
   /* Get the number of different vegetation types */
   GetInitString(SectionName, "NUMBER OF VEGETATION TYPES", "", VarStr[0],
                 (unsigned long)BUFSIZE, Input);
-  if (!CopyInt(&NVegs, VarStr[0], 1))
+  if (!CopyInt(&NVegs, VarStr[0], 1, "NUMBER OF VEGETATION TYPES"))
     ReportError("NUMBER OF VEGETATION TYPES", 51);
 
   if (NVegs == 0)
@@ -354,17 +354,17 @@ int InitVegTable(VEGTABLE **VType, LISTPTR Input, OPTIONSTRUCT *Options,
     if ((*VType)[i].NVegLayers > Veg->MaxLayers)
       Veg->MaxLayers = (*VType)[i].NVegLayers;
 
-    if (!CopyInt(&(*VType)[i].NSoilLayers, VarStr[number_of_root_zones], 1))
+    if (!CopyInt(&(*VType)[i].NSoilLayers, VarStr[number_of_root_zones], 1, KeyName[number_of_root_zones]))
       ReportError(KeyName[number_of_root_zones], 51);
 
-    if (!CopyFloat(&((*VType)[i].ImpervFrac), VarStr[imperv_frac], 1))
+    if (!CopyFloat(&((*VType)[i].ImpervFrac), VarStr[imperv_frac], 1, KeyName[imperv_frac]))
       ReportError(KeyName[imperv_frac], 51);
     impervious += (*VType)[i].ImpervFrac;
 
     if ((*VType)[i].ImpervFrac > 0) {
-      if (!CopyFloat(&((*VType)[i].DetentionFrac), VarStr[detention_frac], 1))
+      if (!CopyFloat(&((*VType)[i].DetentionFrac), VarStr[detention_frac], 1, KeyName[detention_frac]))
         ReportError(KeyName[detention_frac], 51);
-      if (!CopyFloat(&((*VType)[i].DetentionDecay), VarStr[detention_decay], 1))
+      if (!CopyFloat(&((*VType)[i].DetentionDecay), VarStr[detention_decay], 1, KeyName[detention_decay]))
         ReportError(KeyName[detention_decay], 51);
     } else {
       (*VType)[i].DetentionFrac = 0.;
@@ -445,24 +445,24 @@ int InitVegTable(VEGTABLE **VType, LISTPTR Input, OPTIONSTRUCT *Options,
     /* allocation of zero memory is not supported on some
        compilers */
     if ((*VType)[i].OverStory == TRUE) {
-      if (!CopyFloat(&((*VType)[i].Fract[0]), VarStr[fraction], 1))
+      if (!CopyFloat(&((*VType)[i].Fract[0]), VarStr[fraction], 1, KeyName[fraction]))
         ReportError(KeyName[fraction], 51);
 
       if (Options->CanopyRadAtt == VARIABLE) {
-        if (!CopyFloat(&((*VType)[i].HemiFract[0]), VarStr[hemifraction], 1))
+        if (!CopyFloat(&((*VType)[i].HemiFract[0]), VarStr[hemifraction], 1, KeyName[hemifraction]))
           ReportError(KeyName[hemifraction], 51);
         if (!CopyFloat(&((*VType)[i].ClumpingFactor), VarStr[clumping_factor],
-                       1))
+                       1, KeyName[clumping_factor]))
           ReportError(KeyName[clumping_factor], 51);
-        if (!CopyFloat(&((*VType)[i].LeafAngleA), VarStr[leaf_angle_a], 1))
+        if (!CopyFloat(&((*VType)[i].LeafAngleA), VarStr[leaf_angle_a], 1, KeyName[leaf_angle_a]))
           ReportError(KeyName[leaf_angle_a], 51);
-        if (!CopyFloat(&((*VType)[i].LeafAngleB), VarStr[leaf_angle_b], 1))
+        if (!CopyFloat(&((*VType)[i].LeafAngleB), VarStr[leaf_angle_b], 1, KeyName[leaf_angle_b]))
           ReportError(KeyName[leaf_angle_b], 51);
-        if (!CopyFloat(&((*VType)[i].Scat), VarStr[scat], 1))
+        if (!CopyFloat(&((*VType)[i].Scat), VarStr[scat], 1, KeyName[scat]))
           ReportError(KeyName[scat], 51);
         (*VType)[i].Atten = NOT_APPLICABLE;
       } else if (Options->CanopyRadAtt == FIXED) {
-        if (!CopyFloat(&((*VType)[i].Atten), VarStr[radiation_att], 1))
+        if (!CopyFloat(&((*VType)[i].Atten), VarStr[radiation_att], 1, KeyName[radiation_att]))
           ReportError(KeyName[radiation_att], 51);
         (*VType)[i].ClumpingFactor = NOT_APPLICABLE;
         (*VType)[i].Scat = NOT_APPLICABLE;
@@ -470,59 +470,59 @@ int InitVegTable(VEGTABLE **VType, LISTPTR Input, OPTIONSTRUCT *Options,
         (*VType)[i].LeafAngleB = NOT_APPLICABLE;
       }
 
-      if (!CopyFloat(&((*VType)[i].Trunk), VarStr[trunk_space], 1))
+      if (!CopyFloat(&((*VType)[i].Trunk), VarStr[trunk_space], 1, KeyName[trunk_space]))
         ReportError(KeyName[trunk_space], 51);
 
-      if (!CopyFloat(&((*VType)[i].Cn), VarStr[aerodynamic_att], 1))
+      if (!CopyFloat(&((*VType)[i].Cn), VarStr[aerodynamic_att], 1, KeyName[aerodynamic_att]))
         ReportError(KeyName[aerodynamic_att], 51);
 
-      if (!CopyFloat(&((*VType)[i].MaxSnowInt), VarStr[snow_int_cap], 1))
+      if (!CopyFloat(&((*VType)[i].MaxSnowInt), VarStr[snow_int_cap], 1, KeyName[snow_int_cap]))
         ReportError(KeyName[snow_int_cap], 51);
 
-      if (!CopyFloat(&((*VType)[i].MDRatio), VarStr[mass_drip_ratio], 1))
+      if (!CopyFloat(&((*VType)[i].MDRatio), VarStr[mass_drip_ratio], 1, KeyName[mass_drip_ratio]))
         ReportError(KeyName[mass_drip_ratio], 51);
 
-      if (!CopyFloat(&((*VType)[i].SnowIntEff), VarStr[snow_int_eff], 1))
+      if (!CopyFloat(&((*VType)[i].SnowIntEff), VarStr[snow_int_eff], 1, KeyName[snow_int_eff]))
         ReportError(KeyName[snow_int_eff], 51);
 
       if (!CopyFloat((*VType)[i].RootFract[0], VarStr[overstory_fraction],
-                     (*VType)[i].NSoilLayers))
+                     (*VType)[i].NSoilLayers, KeyName[overstory_fraction]))
         ReportError(KeyName[overstory_fraction], 51);
 
-      if (!CopyFloat((*VType)[i].LAIMonthly[0], VarStr[overstory_monlai], 12))
+      if (!CopyFloat((*VType)[i].LAIMonthly[0], VarStr[overstory_monlai], 12, KeyName[overstory_monlai]))
         ReportError(KeyName[overstory_monlai], 51);
 
       if (!CopyFloat((*VType)[i].AlbedoMonthly[0], VarStr[overstory_monalb],
-                     12))
+                     12, KeyName[overstory_monalb]))
         ReportError(KeyName[overstory_monalb], 51);
 
       if ((*VType)[i].UnderStory == TRUE) {
         (*VType)[i].Fract[1] = 1.0;
         if (!CopyFloat((*VType)[i].RootFract[1], VarStr[understory_fraction],
-                       (*VType)[i].NSoilLayers))
+                       (*VType)[i].NSoilLayers, KeyName[understory_fraction]))
           ReportError(KeyName[understory_fraction], 51);
 
         if (!CopyFloat((*VType)[i].LAIMonthly[1], VarStr[understory_monlai],
-                       12))
+                       12, KeyName[understory_monlai]))
           ReportError(KeyName[understory_monlai], 51);
 
         if (!CopyFloat((*VType)[i].AlbedoMonthly[1], VarStr[understory_monalb],
-                       12))
+                       12, KeyName[understory_monalb]))
           ReportError(KeyName[understory_monalb], 51);
       }
     } else {
       if ((*VType)[i].UnderStory == TRUE) {
         (*VType)[i].Fract[0] = 1.0;
         if (!CopyFloat((*VType)[i].RootFract[0], VarStr[understory_fraction],
-                       (*VType)[i].NSoilLayers))
+                       (*VType)[i].NSoilLayers, KeyName[understory_fraction]))
           ReportError(KeyName[understory_fraction], 51);
 
         if (!CopyFloat((*VType)[i].LAIMonthly[0], VarStr[understory_monlai],
-                       12))
+                       12, KeyName[understory_monlai]))
           ReportError(KeyName[understory_monlai], 51);
 
         if (!CopyFloat((*VType)[i].AlbedoMonthly[0], VarStr[understory_monalb],
-                       12))
+                       12, KeyName[understory_monalb]))
           ReportError(KeyName[understory_monalb], 51);
       }
       (*VType)[i].Trunk = NOT_APPLICABLE;
@@ -531,29 +531,29 @@ int InitVegTable(VEGTABLE **VType, LISTPTR Input, OPTIONSTRUCT *Options,
       (*VType)[i].ClumpingFactor = NOT_APPLICABLE;
     }
 
-    if (!CopyFloat((*VType)[i].Height, VarStr[height], (*VType)[i].NVegLayers))
+    if (!CopyFloat((*VType)[i].Height, VarStr[height], (*VType)[i].NVegLayers, KeyName[height]))
       ReportError(KeyName[height], 51);
 
     if (!CopyFloat((*VType)[i].RsMax, VarStr[max_resistance],
-                   (*VType)[i].NVegLayers))
+                   (*VType)[i].NVegLayers, KeyName[max_resistance]))
       ReportError(KeyName[max_resistance], 51);
 
     if (!CopyFloat((*VType)[i].RsMin, VarStr[min_resistance],
-                   (*VType)[i].NVegLayers))
+                   (*VType)[i].NVegLayers, KeyName[min_resistance]))
       ReportError(KeyName[min_resistance], 51);
 
     if (!CopyFloat((*VType)[i].MoistThres, VarStr[moisture_threshold],
-                   (*VType)[i].NVegLayers))
+                   (*VType)[i].NVegLayers, KeyName[moisture_threshold]))
       ReportError(KeyName[moisture_threshold], 51);
 
-    if (!CopyFloat((*VType)[i].VpdThres, VarStr[vpd], (*VType)[i].NVegLayers))
+    if (!CopyFloat((*VType)[i].VpdThres, VarStr[vpd], (*VType)[i].NVegLayers, KeyName[vpd]))
       ReportError(KeyName[vpd], 51);
 
-    if (!CopyFloat((*VType)[i].Rpc, VarStr[rpc], (*VType)[i].NVegLayers))
+    if (!CopyFloat((*VType)[i].Rpc, VarStr[rpc], (*VType)[i].NVegLayers, KeyName[rpc]))
       ReportError(KeyName[rpc], 51);
 
     if (!CopyFloat((*VType)[i].RootDepth, VarStr[root_zone_depth],
-                   (*VType)[i].NSoilLayers))
+                   (*VType)[i].NSoilLayers, KeyName[root_zone_depth]))
       ReportError(KeyName[root_zone_depth], 51);
 
     /* Calculate the wind speed profiles and the aerodynamical resistances

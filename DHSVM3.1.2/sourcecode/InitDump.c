@@ -55,7 +55,7 @@
 *****************************************************************************/
 void InitDump(LISTPTR Input, OPTIONSTRUCT *Options, MAPSIZE *Map,
               int MaxSoilLayers, int MaxVegLayers, int Dt, TOPOPIX **TopoMap,
-              DUMPSTRUCT *Dump, int *NGraphics, int **which_graphics) {
+              DUMPSTRUCT *Dump, int *NGraphics, int **which_graphics, int id) {
   char *Routine = "InitDump";
   int i;
   int x;          /* counter */
@@ -67,6 +67,7 @@ void InitDump(LISTPTR Input, OPTIONSTRUCT *Options, MAPSIZE *Map,
   int temp_count;
   uchar **BasinMask;
   char sumoutfile[100];
+  int len;
 
   STRINIENTRY StrEnv[] = {
       {"OUTPUT", "OUTPUT DIRECTORY", "", ""},
@@ -82,14 +83,22 @@ void InitDump(LISTPTR Input, OPTIONSTRUCT *Options, MAPSIZE *Map,
   printf("Initializing dump procedures\n");
 
   /* Get the key-entry pairs from the input file */
-  for (i = 0; StrEnv[i].SectionName; i++)
+  for (i = 0; StrEnv[i].SectionName; i++){
     GetInitString(StrEnv[i].SectionName, StrEnv[i].KeyName, StrEnv[i].Default,
                   StrEnv[i].VarStr, (unsigned long)BUFSIZE, Input);
+    //printf("%s\n", StrEnv[i].KeyName);                  
+    }
 
   /* Assign the entries to the variables */
   if (IsEmptyStr(StrEnv[output_path].VarStr))
     ReportError(StrEnv[output_path].KeyName, 51);
   strcpy(Dump->Path, StrEnv[output_path].VarStr);
+  if(id > -1) {
+    len = strlen(Dump->Path);
+    //Dump->Path[len] = '0' + id;
+    sprintf(Dump->Path + len, "%d", id);
+    //Dump->Path[len+1] = 0;
+  }
 
   // delete any previous failure_summary.txt file
   sprintf(sumoutfile, "%sfailure_summary.txt", Dump->Path);
@@ -102,28 +111,28 @@ void InitDump(LISTPTR Input, OPTIONSTRUCT *Options, MAPSIZE *Map,
 
   if (IsEmptyStr(StrEnv[npixels].VarStr))
     Dump->NPix = 0;
-  else if (!CopyInt(&(Dump->NPix), StrEnv[npixels].VarStr, 1) || Dump->NPix < 0)
+  else if (!CopyInt(&(Dump->NPix), StrEnv[npixels].VarStr, 1, StrEnv[npixels].KeyName) || Dump->NPix < 0)
     ReportError(StrEnv[npixels].KeyName, 51);
 
   if (IsEmptyStr(StrEnv[nstates].VarStr))
     Dump->NStates = 0;
-  else if (!CopyInt(&(Dump->NStates), StrEnv[nstates].VarStr, 1))
+  else if (!CopyInt(&(Dump->NStates), StrEnv[nstates].VarStr, 1, StrEnv[nstates].KeyName))
     ReportError(StrEnv[nstates].KeyName, 51);
 
   if (IsEmptyStr(StrEnv[nmapvars].VarStr))
     NMapVars = 0;
-  else if (!CopyInt(&NMapVars, StrEnv[nmapvars].VarStr, 1) || NMapVars < 0)
+  else if (!CopyInt(&NMapVars, StrEnv[nmapvars].VarStr, 1, StrEnv[nmapvars].KeyName) || NMapVars < 0)
     ReportError(StrEnv[nmapvars].KeyName, 51);
 
   if (IsEmptyStr(StrEnv[nimagevars].VarStr))
     NImageVars = 0;
-  else if (!CopyInt(&NImageVars, StrEnv[nimagevars].VarStr, 1) ||
+  else if (!CopyInt(&NImageVars, StrEnv[nimagevars].VarStr, 1, StrEnv[nimagevars].KeyName) ||
            NImageVars < 0)
     ReportError(StrEnv[nimagevars].KeyName, 51);
 
   if (IsEmptyStr(StrEnv[ngraphics].VarStr))
     *NGraphics = 0;
-  else if (!CopyInt(NGraphics, StrEnv[ngraphics].VarStr, 1) || *NGraphics < 0)
+  else if (!CopyInt(NGraphics, StrEnv[ngraphics].VarStr, 1, StrEnv[ngraphics].KeyName) || *NGraphics < 0)
     ReportError(StrEnv[ngraphics].KeyName, 51);
 
   if (Options->Extent == POINT)
@@ -243,7 +252,7 @@ void InitGraphicsDump(LISTPTR Input, int NGraphics, int ***which_graphics) {
     GetInitString(SectionName, KeyName, "", VarStr, (unsigned long)BUFSIZE,
                   Input);
 
-    if (!CopyInt(&(**which_graphics)[i], VarStr, 1))
+    if (!CopyInt(&(**which_graphics)[i], VarStr, 1, "GRAPHICS ID"))
       ReportError("GRAPHICS ID", 51);
   }
 }
@@ -338,7 +347,7 @@ void InitImageDump(LISTPTR Input, int Dt, MAPSIZE *Map, int MaxSoilLayers,
     }
 
     /* Assign the entries to the appropriate variables */
-    if (!CopyInt(&((*DMap)[i].ID), VarStr[image_variable], 1))
+    if (!CopyInt(&((*DMap)[i].ID), VarStr[image_variable], 1, KeyName[image_variable]))
       ReportError(KeyName[image_variable], 51);
 
     if (!IsValidID((*DMap)[i].ID))
@@ -346,7 +355,7 @@ void InitImageDump(LISTPTR Input, int Dt, MAPSIZE *Map, int MaxSoilLayers,
 
     if (IsMultiLayer((*DMap)[i].ID)) {
       MaxLayers = GetVarNLayers((*DMap)[i].ID, MaxSoilLayers, MaxVegLayers);
-      if (!CopyInt(&((*DMap)[i].Layer), VarStr[image_layer], 1))
+      if (!CopyInt(&((*DMap)[i].Layer), VarStr[image_layer], 1, KeyName[image_layer]))
         ReportError(KeyName[image_layer], 51);
       if ((*DMap)[i].Layer < 1 || (*DMap)[i].Layer > MaxLayers)
         ReportError("Input Options File", 20);
@@ -368,7 +377,7 @@ void InitImageDump(LISTPTR Input, int Dt, MAPSIZE *Map, int MaxSoilLayers,
     if (!SScanDate(VarStr[image_end], &End))
       ReportError(KeyName[image_end], 51);
 
-    if (!CopyFloat(&tmpInterval, VarStr[image_interval], 1))
+    if (!CopyFloat(&tmpInterval, VarStr[image_interval], 1, KeyName[image_interval]))
       ReportError(KeyName[image_interval], 51);
     Interval = SECPHOUR * tmpInterval;
 
@@ -387,10 +396,10 @@ void InitImageDump(LISTPTR Input, int Dt, MAPSIZE *Map, int MaxSoilLayers,
       (*DMap)[i].DumpDate[j] =
           NextDate(&((*DMap)[i].DumpDate[j - 1]), Interval);
 
-    if (!CopyFloat(&((*DMap)[i].MaxVal), VarStr[image_upper], 1))
+    if (!CopyFloat(&((*DMap)[i].MaxVal), VarStr[image_upper], 1, KeyName[image_upper]))
       ReportError(KeyName[image_upper], 51);
 
-    if (!CopyFloat(&((*DMap)[i].MinVal), VarStr[image_lower], 1))
+    if (!CopyFloat(&((*DMap)[i].MinVal), VarStr[image_lower], 1, KeyName[image_lower]))
       ReportError(KeyName[image_lower], 51);
   }
 }
@@ -445,7 +454,7 @@ void InitMapDump(LISTPTR Input, MAPSIZE *Map, int MaxSoilLayers,
     }
 
     /* Assign the entries to the appropriate variables */
-    if (!CopyInt(&((*DMap)[i].ID), VarStr[map_variable], 1))
+    if (!CopyInt(&((*DMap)[i].ID), VarStr[map_variable], 1, KeyName[map_variable]))
       ReportError(KeyName[map_variable], 51);
 
     if (!IsValidID((*DMap)[i].ID))
@@ -453,7 +462,7 @@ void InitMapDump(LISTPTR Input, MAPSIZE *Map, int MaxSoilLayers,
 
     if (IsMultiLayer((*DMap)[i].ID)) {
       MaxLayers = GetVarNLayers((*DMap)[i].ID, MaxSoilLayers, MaxVegLayers);
-      if (!CopyInt(&((*DMap)[i].Layer), VarStr[map_layer], 1))
+      if (!CopyInt(&((*DMap)[i].Layer), VarStr[map_layer], 1, KeyName[map_layer]))
         ReportError(KeyName[map_layer], 51);
       if ((*DMap)[i].Layer < 1 || (*DMap)[i].Layer > MaxLayers)
         ReportError("Input Options File", 20);
@@ -467,7 +476,7 @@ void InitMapDump(LISTPTR Input, MAPSIZE *Map, int MaxSoilLayers,
 
     CreateMapFile((*DMap)[i].FileName, (*DMap)[i].FileLabel, Map);
 
-    if (!CopyInt(&((*DMap)[i].N), VarStr[nmaps], 1))
+    if (!CopyInt(&((*DMap)[i].N), VarStr[nmaps], 1, KeyName[nmaps]))
       ReportError(KeyName[nmaps], 51);
 
     if ((*DMap)[i].N < 1)
@@ -541,10 +550,10 @@ int InitPixDump(LISTPTR Input, MAPSIZE *Map, uchar **BasinMask, char *Path,
     }
 
     /* Assign the entries to the appropriate variables */
-    if (!CopyDouble(&North, VarStr[north], 1))
+    if (!CopyDouble(&North, VarStr[north], 1, KeyName[north]))
       ReportError(KeyName[north], 51);
 
-    if (!CopyDouble(&East, VarStr[east], 1))
+    if (!CopyDouble(&East, VarStr[east], 1, KeyName[east]))
       ReportError(KeyName[east], 51);
 
     if (IsEmptyStr(VarStr[name]))

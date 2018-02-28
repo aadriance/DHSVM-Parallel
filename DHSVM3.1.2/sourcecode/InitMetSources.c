@@ -127,7 +127,7 @@ void InitStations(LISTPTR Input, MAPSIZE *Map, int NDaySteps,
   /* Get the number of different stations */
   GetInitString(SectionName, "NUMBER OF STATIONS", "", VarStr[0],
                 (unsigned long)BUFSIZE, Input);
-  if (!CopyInt(NStats, VarStr[0], 1))
+  if (!CopyInt(NStats, VarStr[0], 1, "NUMBER OF STATIONS"))
     ReportError("NUMBER OF STATIONS", 51);
 
   if (*NStats <= 0)
@@ -158,16 +158,16 @@ void InitStations(LISTPTR Input, MAPSIZE *Map, int NDaySteps,
       ReportError(KeyName[number_of_maps], 51);
     strcpy((*Stat)[k].Name, VarStr[station_name]);
 
-    if (!CopyFloat(&North, VarStr[station_north], 1))
+    if (!CopyFloat(&North, VarStr[station_north], 1, KeyName[station_north]))
       ReportError(KeyName[station_north], 51);
 
-    if (!CopyFloat(&East, VarStr[station_east], 1))
+    if (!CopyFloat(&East, VarStr[station_east], 1, KeyName[station_east]))
       ReportError(KeyName[station_east], 51);
 
     (*Stat)[k].Loc.N = Round(((Map->Yorig - 0.5 * Map->DY) - North) / Map->DY);
     (*Stat)[k].Loc.E = Round((East - (Map->Xorig + 0.5 * Map->DX)) / Map->DX);
 
-    if (!CopyFloat(&((*Stat)[k].Elev), VarStr[station_elev], 1))
+    if (!CopyFloat(&((*Stat)[k].Elev), VarStr[station_elev], 1, KeyName[station_elev]))
       ReportError(KeyName[station_elev], 51);
 
     if (IsEmptyStr(VarStr[station_file]))
@@ -312,19 +312,19 @@ void InitMM5(LISTPTR Input, int NSoilLayers, TIMESTRUCT *Time,
     }
   }
 
-  if (!CopyDouble(&(MM5Map->Yorig), StrEnv[MM5_ext_north].VarStr, 1))
+  if (!CopyDouble(&(MM5Map->Yorig), StrEnv[MM5_ext_north].VarStr, 1, StrEnv[MM5_ext_north].KeyName))
     ReportError(StrEnv[MM5_ext_north].KeyName, 51);
 
-  if (!CopyDouble(&(MM5Map->Xorig), StrEnv[MM5_ext_west].VarStr, 1))
+  if (!CopyDouble(&(MM5Map->Xorig), StrEnv[MM5_ext_west].VarStr, 1, StrEnv[MM5_ext_west].KeyName))
     ReportError(StrEnv[MM5_ext_west].KeyName, 51);
 
-  if (!CopyInt(&(MM5Map->NY), StrEnv[MM5_rows].VarStr, 1))
+  if (!CopyInt(&(MM5Map->NY), StrEnv[MM5_rows].VarStr, 1, StrEnv[MM5_rows].KeyName))
     ReportError(StrEnv[MM5_rows].KeyName, 51);
 
-  if (!CopyInt(&(MM5Map->NX), StrEnv[MM5_cols].VarStr, 1))
+  if (!CopyInt(&(MM5Map->NX), StrEnv[MM5_cols].VarStr, 1, StrEnv[MM5_cols].KeyName))
     ReportError(StrEnv[MM5_cols].KeyName, 51);
 
-  if (!CopyFloat(&(MM5Map->DY), StrEnv[MM5_dy].VarStr, 1))
+  if (!CopyFloat(&(MM5Map->DY), StrEnv[MM5_dy].VarStr, 1, StrEnv[MM5_dy].KeyName))
     ReportError(StrEnv[MM5_dy].KeyName, 51);
 
   MM5Map->OffsetX =
@@ -416,19 +416,19 @@ void InitRadar(LISTPTR Input, MAPSIZE *Map, TIMESTRUCT *Time,
   /**************** Determine areal extent ****************/
   strcpy(Radar->System, Map->System);
 
-  if (!CopyDouble(&(Radar->Yorig), StrEnv[radar_north].VarStr, 1))
+  if (!CopyDouble(&(Radar->Yorig), StrEnv[radar_north].VarStr, 1, StrEnv[radar_north].KeyName))
     ReportError(StrEnv[radar_north].KeyName, 51);
 
-  if (!CopyDouble(&(Radar->Xorig), StrEnv[radar_west].VarStr, 1))
+  if (!CopyDouble(&(Radar->Xorig), StrEnv[radar_west].VarStr, 1, StrEnv[radar_west].KeyName))
     ReportError(StrEnv[radar_west].KeyName, 51);
 
-  if (!CopyInt(&(Radar->NY), StrEnv[radar_rows].VarStr, 1))
+  if (!CopyInt(&(Radar->NY), StrEnv[radar_rows].VarStr, 1, StrEnv[radar_rows].KeyName))
     ReportError(StrEnv[radar_rows].KeyName, 51);
 
-  if (!CopyInt(&(Radar->NX), StrEnv[radar_cols].VarStr, 1))
+  if (!CopyInt(&(Radar->NX), StrEnv[radar_cols].VarStr, 1, StrEnv[radar_cols].KeyName))
     ReportError(StrEnv[radar_cols].KeyName, 51);
 
-  if (!CopyFloat(&(Radar->DY), StrEnv[radar_grid].VarStr, 1))
+  if (!CopyFloat(&(Radar->DY), StrEnv[radar_grid].VarStr, 1, StrEnv[radar_grid].KeyName))
     ReportError(StrEnv[radar_grid].KeyName, 51);
 
   Radar->DXY = sqrt(Radar->DX * Radar->DX + Radar->DY * Radar->DY);
@@ -479,14 +479,14 @@ void InitWindModel(LISTPTR Input, INPUTFILES *InFiles, int NStats,
                   StrEnv[i].VarStr, (unsigned long)BUFSIZE, Input);
 
   /* Assign the entries to the variables */
-  if (!CopyInt(&NWINDMAPS, StrEnv[number_of_maps].VarStr, 1))
+  if (!CopyInt(&NWINDMAPS, StrEnv[number_of_maps].VarStr, 1, StrEnv[number_of_maps].KeyName))
     ReportError(StrEnv[number_of_maps].KeyName, 51);
 
   if (IsEmptyStr(StrEnv[wind_map_path].VarStr))
     ReportError(StrEnv[wind_map_path].KeyName, 51);
   strcpy(InFiles->WindMapPath, StrEnv[wind_map_path].VarStr);
 
-  if (!CopyInt(&WindStation, StrEnv[wind_station].VarStr, 1))
+  if (!CopyInt(&WindStation, StrEnv[wind_station].VarStr, 1, StrEnv[wind_station].KeyName))
     ReportError(StrEnv[wind_station].KeyName, 51);
 
   if (WindStation < 1 || WindStation > NStats)

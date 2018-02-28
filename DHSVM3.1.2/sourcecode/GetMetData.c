@@ -30,6 +30,7 @@ void GetMetData(OPTIONSTRUCT *Options, TIMESTRUCT *Time, int NSoilLayers,
                 int NStats, float SunMax, METLOCATION *Stat, MAPSIZE *Radar,
                 RADARPIX **RadarMap, char *RadarFileName) {
   int i; /* counter */
+
   if (DEBUG)
     printf("Reading all met data for current timestep\n");
 

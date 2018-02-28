@@ -101,7 +101,7 @@ int InitSedTable(SEDTABLE **SedType, LISTPTR Input, SOILTABLE **SType) {
   /* Get the number of different soil types */
   GetInitString(SectionName, "NUMBER OF SOIL TYPES", "", VarStr[0],
                 (unsigned long)BUFSIZE, Input);
-  if (!CopyInt(&NSoils, VarStr[0], 1))
+  if (!CopyInt(&NSoils, VarStr[0], 1, "NUMBER OF SOIL TYPES"))
     ReportError("NUMBER OF SOIL TYPES", 51);
 
   if (NSoils == 0)
@@ -126,10 +126,10 @@ int InitSedTable(SEDTABLE **SedType, LISTPTR Input, SOILTABLE **SType) {
       ReportError(KeyName[sed_description], 51);
     strcpy((*SedType)[i].Desc, VarStr[sed_description]);
 
-    if (!CopyFloat(&((*SedType)[i].KIndex), VarStr[kindex], 1))
+    if (!CopyFloat(&((*SedType)[i].KIndex), VarStr[kindex], 1, KeyName[kindex]))
       ReportError(KeyName[kindex], 51);
 
-    if (!CopyFloat(&((*SedType)[i].d50), VarStr[dfifty], 1))
+    if (!CopyFloat(&((*SedType)[i].d50), VarStr[dfifty], 1, KeyName[dfifty]))
       ReportError(KeyName[dfifty], 51);
 
     if (IsEmptyStr(VarStr[cohesion]))
@@ -138,23 +138,23 @@ int InitSedTable(SEDTABLE **SedType, LISTPTR Input, SOILTABLE **SType) {
 
     if (strcmp((*SedType)[i].Cohesion.Distribution, "NORMAL") == 0) {
 
-      if (!CopyFloat(&((*SedType)[i].Cohesion.mean), VarStr[coh_mean], 1))
+      if (!CopyFloat(&((*SedType)[i].Cohesion.mean), VarStr[coh_mean], 1, KeyName[coh_mean]))
         ReportError(KeyName[coh_mean], 51);
 
-      if (!CopyFloat(&((*SedType)[i].Cohesion.stdev), VarStr[coh_dev], 1))
+      if (!CopyFloat(&((*SedType)[i].Cohesion.stdev), VarStr[coh_dev], 1, KeyName[coh_dev]))
         ReportError(KeyName[coh_dev], 51);
     } else {
 
-      if (!CopyFloat(&((*SedType)[i].Cohesion.min), VarStr[coh_min], 1))
+      if (!CopyFloat(&((*SedType)[i].Cohesion.min), VarStr[coh_min], 1, KeyName[coh_min]))
         ReportError(KeyName[coh_min], 51);
 
-      if (!CopyFloat(&((*SedType)[i].Cohesion.max), VarStr[coh_max], 1))
+      if (!CopyFloat(&((*SedType)[i].Cohesion.max), VarStr[coh_max], 1, KeyName[coh_max]))
         ReportError(KeyName[coh_max], 51);
     }
 
     if (strcmp((*SedType)[i].Cohesion.Distribution, "TRIANGULAR") == 0) {
 
-      if (!CopyFloat(&((*SedType)[i].Cohesion.mode), VarStr[coh_mode], 1))
+      if (!CopyFloat(&((*SedType)[i].Cohesion.mode), VarStr[coh_mode], 1, KeyName[coh_mode]))
         ReportError(KeyName[coh_mode], 51);
     }
 
@@ -164,23 +164,23 @@ int InitSedTable(SEDTABLE **SedType, LISTPTR Input, SOILTABLE **SType) {
 
     if (strcmp((*SedType)[i].Friction.Distribution, "NORMAL") == 0) {
 
-      if (!CopyFloat(&((*SedType)[i].Friction.mean), VarStr[fa_mean], 1))
+      if (!CopyFloat(&((*SedType)[i].Friction.mean), VarStr[fa_mean], 1, KeyName[fa_mean]))
         ReportError(KeyName[fa_mean], 51);
 
-      if (!CopyFloat(&((*SedType)[i].Friction.stdev), VarStr[fa_dev], 1))
+      if (!CopyFloat(&((*SedType)[i].Friction.stdev), VarStr[fa_dev], 1, KeyName[fa_dev]))
         ReportError(KeyName[fa_dev], 51);
     } else {
 
-      if (!CopyFloat(&((*SedType)[i].Friction.min), VarStr[fa_min], 1))
+      if (!CopyFloat(&((*SedType)[i].Friction.min), VarStr[fa_min], 1, KeyName[fa_min]))
         ReportError(KeyName[fa_min], 51);
 
-      if (!CopyFloat(&((*SedType)[i].Friction.max), VarStr[fa_max], 1))
+      if (!CopyFloat(&((*SedType)[i].Friction.max), VarStr[fa_max], 1, KeyName[fa_max]))
         ReportError(KeyName[fa_max], 51);
     }
 
     if (strcmp((*SedType)[i].Friction.Distribution, "TRIANGULAR") == 0) {
 
-      if (!CopyFloat(&((*SedType)[i].Friction.mode), VarStr[fa_mode], 1))
+      if (!CopyFloat(&((*SedType)[i].Friction.mode), VarStr[fa_mode], 1, KeyName[fa_mode]))
         ReportError(KeyName[fa_mode], 51);
     }
 
@@ -241,7 +241,7 @@ int InitVegStats(VEGTABLE **VType, LISTPTR Input) {
   /* Get the number of different vegetation types */
   GetInitString(SectionName, "NUMBER OF VEGETATION TYPES", "", VarStr[0],
                 (unsigned long)BUFSIZE, Input);
-  if (!CopyInt(&NVegs, VarStr[0], 1))
+  if (!CopyInt(&NVegs, VarStr[0], 1, "NUMBER OF VEGETATION TYPES"))
     ReportError("NUMBER OF VEGETATION TYPES", 51);
 
   if (NVegs == 0)
@@ -266,23 +266,23 @@ int InitVegStats(VEGTABLE **VType, LISTPTR Input) {
 
     if (strcmp((*VType)[i].RootCoh.Distribution, "NORMAL") == 0) {
 
-      if (!CopyFloat(&((*VType)[i].RootCoh.mean), VarStr[rc_mean], 1))
+      if (!CopyFloat(&((*VType)[i].RootCoh.mean), VarStr[rc_mean], 1, KeyName[rc_mean]))
         ReportError(KeyName[rc_mean], 51);
 
-      if (!CopyFloat(&((*VType)[i].RootCoh.stdev), VarStr[rc_dev], 1))
+      if (!CopyFloat(&((*VType)[i].RootCoh.stdev), VarStr[rc_dev], 1, KeyName[rc_dev]))
         ReportError(KeyName[rc_dev], 51);
     } else {
 
-      if (!CopyFloat(&((*VType)[i].RootCoh.min), VarStr[rc_min], 1))
+      if (!CopyFloat(&((*VType)[i].RootCoh.min), VarStr[rc_min], 1, KeyName[rc_min]))
         ReportError(KeyName[rc_min], 51);
 
-      if (!CopyFloat(&((*VType)[i].RootCoh.max), VarStr[rc_max], 1))
+      if (!CopyFloat(&((*VType)[i].RootCoh.max), VarStr[rc_max], 1, KeyName[rc_max]))
         ReportError(KeyName[rc_max], 51);
     }
 
     if (strcmp((*VType)[i].RootCoh.Distribution, "TRIANGULAR") == 0) {
 
-      if (!CopyFloat(&((*VType)[i].RootCoh.mode), VarStr[rc_mode], 1))
+      if (!CopyFloat(&((*VType)[i].RootCoh.mode), VarStr[rc_mode], 1, KeyName[rc_mode]))
         ReportError(KeyName[rc_mode], 51);
     }
 
@@ -292,23 +292,23 @@ int InitVegStats(VEGTABLE **VType, LISTPTR Input) {
 
     if (strcmp((*VType)[i].VegSurcharge.Distribution, "NORMAL") == 0) {
 
-      if (!CopyFloat(&((*VType)[i].VegSurcharge.mean), VarStr[vs_mean], 1))
+      if (!CopyFloat(&((*VType)[i].VegSurcharge.mean), VarStr[vs_mean], 1, KeyName[vs_mean]))
         ReportError(KeyName[vs_mean], 51);
 
-      if (!CopyFloat(&((*VType)[i].VegSurcharge.stdev), VarStr[vs_dev], 1))
+      if (!CopyFloat(&((*VType)[i].VegSurcharge.stdev), VarStr[vs_dev], 1, KeyName[vs_dev]))
         ReportError(KeyName[vs_dev], 51);
     } else {
 
-      if (!CopyFloat(&((*VType)[i].VegSurcharge.min), VarStr[vs_min], 1))
+      if (!CopyFloat(&((*VType)[i].VegSurcharge.min), VarStr[vs_min], 1, KeyName[vs_min]))
         ReportError(KeyName[vs_min], 51);
 
-      if (!CopyFloat(&((*VType)[i].VegSurcharge.max), VarStr[vs_max], 1))
+      if (!CopyFloat(&((*VType)[i].VegSurcharge.max), VarStr[vs_max], 1, KeyName[vs_max]))
         ReportError(KeyName[vs_max], 51);
     }
 
     if (strcmp((*VType)[i].VegSurcharge.Distribution, "TRIANGULAR") == 0) {
 
-      if (!CopyFloat(&((*VType)[i].VegSurcharge.mode), VarStr[vs_mode], 1))
+      if (!CopyFloat(&((*VType)[i].VegSurcharge.mode), VarStr[vs_mode], 1, KeyName[vs_mode]))
         ReportError(KeyName[vs_mode], 51);
     }
   }

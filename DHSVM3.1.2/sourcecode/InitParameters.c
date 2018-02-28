@@ -141,14 +141,14 @@ void InitParameters(LISTPTR Input, OPTIONSTRUCT *Options, MAPSIZE *Map,
   } else
     ReportError(StrEnv[channel_routing].KeyName, 51);
 
-  if (!CopyFloat(&(Map->DMASS), StrEnv[mass_spacing].VarStr, 1))
+  if (!CopyFloat(&(Map->DMASS), StrEnv[mass_spacing].VarStr, 1, StrEnv[mass_spacing].KeyName))
     ReportError(StrEnv[mass_spacing].KeyName, 51);
 
   Map->NYfine = Map->NY * (Map->DY / Map->DMASS);
   Map->NXfine = Map->NX * (Map->DY / Map->DMASS);
   Map->NumCellsfine = 0;
 
-  if (!CopyFloat(&MASSITER, StrEnv[max_iterations].VarStr, 1))
+  if (!CopyFloat(&MASSITER, StrEnv[max_iterations].VarStr, 1, StrEnv[max_iterations].KeyName))
     ReportError(StrEnv[max_iterations].KeyName, 51);
 
   // Channel Parent parameters not currently used
@@ -158,10 +158,10 @@ void InitParameters(LISTPTR Input, OPTIONSTRUCT *Options, MAPSIZE *Map,
   //  if (!CopyFloat(&CHANNELd90, StrEnv[channeld90].VarStr, 1))
   //    ReportError(StrEnv[channeld90].KeyName, 51);
 
-  if (!CopyFloat(&DEBRISd50, StrEnv[debrisd50].VarStr, 1))
+  if (!CopyFloat(&DEBRISd50, StrEnv[debrisd50].VarStr, 1, StrEnv[debrisd50].KeyName))
     ReportError(StrEnv[debrisd50].KeyName, 51);
 
-  if (!CopyFloat(&DEBRISd90, StrEnv[debrisd90].VarStr, 1))
+  if (!CopyFloat(&DEBRISd90, StrEnv[debrisd90].VarStr, 1, StrEnv[debrisd90].KeyName))
     ReportError(StrEnv[debrisd90].KeyName, 51);
 
   DistributeSedimentDiams(SedDiams); /* find diameter for each portion */
@@ -204,7 +204,7 @@ void InitMassWaste(LISTPTR Input, TIMESTRUCT *Time) {
   GetInitString(SectionName, "MWM TIME STEPS", "", VarStr[0],
                 (unsigned long)BUFSIZE, Input);
 
-  if (!CopyInt(&(Time->NMWMTotalSteps), VarStr[0], 1))
+  if (!CopyInt(&(Time->NMWMTotalSteps), VarStr[0], 1, "MWM TIME STEPS"))
     ReportError("MWM TIME STEPS", 51);
 
   if ((Time->NMWMTotalSteps) < 0)
@@ -270,7 +270,7 @@ void InitSurfaceSed(LISTPTR Input, TIMESTRUCT *Time) {
   GetInitString(SectionName, "SE TIME STEPS", "", VarStr[0],
                 (unsigned long)BUFSIZE, Input);
 
-  if (!CopyInt(&(Time->NSETotalSteps), VarStr[0], 1))
+  if (!CopyInt(&(Time->NSETotalSteps), VarStr[0], 1, "SE TIME STEPS"))
     ReportError("SE TIME STEPS", 51);
 
   if ((Time->NSETotalSteps) < 0)

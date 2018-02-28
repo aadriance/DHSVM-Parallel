@@ -57,12 +57,14 @@ typedef struct _STRINIENTRY {
   char *Default;
 } STRINIENTRY;
 
-int CopyDouble(double *Value, char *Str, const int NValues);
-int CopyFloat(float *Value, char *Str, const int NValues);
-int CopyInt(int *Value, char *Str, const int NValues);
-int CopyLong(long *Value, char *Str, const int NValues);
-int CopyShort(short *Value, char *Str, const int NValues);
+int CopyDouble(double *Value, char *Str, const int NValues, char *name);
+int CopyFloat(float *Value, char *Str, const int NValues, char *name);
+int CopyInt(int *Value, char *Str, const int NValues, char *name);
+int CopyLong(long *Value, char *Str, const int NValues, char *name);
+int CopyShort(short *Value, char *Str, const int NValues, char *name);
 int CopyUChar(unsigned char *Value, char *Str, const int NValues);
+
+void writeRandomVals(char * path);
 
 int CountLines(FILE * InFile);
 

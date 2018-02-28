@@ -14,6 +14,8 @@
  * $Id: MainDHSVM.c,v 1.42 2006/10/12 20:38:11 nathalie Exp $
  */
 
+//#define _USE_MPI_
+
 /******************************************************************************/
 /*				    INCLUDES                                  */
 /******************************************************************************/
@@ -31,6 +33,9 @@
 #include <string.h>
 #include <time.h>
 #include <omp.h>
+#ifdef _USE_MPI_
+#include <mpi.h>
+#endif
 
 /******************************************************************************/
 /*				GLOBAL VARIABLES                              */
@@ -54,7 +59,38 @@ char errorstr[BUFSIZ + 1] = "";     /* error message */
 /******************************************************************************/
 /*				      MAIN                                    */
 /******************************************************************************/
+#ifdef _USE_MPI_
+int mpiMain(int argc, char **argv, int id);
+int main(int argc, char **argv){
+  /* MPI Set Up */
+  int comm_sz;
+  int my_rank;
+  int numRuns;
+  if (argc < 3) {
+    fprintf(stderr, "\nUsage: %s inputfile numberOfRuns\n\n", argv[0]);
+    exit(EXIT_FAILURE);
+  }
+
+  numRuns = strtol(argv[2],NULL,0);
+  MPI_Init(NULL, NULL);
+  MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
+  MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+  //omp_set_num_threads(8);
+  //#pragma omp parallel for
+  for(int i = my_rank; i < numRuns; i += comm_sz) {
+    printf("Number of threads in the current parallel region is %i \n", omp_get_num_threads());
+    mpiMain(argc, argv, i);
+  }
+  MPI_Finalize();
+}
+
+int mpiMain(int argc, char **argv, int id) {
+#else
 int main(int argc, char **argv) {
+#endif
+  #ifndef _USE_MPI_
+  int id = -1;
+  #endif
   float *Hydrograph = NULL;
   float ***MM5Input = NULL;
   float **PrecipLapseMap = NULL;
@@ -81,7 +117,7 @@ int main(int argc, char **argv) {
   int NGraphics = 0;       /* number of graphics for X11 */
   int *which_graphics = NULL; /* which graphics for X11 */
   char buffer[32] = {0};
-  
+  srand48(time(NULL));
   struct timespec tstart, tfinish;
   double elapsed;
   clock_gettime(CLOCK_MONOTONIC, &tstart);
@@ -164,7 +200,7 @@ int main(int argc, char **argv) {
   /*****************************************************************************
     Initialization Procedures
   *****************************************************************************/
-  if (argc != 2) {
+  if (argc < 2) {
     fprintf(stderr, "\nUsage: %s inputfile\n\n", argv[0]);
     fprintf(stderr, "DHSVM uses two output streams: \n");
     fprintf(stderr, "Standard Out, for the majority of output \n");
@@ -245,7 +281,7 @@ int main(int argc, char **argv) {
   InitInterpolationWeights(&Map, &Options, TopoMap, &MetWeights, Stat, NStats);
 
   InitDump(Input, &Options, &Map, Soil.MaxLayers, Veg.MaxLayers, Time.Dt,
-           TopoMap, &Dump, &NGraphics, &which_graphics);
+           TopoMap, &Dump, &NGraphics, &which_graphics, id);
 
   if (Options.HasNetwork == TRUE) {
     InitChannelDump(&Options, &ChannelData, Dump.Path);
@@ -533,7 +569,7 @@ int main(int argc, char **argv) {
            EvapMap, RadiationMap, PrecipMap, RadMap, SnowMap, MetMap, VegMap,
            &Veg, SoilMap, SedMap, Network, &ChannelData, FineMap, &Soil, &Total,
            &HydrographInfo, Hydrograph);
-
+  writeRandomVals(Dump.Path);
   FinalMassBalance(&(Dump.FinalBalance), &Total, &Mass, &Options, roadarea);
 
   /*printf("\nSTARTING CLEANUP\n\n");

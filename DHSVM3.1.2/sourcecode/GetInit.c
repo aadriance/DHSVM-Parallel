@@ -56,6 +56,26 @@
 #include <stdlib.h>
 #include <string.h>
 
+char randomVals[100][100];
+int randomCount = 0;
+
+/* output the recorded random values to a file */
+void writeRandomVals(char * path) {
+  char filePath[200];
+  FILE *file;
+
+  sprintf(filePath, "%s%s", path, "RandomValues.txt");
+  file = fopen(filePath, "w");
+  if(file == NULL) {
+    printf("UNABLE TO OPEN RANDOMVALUES FILE\n");
+  }
+  for(int i = 0; i < randomCount; i++){
+    //printf("%s %d %d\n", &(randomVals[i][0]), i, randomCount);
+    fprintf(file, "%s\n", &(randomVals[i][0]));
+  }
+  fclose(file);
+}
+
 unsigned long GetInitString(const char *Section, const char *Key,
                             const char *Default, char *ReturnBuffer,
                             unsigned long BufferSize, LISTPTR Input) {
@@ -73,6 +93,45 @@ unsigned long GetInitString(const char *Section, const char *Key,
 
   return (unsigned long)strlen(ReturnBuffer);
 }
+
+long GetRandomL(char *Buffer, char **EndPtr, char *name){
+  long Start;
+  long End;
+  double ranVal;
+  long result;
+  if(Buffer[0] == '<'){
+    Start = strtol(Buffer+1, EndPtr, 0);
+    End = strtol((*EndPtr)+1, EndPtr, 0);
+    ranVal = drand48();
+    result = Start + ((End - Start) * ranVal);
+    if((*EndPtr)[0] == '>'){
+      *EndPtr = (*EndPtr)[1];
+    }
+  }
+  sprintf(&(randomVals[randomCount][0]), "%s: %ld", name, result);
+  randomCount++;
+  return result;
+}
+
+double GetRandomD(char *Buffer, char **EndPtr, char *name){
+  double Start;
+  double End;
+  double ranVal;
+  double result;
+  if(Buffer[0] == '<'){
+    Start = strtod(Buffer+1, EndPtr);
+    End = strtod((*EndPtr)+1, EndPtr);
+    ranVal = drand48();
+    result = Start + ((End - Start) * ranVal);
+    if((*EndPtr)[0] == '>'){
+      *EndPtr = (*EndPtr)[1];
+    }
+  }
+  sprintf(&(randomVals[randomCount][0]), "%s: %lf", name, result);
+  randomCount++;
+  return result;
+}
+
 /*#####################################################################################*/
 long GetInitLong(const char *Section, const char *Key, long Default,
                  LISTPTR Input) {
@@ -89,7 +148,12 @@ long GetInitLong(const char *Section, const char *Key, long Default,
     return Default;
   }
 
-  Entry = strtol(Buffer, &EndPtr, 0);
+  if(Buffer[0] == '<'){
+    Entry = GetRandomL(Buffer, &EndPtr, Key);
+  } else {
+    Entry = strtol(Buffer, &EndPtr, 0);
+  }
+
   if (EndPtr == Buffer) {
     return Default;
   }
@@ -112,7 +176,11 @@ double GetInitDouble(const char *Section, const char *Key, double Default,
     return Default;
   }
 
-  Entry = strtod(Buffer, &EndPtr);
+  if(Buffer[0] == '<'){
+    Entry = GetRandomD(Buffer, &EndPtr, Key);
+  } else {
+    Entry = strtod(Buffer, &EndPtr);
+  }
   if (EndPtr == Buffer) {
     return Default;
   }
@@ -278,12 +346,16 @@ void MakeKeyString(char *Buffer) {
   strcpy(Buffer, Str);
 }
 /*#####################################################################################*/
-int CopyDouble(double *Value, char *Str, const int NValues) {
+int CopyDouble(double *Value, char *Str, const int NValues, char *name) {
   char *EndPtr = NULL;
   int i;
 
   for (i = 0; i < NValues; i++) {
-    Value[i] = strtod(Str, &EndPtr);
+    if(Str[0] == '<'){
+      Value[i] = GetRandomD(Str, &EndPtr, name);
+    } else {
+      Value[i] = strtod(Str, &EndPtr);
+    }
     if (EndPtr == Str)
       return FALSE;
     Str = EndPtr;
@@ -295,12 +367,16 @@ int CopyDouble(double *Value, char *Str, const int NValues) {
   return TRUE;
 }
 /*#####################################################################################*/
-int CopyFloat(float *Value, char *Str, const int NValues) {
+int CopyFloat(float *Value, char *Str, const int NValues, char *name) {
   char *EndPtr = NULL;
   int i;
 
   for (i = 0; i < NValues; i++) {
-    Value[i] = (float)strtod(Str, &EndPtr);
+    if(Str[0] == '<'){
+      Value[i] = (float)GetRandomD(Str, &EndPtr, name);
+    } else {
+      Value[i] = (float)strtod(Str, &EndPtr);
+    }
     if (EndPtr == Str)
       return FALSE;
     Str = EndPtr;
@@ -312,12 +388,16 @@ int CopyFloat(float *Value, char *Str, const int NValues) {
   return TRUE;
 }
 /*#####################################################################################*/
-int CopyInt(int *Value, char *Str, const int NValues) {
+int CopyInt(int *Value, char *Str, const int NValues, char *name) {
   char *EndPtr = NULL;
   int i;
 
   for (i = 0; i < NValues; i++) {
-    Value[i] = (int)strtol(Str, &EndPtr, 0);
+    if(Str[0] == '<'){
+      Value[i] = (int)GetRandomL(Str, &EndPtr, name);
+    } else {
+      Value[i] = (int)strtol(Str, &EndPtr, 0);
+    }
     if (EndPtr == Str)
       return FALSE;
     Str = EndPtr;
@@ -329,12 +409,16 @@ int CopyInt(int *Value, char *Str, const int NValues) {
   return TRUE;
 }
 /*#####################################################################################*/
-int CopyLong(long *Value, char *Str, const int NValues) {
+int CopyLong(long *Value, char *Str, const int NValues, char *name) {
   char *EndPtr = NULL;
   int i;
 
   for (i = 0; i < NValues; i++) {
-    Value[i] = strtol(Str, &EndPtr, 0);
+    if(Str[0] == '<'){
+      Value[i] = GetRandomL(Str, &EndPtr, name);
+    } else {
+      Value[i] = strtol(Str, &EndPtr, 0);
+    }
     if (EndPtr == Str)
       return FALSE;
     Str = EndPtr;
@@ -346,12 +430,16 @@ int CopyLong(long *Value, char *Str, const int NValues) {
   return TRUE;
 }
 /*#####################################################################################*/
-int CopyShort(short *Value, char *Str, const int NValues) {
+int CopyShort(short *Value, char *Str, const int NValues, char *name) {
   char *EndPtr = NULL;
   int i;
 
   for (i = 0; i < NValues; i++) {
-    Value[i] = (short)strtol(Str, &EndPtr, 0);
+    if(Str[0] == '<'){
+      Value[i] = (short)GetRandomL(Str, &EndPtr, name);
+    } else {
+      Value[i] = (short)strtol(Str, &EndPtr, 0);
+    }
     if (EndPtr == Str)
       return FALSE;
     Str = EndPtr;

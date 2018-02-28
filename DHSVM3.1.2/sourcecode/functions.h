@@ -132,7 +132,7 @@ void InitConstants(LISTPTR Input, OPTIONSTRUCT *Options, MAPSIZE *Map,
 void InitDump(LISTPTR Input, OPTIONSTRUCT *Options, MAPSIZE *Map,
 	      int MaxSoilLayers, int MaxVegLayers, int Dt,
 	      TOPOPIX **TopoMap, DUMPSTRUCT *Dump, int *NGraphics,
-	      int **which_graphics);
+	      int **which_graphics, int id);
 
 void InitEvapMap(MAPSIZE *Map, EVAPPIX ***EvapMap, SOILPIX **SoilMap,
 		 LAYER *Soil, VEGPIX **VegMap, LAYER *Veg,

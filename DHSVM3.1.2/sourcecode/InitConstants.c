@@ -177,10 +177,10 @@ void InitConstants(LISTPTR Input, OPTIONSTRUCT *Options, MAPSIZE *Map,
 
   /* if VARIABLE CRESTMAN interpolation then get parameters */
   if (Options->Interpolation == VARCRESS) {
-    if (!CopyInt(&(Options->CressRadius), StrEnv[cressman_radius].VarStr, 1))
+    if (!CopyInt(&(Options->CressRadius), StrEnv[cressman_radius].VarStr, 1, StrEnv[cressman_radius].KeyName))
       ReportError(StrEnv[cressman_radius].KeyName, 51);
     if (!CopyInt(&(Options->CressStations), StrEnv[cressman_stations].VarStr,
-                 1))
+                 1, StrEnv[cressman_stations].KeyName))
       ReportError(StrEnv[cressman_stations].KeyName, 51);
   }
 
@@ -402,32 +402,32 @@ void InitConstants(LISTPTR Input, OPTIONSTRUCT *Options, MAPSIZE *Map,
     ReportError(StrEnv[coordinate_system].KeyName, 51);
   strcpy(Map->System, StrEnv[coordinate_system].VarStr);
 
-  if (!CopyDouble(&(Map->Yorig), StrEnv[extreme_north].VarStr, 1))
+  if (!CopyDouble(&(Map->Yorig), StrEnv[extreme_north].VarStr, 1, StrEnv[extreme_north].KeyName))
     ReportError(StrEnv[extreme_north].KeyName, 51);
 
-  if (!CopyDouble(&(Map->Xorig), StrEnv[extreme_west].VarStr, 1))
+  if (!CopyDouble(&(Map->Xorig), StrEnv[extreme_west].VarStr, 1, StrEnv[extreme_west].KeyName))
     ReportError(StrEnv[extreme_west].KeyName, 51);
 
-  if (!CopyFloat(&(SolarGeo->Latitude), StrEnv[center_latitude].VarStr, 1))
+  if (!CopyFloat(&(SolarGeo->Latitude), StrEnv[center_latitude].VarStr, 1, StrEnv[center_latitude].KeyName))
     ReportError(StrEnv[center_latitude].KeyName, 51);
   SolarGeo->Latitude *= (float)RADPDEG;
 
-  if (!CopyFloat(&(SolarGeo->Longitude), StrEnv[center_longitude].VarStr, 1))
+  if (!CopyFloat(&(SolarGeo->Longitude), StrEnv[center_longitude].VarStr, 1, StrEnv[center_longitude].KeyName))
     ReportError(StrEnv[center_longitude].KeyName, 51);
   SolarGeo->Longitude *= (float)RADPDEG;
 
   if (!CopyFloat(&(SolarGeo->StandardMeridian),
-                 StrEnv[time_zone_meridian].VarStr, 1))
+                 StrEnv[time_zone_meridian].VarStr, 1, StrEnv[time_zone_meridian].KeyName))
     ReportError(StrEnv[time_zone_meridian].KeyName, 51);
   SolarGeo->StandardMeridian *= (float)RADPDEG;
 
-  if (!CopyInt(&(Map->NY), StrEnv[number_of_rows].VarStr, 1))
+  if (!CopyInt(&(Map->NY), StrEnv[number_of_rows].VarStr, 1, StrEnv[number_of_rows].KeyName))
     ReportError(StrEnv[number_of_rows].KeyName, 51);
 
-  if (!CopyInt(&(Map->NX), StrEnv[number_of_columns].VarStr, 1))
+  if (!CopyInt(&(Map->NX), StrEnv[number_of_columns].VarStr, 1, StrEnv[number_of_columns].KeyName))
     ReportError(StrEnv[number_of_columns].KeyName, 51);
 
-  if (!CopyFloat(&(Map->DY), StrEnv[grid_spacing].VarStr, 1))
+  if (!CopyFloat(&(Map->DY), StrEnv[grid_spacing].VarStr, 1, StrEnv[grid_spacing].KeyName))
     ReportError(StrEnv[grid_spacing].KeyName, 51);
 
   Map->DX = Map->DY;
@@ -440,10 +440,10 @@ void InitConstants(LISTPTR Input, OPTIONSTRUCT *Options, MAPSIZE *Map,
 
   if (Options->Extent == POINT) {
 
-    if (!CopyDouble(&PointModelY, StrEnv[point_north].VarStr, 1))
+    if (!CopyDouble(&PointModelY, StrEnv[point_north].VarStr, 1, StrEnv[point_north].KeyName))
       ReportError(StrEnv[point_north].KeyName, 51);
 
-    if (!CopyDouble(&PointModelX, StrEnv[point_east].VarStr, 1))
+    if (!CopyDouble(&PointModelX, StrEnv[point_east].VarStr, 1, StrEnv[point_east].KeyName))
       ReportError(StrEnv[point_east].KeyName, 51);
 
     Options->PointY =
@@ -457,7 +457,7 @@ void InitConstants(LISTPTR Input, OPTIONSTRUCT *Options, MAPSIZE *Map,
 
   /**************** Determine model period ****************/
 
-  if (!CopyFloat(&(TimeStep), StrEnv[time_step].VarStr, 1))
+  if (!CopyFloat(&(TimeStep), StrEnv[time_step].VarStr, 1, StrEnv[time_step].KeyName))
     ReportError(StrEnv[time_step].KeyName, 51);
   TimeStep *= SECPHOUR;
 
@@ -471,62 +471,62 @@ void InitConstants(LISTPTR Input, OPTIONSTRUCT *Options, MAPSIZE *Map,
 
   /**************** Determine model constants ****************/
 
-  if (!CopyFloat(&Z0_GROUND, StrEnv[ground_roughness].VarStr, 1))
+  if (!CopyFloat(&Z0_GROUND, StrEnv[ground_roughness].VarStr, 1, StrEnv[ground_roughness].KeyName))
     ReportError(StrEnv[ground_roughness].KeyName, 51);
 
-  if (!CopyFloat(&Z0_SNOW, StrEnv[snow_roughness].VarStr, 1))
+  if (!CopyFloat(&Z0_SNOW, StrEnv[snow_roughness].VarStr, 1, StrEnv[snow_roughness].KeyName))
     ReportError(StrEnv[snow_roughness].KeyName, 51);
 
-  if (!CopyFloat(&MIN_RAIN_TEMP, StrEnv[rain_threshold].VarStr, 1))
+  if (!CopyFloat(&MIN_RAIN_TEMP, StrEnv[rain_threshold].VarStr, 1, StrEnv[rain_threshold].KeyName))
     ReportError(StrEnv[rain_threshold].KeyName, 51);
 
-  if (!CopyFloat(&MAX_SNOW_TEMP, StrEnv[snow_threshold].VarStr, 1))
+  if (!CopyFloat(&MAX_SNOW_TEMP, StrEnv[snow_threshold].VarStr, 1, StrEnv[snow_threshold].KeyName))
     ReportError(StrEnv[snow_threshold].KeyName, 51);
 
-  if (!CopyFloat(&LIQUID_WATER_CAPACITY, StrEnv[snow_water_capacity].VarStr, 1))
+  if (!CopyFloat(&LIQUID_WATER_CAPACITY, StrEnv[snow_water_capacity].VarStr, 1, StrEnv[snow_water_capacity].KeyName))
     ReportError(StrEnv[snow_water_capacity].KeyName, 51);
 
-  if (!CopyFloat(&Zref, StrEnv[reference_height].VarStr, 1))
+  if (!CopyFloat(&Zref, StrEnv[reference_height].VarStr, 1, StrEnv[reference_height].KeyName))
     ReportError(StrEnv[reference_height].KeyName, 51);
 
-  if (!CopyFloat(&LAI_WATER_MULTIPLIER, StrEnv[rain_lai_multiplier].VarStr, 1))
+  if (!CopyFloat(&LAI_WATER_MULTIPLIER, StrEnv[rain_lai_multiplier].VarStr, 1, StrEnv[rain_lai_multiplier].KeyName))
     ReportError(StrEnv[rain_lai_multiplier].KeyName, 51);
 
-  if (!CopyFloat(&LAI_SNOW_MULTIPLIER, StrEnv[snow_lai_multiplier].VarStr, 1))
+  if (!CopyFloat(&LAI_SNOW_MULTIPLIER, StrEnv[snow_lai_multiplier].VarStr, 1, StrEnv[snow_lai_multiplier].KeyName))
     ReportError(StrEnv[snow_lai_multiplier].KeyName, 51);
 
   if (!CopyFloat(&MIN_INTERCEPTION_STORAGE, StrEnv[min_intercepted_snow].VarStr,
-                 1))
+                 1, StrEnv[min_intercepted_snow].KeyName))
     ReportError(StrEnv[min_intercepted_snow].KeyName, 51);
 
   if (!CopyUChar(&OUTSIDEBASIN, StrEnv[outside_basin].VarStr, 1))
     ReportError(StrEnv[outside_basin].KeyName, 51);
 
   if (Options->TempLapse == CONSTANT) {
-    if (!CopyFloat(&TEMPLAPSE, StrEnv[temp_lapse_rate].VarStr, 1))
+    if (!CopyFloat(&TEMPLAPSE, StrEnv[temp_lapse_rate].VarStr, 1, StrEnv[temp_lapse_rate].KeyName))
       ReportError(StrEnv[temp_lapse_rate].KeyName, 51);
   } else
     TEMPLAPSE = NOT_APPLICABLE;
 
   if (Options->PrecipLapse == CONSTANT) {
-    if (!CopyFloat(&PRECIPLAPSE, StrEnv[precip_lapse_rate].VarStr, 1))
+    if (!CopyFloat(&PRECIPLAPSE, StrEnv[precip_lapse_rate].VarStr, 1, StrEnv[precip_lapse_rate].KeyName))
       ReportError(StrEnv[precip_lapse_rate].KeyName, 51);
   } else
     PRECIPLAPSE = NOT_APPLICABLE;
 
-  if (!CopyFloat(&PRECIPMULTIPLIER, StrEnv[precip_multiplier].VarStr, 1))
+  if (!CopyFloat(&PRECIPMULTIPLIER, StrEnv[precip_multiplier].VarStr, 1, StrEnv[precip_multiplier].KeyName))
     ReportError(StrEnv[precip_multiplier].KeyName, 51);
   /* assign values to riparian vegetations */
   if (Options->StreamTemp && Options->CanopyShading) {
-    if (!CopyFloat(&TREEHEIGHT, StrEnv[tree_height].VarStr, 1))
+    if (!CopyFloat(&TREEHEIGHT, StrEnv[tree_height].VarStr, 1, StrEnv[tree_height].KeyName))
       ReportError(StrEnv[tree_height].KeyName, 51);
-    if (!CopyFloat(&BUFFERWIDTH, StrEnv[buffer_width].VarStr, 1))
+    if (!CopyFloat(&BUFFERWIDTH, StrEnv[buffer_width].VarStr, 1, StrEnv[buffer_width].KeyName))
       ReportError(StrEnv[buffer_width].KeyName, 51);
-    if (!CopyFloat(&OvhCoeff, StrEnv[ovh].VarStr, 1))
+    if (!CopyFloat(&OvhCoeff, StrEnv[ovh].VarStr, 1, StrEnv[ovh].KeyName))
       ReportError(StrEnv[ovh].KeyName, 51);
-    if (!CopyFloat(ExtnCoeff, StrEnv[extn].VarStr, 12))
+    if (!CopyFloat(ExtnCoeff, StrEnv[extn].VarStr, 12, StrEnv[extn].KeyName))
       ReportError(StrEnv[extn].KeyName, 51);
-    if (!CopyFloat(&CanopyBankDist, StrEnv[canopy_bank_dist].VarStr, 1))
+    if (!CopyFloat(&CanopyBankDist, StrEnv[canopy_bank_dist].VarStr, 1, StrEnv[canopy_bank_dist].KeyName))
       ReportError(StrEnv[canopy_bank_dist].KeyName, 51);
 
     printf("Calculate canopy shading effect on stream temperature: \n");
