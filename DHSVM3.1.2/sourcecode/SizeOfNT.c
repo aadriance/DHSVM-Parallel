@@ -10,22 +10,21 @@
  * DESCRIP-END.
  * FUNCTIONS:    SizeOfNumberType()
  * COMMENTS:
- * $Id: SizeOfNT.c,v 1.4 2003/07/01 21:26:24 olivier Exp $     
+ * $Id: SizeOfNT.c,v 1.4 2003/07/01 21:26:24 olivier Exp $
  */
 
-#include <stdlib.h>
-#include <sys/types.h>
 #include "DHSVMerror.h"
 #include "sizeofnt.h"
+#include <sys/types.h>
 
 /*****************************************************************************
   Function name: SizeOfNumberType()
 
-  Purpose      : Determines the size of each number type.  Number type 
+  Purpose      : Determines the size of each number type.  Number type
                  descriptors are "borrowed" from NetCDF.
 
   Required     :
-    NumberType - descriptor of number type (for more info see comments in 
+    NumberType - descriptor of number type (for more info see comments in
                  InitFileIO.c)
 
   Returns      : size of number type
@@ -36,8 +35,7 @@
    Information about the number type has to be passed to the functions that
    deal with 2DMatrix.  The number types are adopted from the NetCDF standard.
 *****************************************************************************/
-size_t SizeOfNumberType(int NumberType)
-{
+size_t SizeOfNumberType(int NumberType) {
   const char *Routine = "SizeOfNumberType";
   size_t ElemSize;
 
@@ -50,7 +48,7 @@ size_t SizeOfNumberType(int NumberType)
     ElemSize = sizeof(short);
     break;
   case NC_INT:
-/*   case NC_LONG: *//* NC_LONG is the same as NC_INT in NetCDF 3.4 */
+    /*   case NC_LONG: */ /* NC_LONG is the same as NC_INT in NetCDF 3.4 */
     ElemSize = sizeof(int);
     break;
   case NC_FLOAT:
@@ -61,7 +59,7 @@ size_t SizeOfNumberType(int NumberType)
     break;
   default:
     ElemSize = 0;
-    ReportError((char *) Routine, 40);
+    ReportError((char *)Routine, 40);
     break;
   }
 

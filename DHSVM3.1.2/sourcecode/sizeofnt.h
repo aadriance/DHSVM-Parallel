@@ -16,6 +16,8 @@
 #ifndef SIZEOFNT_H
 #define SIZEOFNT_H
 
+#include <stdlib.h>
+
 /* type info codes (taken from netcdf.h, although they are enumerated in that case) */
 #ifndef HAVE_NETCDF
 #define NC_BYTE 1		/* signed 1 byte integer */

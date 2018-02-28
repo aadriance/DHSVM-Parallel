@@ -15,27 +15,27 @@
  *               InitWindModel()
  *
  * COMMENTS:
- * $Id: InitMetSources.c,v3.1.2 2013/10/28 ning Exp $     
+ * $Id: InitMetSources.c,v3.1.2 2013/10/28 ning Exp $
  */
 
+#include "Calendar.h"
+#include "DHSVMerror.h"
+#include "constants.h"
+#include "data.h"
+#include "fileio.h"
+#include "functions.h"
+#include "getinit.h"
+#include "rad.h"
+#include "settings.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "settings.h"
-#include "data.h"
-#include "Calendar.h"
-#include "fileio.h"
-#include "DHSVMerror.h"
-#include "functions.h"
-#include "getinit.h"
-#include "constants.h"
-#include "rad.h"
 
 /*******************************************************************************
   Function name: InitMetSources()
 
-  Purpose      : Initialize and configure the model to process meteorological 
+  Purpose      : Initialize and configure the model to process meteorological
                  data from various different sources
                  Processes the following section in the input file:
                  [METEOROLOGY]
@@ -57,11 +57,10 @@
 
   Comments     :
 *******************************************************************************/
-void InitMetSources(LISTPTR Input, OPTIONSTRUCT * Options, MAPSIZE * Map,
-		    int NSoilLayers, TIMESTRUCT * Time, INPUTFILES * InFiles,
-		    int *NStats, METLOCATION ** Stat, MAPSIZE * Radar, 
-		    MAPSIZE * MM5Map)
-{
+void InitMetSources(LISTPTR Input, OPTIONSTRUCT *Options, MAPSIZE *Map,
+                    int NSoilLayers, TIMESTRUCT *Time, INPUTFILES *InFiles,
+                    int *NStats, METLOCATION **Stat, MAPSIZE *Radar,
+                    MAPSIZE *MM5Map) {
   const char *Routine = "InitMetSources";
 
   if (Options->Outside == TRUE && Options->MM5 == FALSE) {
@@ -85,7 +84,7 @@ void InitMetSources(LISTPTR Input, OPTIONSTRUCT * Options, MAPSIZE * Map,
       InitWindModel(Input, InFiles, *NStats, *Stat);
     if (Options->PrecipLapse == MAP) {
       if (*NStats > 1)
-	ReportError((char *) Routine, 54);
+        ReportError((char *)Routine, 54);
       InitPrecipLapse(Input, InFiles);
     }
   }
@@ -94,10 +93,10 @@ void InitMetSources(LISTPTR Input, OPTIONSTRUCT * Options, MAPSIZE * Map,
 /*******************************************************************************
   Function name: InitStations()
 
-  Purpose      : Read the station information from the options file.  This 
+  Purpose      : Read the station information from the options file.  This
                  information is in the [METEOROLOGY] section
 
-  Required     : 
+  Required     :
     LISTPTR Input       - Linked list with input strings
     MAPSIZE *Map        - Information about the basin area
     int NDaysSteps      - Number of time steps in a day
@@ -110,21 +109,15 @@ void InitMetSources(LISTPTR Input, OPTIONSTRUCT * Options, MAPSIZE * Map,
 
   Comments     :
 *****************************************************************************/
-void InitStations(LISTPTR Input, MAPSIZE * Map, int NDaySteps,
-		  OPTIONSTRUCT * Options, int *NStats, METLOCATION ** Stat)
-{
+void InitStations(LISTPTR Input, MAPSIZE *Map, int NDaySteps,
+                  OPTIONSTRUCT *Options, int *NStats, METLOCATION **Stat) {
   int i;
   int j;
   int k;
   char tempfilename[BUFSIZE + 1];
   char KeyName[station_file + 1][BUFSIZE + 1];
-  char *KeyStr[] = {
-    "STATION NAME",
-    "NORTH COORDINATE",
-    "EAST COORDINATE",
-    "ELEVATION",
-    "STATION FILE"
-  };
+  char *KeyStr[] = {"STATION NAME", "NORTH COORDINATE", "EAST COORDINATE",
+                    "ELEVATION", "STATION FILE"};
   char *SectionName = "METEOROLOGY";
   char VarStr[station_file + 1][BUFSIZE + 1];
   float East;
@@ -133,8 +126,8 @@ void InitStations(LISTPTR Input, MAPSIZE * Map, int NDaySteps,
 
   /* Get the number of different stations */
   GetInitString(SectionName, "NUMBER OF STATIONS", "", VarStr[0],
-		(unsigned long) BUFSIZE, Input);
-  if (!CopyInt(NStats, VarStr[0], 1))
+                (unsigned long)BUFSIZE, Input);
+  if (!CopyInt(NStats, VarStr[0], 1, "NUMBER OF STATIONS"))
     ReportError("NUMBER OF STATIONS", 51);
 
   if (*NStats <= 0)
@@ -143,7 +136,7 @@ void InitStations(LISTPTR Input, MAPSIZE * Map, int NDaySteps,
   printf("\nEvaluating %d Met stations for inclusion\n", *NStats);
 
   /* Allocate memory for the stations */
-  if (!(*Stat = (METLOCATION *) calloc(*NStats, sizeof(METLOCATION))))
+  if (!(*Stat = (METLOCATION *)calloc(*NStats, sizeof(METLOCATION))))
     ReportError("Input Options File", 1);
 
   /* Read key-entry pairs for each station from the input file */
@@ -158,7 +151,7 @@ void InitStations(LISTPTR Input, MAPSIZE * Map, int NDaySteps,
     for (j = 0; j <= station_file; j++) {
       sprintf(KeyName[j], "%s %d", KeyStr[j], i + 1);
       GetInitString(SectionName, KeyName[j], "", VarStr[j],
-		    (unsigned long) BUFSIZE, Input);
+                    (unsigned long)BUFSIZE, Input);
     }
 
     /* Assign the entries to the variables */
@@ -166,32 +159,32 @@ void InitStations(LISTPTR Input, MAPSIZE * Map, int NDaySteps,
       ReportError(KeyName[number_of_maps], 51);
     strcpy((*Stat)[k].Name, VarStr[station_name]);
 
-    if (!CopyFloat(&North, VarStr[station_north], 1))
+    if (!CopyFloat(&North, VarStr[station_north], 1, KeyName[station_north]))
       ReportError(KeyName[station_north], 51);
 
-    if (!CopyFloat(&East, VarStr[station_east], 1))
+    if (!CopyFloat(&East, VarStr[station_east], 1, KeyName[station_east]))
       ReportError(KeyName[station_east], 51);
 
     (*Stat)[k].Loc.N = Round(((Map->Yorig - 0.5 * Map->DY) - North) / Map->DY);
     (*Stat)[k].Loc.E = Round((East - (Map->Xorig + 0.5 * Map->DX)) / Map->DX);
 
-    if (!CopyFloat(&((*Stat)[k].Elev), VarStr[station_elev], 1))
+    if (!CopyFloat(&((*Stat)[k].Elev), VarStr[station_elev], 1, KeyName[station_elev]))
       ReportError(KeyName[station_elev], 51);
 
     if (IsEmptyStr(VarStr[station_file]))
       ReportError(KeyName[station_file], 51);
     strcpy((*Stat)[k].MetFile.FileName, VarStr[station_file]);
 
-    OpenFile(&((*Stat)[k].MetFile.FilePtr), (*Stat)[k].MetFile.FileName,
-	     "r", FALSE);
+    OpenFile(&((*Stat)[k].MetFile.FilePtr), (*Stat)[k].MetFile.FileName, "r",
+             FALSE);
 
     /* check to see if the stations are inside the bounding box */
     if (((*Stat)[k].Loc.N > Map->NY || (*Stat)[k].Loc.N < 0 ||
-	 (*Stat)[k].Loc.E > Map->NX || (*Stat)[k].Loc.E < 0)
-	&& Options->Outside == FALSE)
+         (*Stat)[k].Loc.E > Map->NX || (*Stat)[k].Loc.E < 0) &&
+        Options->Outside == FALSE)
       /*      ReportError((*Stat)[i].Name,10); */
-      printf("Station %d outside bounding box: %s ignored\n",
-	     i + 1, (*Stat)[k].Name);
+      printf("Station %d outside bounding box: %s ignored\n", i + 1,
+             (*Stat)[k].Name);
     else
       k = k + 1;
   }
@@ -208,7 +201,7 @@ void InitStations(LISTPTR Input, MAPSIZE * Map, int NDaySteps,
       /* Options->PrismDataExt); */
       OpenFile(&PrismStatFile, tempfilename, "rt", FALSE);
       for (k = 0; k < 12; k++) {
-	fscanf(PrismStatFile, "%f ", &(*Stat)[i].PrismPrecip[k]);
+        fscanf(PrismStatFile, "%f ", &(*Stat)[i].PrismPrecip[k]);
       }
       fclose(PrismStatFile);
     }
@@ -221,7 +214,7 @@ void InitStations(LISTPTR Input, MAPSIZE * Map, int NDaySteps,
   Purpose      : Read the MM5 information the options file.  This information
                  is in the [METEOROLOGY] section
 
-  Required     : 
+  Required     :
     LISTPTR Input       - Linked list with input options
     int NSoilLayers     - Number of soil layers
     TIMESTRUCT *Time    - Time information
@@ -233,37 +226,36 @@ void InitStations(LISTPTR Input, MAPSIZE * Map, int NDaySteps,
 
   Comments     :
 *****************************************************************************/
-void InitMM5(LISTPTR Input, int NSoilLayers, TIMESTRUCT * Time,
-	     INPUTFILES * InFiles, OPTIONSTRUCT * Options, MAPSIZE * MM5Map,
-	     MAPSIZE * Map)
-{
+void InitMM5(LISTPTR Input, int NSoilLayers, TIMESTRUCT *Time,
+             INPUTFILES *InFiles, OPTIONSTRUCT *Options, MAPSIZE *MM5Map,
+             MAPSIZE *Map) {
   DATE Start;
   char *Routine = "InitMM5";
   char KeyName[BUFSIZE + 1];
   char VarStr[BUFSIZE + 1];
   int i;
   STRINIENTRY StrEnv[] = {
-    {"METEOROLOGY", "MM5 START", "", ""},
-    {"METEOROLOGY", "MM5 TEMPERATURE FILE", "", ""},
-    {"METEOROLOGY", "MM5 HUMIDITY FILE", "", ""},
-    {"METEOROLOGY", "MM5 WIND SPEED FILE", "", ""},
-    {"METEOROLOGY", "MM5 SHORTWAVE FILE", "", ""},
-    {"METEOROLOGY", "MM5 LONGWAVE FILE", "", ""},
-    {"METEOROLOGY", "MM5 PRECIPITATION FILE", "", ""},
-    {"METEOROLOGY", "MM5 TERRAIN FILE", "", ""},
-    {"METEOROLOGY", "MM5 TEMP LAPSE FILE", "", ""},
-    {"METEOROLOGY", "MM5 ROWS", "", ""},
-    {"METEOROLOGY", "MM5 COLS", "", ""},
-    {"METEOROLOGY", "MM5 EXTREME NORTH", "", ""},
-    {"METEOROLOGY", "MM5 EXTREME WEST", "", ""},
-    {"METEOROLOGY", "MM5 DY", "", ""},
-    {NULL, NULL, "", NULL},
+      {"METEOROLOGY", "MM5 START", "", ""},
+      {"METEOROLOGY", "MM5 TEMPERATURE FILE", "", ""},
+      {"METEOROLOGY", "MM5 HUMIDITY FILE", "", ""},
+      {"METEOROLOGY", "MM5 WIND SPEED FILE", "", ""},
+      {"METEOROLOGY", "MM5 SHORTWAVE FILE", "", ""},
+      {"METEOROLOGY", "MM5 LONGWAVE FILE", "", ""},
+      {"METEOROLOGY", "MM5 PRECIPITATION FILE", "", ""},
+      {"METEOROLOGY", "MM5 TERRAIN FILE", "", ""},
+      {"METEOROLOGY", "MM5 TEMP LAPSE FILE", "", ""},
+      {"METEOROLOGY", "MM5 ROWS", "", ""},
+      {"METEOROLOGY", "MM5 COLS", "", ""},
+      {"METEOROLOGY", "MM5 EXTREME NORTH", "", ""},
+      {"METEOROLOGY", "MM5 EXTREME WEST", "", ""},
+      {"METEOROLOGY", "MM5 DY", "", ""},
+      {NULL, NULL, "", NULL},
   };
 
   /* Read the key-entry pairs from the input file */
   for (i = 0; StrEnv[i].SectionName; i++)
     GetInitString(StrEnv[i].SectionName, StrEnv[i].KeyName, StrEnv[i].Default,
-		  StrEnv[i].VarStr, (unsigned long) BUFSIZE, Input);
+                  StrEnv[i].VarStr, (unsigned long)BUFSIZE, Input);
 
   /* Assign the entries to the variables */
   if (!SScanDate(StrEnv[MM5_start].VarStr, &Start))
@@ -305,51 +297,49 @@ void InitMM5(LISTPTR Input, int NSoilLayers, TIMESTRUCT * Time,
 
   if (Options->HeatFlux == TRUE) {
 
-    if (!(InFiles->MM5SoilTemp = (char **) calloc(sizeof(char *), NSoilLayers)))
+    if (!(InFiles->MM5SoilTemp = (char **)calloc(sizeof(char *), NSoilLayers)))
       ReportError(Routine, 1);
 
     for (i = 0; i < NSoilLayers; i++) {
-      if (!
-	  (InFiles->MM5SoilTemp[i] =
-	   (char *) calloc(sizeof(char), BUFSIZE + 1)))
-	ReportError(Routine, 1);
+      if (!(InFiles->MM5SoilTemp[i] =
+                (char *)calloc(sizeof(char), BUFSIZE + 1)))
+        ReportError(Routine, 1);
       sprintf(KeyName, "MM5 SOIL TEMPERATURE FILE %d", i);
-      GetInitString("METEOROLOGY", KeyName, "", VarStr,
-		    (unsigned long) BUFSIZE, Input);
+      GetInitString("METEOROLOGY", KeyName, "", VarStr, (unsigned long)BUFSIZE,
+                    Input);
       if (IsEmptyStr(VarStr))
-	ReportError(KeyName, 51);
+        ReportError(KeyName, 51);
       strcpy(InFiles->MM5SoilTemp[i], VarStr);
     }
-
   }
 
-  if (!CopyDouble(&(MM5Map->Yorig), StrEnv[MM5_ext_north].VarStr, 1))
+  if (!CopyDouble(&(MM5Map->Yorig), StrEnv[MM5_ext_north].VarStr, 1, StrEnv[MM5_ext_north].KeyName))
     ReportError(StrEnv[MM5_ext_north].KeyName, 51);
 
-  if (!CopyDouble(&(MM5Map->Xorig), StrEnv[MM5_ext_west].VarStr, 1))
+  if (!CopyDouble(&(MM5Map->Xorig), StrEnv[MM5_ext_west].VarStr, 1, StrEnv[MM5_ext_west].KeyName))
     ReportError(StrEnv[MM5_ext_west].KeyName, 51);
 
-  if (!CopyInt(&(MM5Map->NY), StrEnv[MM5_rows].VarStr, 1))
+  if (!CopyInt(&(MM5Map->NY), StrEnv[MM5_rows].VarStr, 1, StrEnv[MM5_rows].KeyName))
     ReportError(StrEnv[MM5_rows].KeyName, 51);
 
-  if (!CopyInt(&(MM5Map->NX), StrEnv[MM5_cols].VarStr, 1))
+  if (!CopyInt(&(MM5Map->NX), StrEnv[MM5_cols].VarStr, 1, StrEnv[MM5_cols].KeyName))
     ReportError(StrEnv[MM5_cols].KeyName, 51);
 
-  if (!CopyFloat(&(MM5Map->DY), StrEnv[MM5_dy].VarStr, 1))
+  if (!CopyFloat(&(MM5Map->DY), StrEnv[MM5_dy].VarStr, 1, StrEnv[MM5_dy].KeyName))
     ReportError(StrEnv[MM5_dy].KeyName, 51);
 
-  MM5Map->OffsetX = Round(((float) (MM5Map->Xorig - Map->Xorig)) /
-			  ((float) Map->DX));
-  MM5Map->OffsetY = Round(((float) (MM5Map->Yorig - Map->Yorig)) /
-			  ((float) Map->DY));
+  MM5Map->OffsetX =
+      Round(((float)(MM5Map->Xorig - Map->Xorig)) / ((float)Map->DX));
+  MM5Map->OffsetY =
+      Round(((float)(MM5Map->Yorig - Map->Yorig)) / ((float)Map->DY));
 
   if (MM5Map->OffsetX > 0 || MM5Map->OffsetY < 0)
     ReportError("Input Options File", 31);
 
   printf("MM5 extreme north / south is %f %f \n", MM5Map->Yorig,
-	 MM5Map->Yorig - MM5Map->NY * MM5Map->DY);
+         MM5Map->Yorig - MM5Map->NY * MM5Map->DY);
   printf("MM5 extreme west / east is %f %f\n", MM5Map->Xorig,
-	 MM5Map->Xorig + MM5Map->NX * MM5Map->DY);
+         MM5Map->Xorig + MM5Map->NX * MM5Map->DY);
   printf("MM5 rows is %d \n", MM5Map->NY);
   printf("MM5 cols is %d \n", MM5Map->NX);
   printf("MM5 dy is %f \n", MM5Map->DY);
@@ -363,29 +353,25 @@ void InitMM5(LISTPTR Input, int NSoilLayers, TIMESTRUCT * Time,
   printf("MM5 offset x is %d \n", MM5Map->OffsetX);
   printf("MM5 offset y is %d \n", MM5Map->OffsetY);
   printf("dhsvm extreme north / south is %f %f \n", Map->Yorig,
-	 Map->Yorig - Map->NY * Map->DY);
+         Map->Yorig - Map->NY * Map->DY);
   printf("dhsvm extreme west / east is %f %f \n", Map->Xorig,
-	 Map->Xorig + Map->NX * Map->DY);
+         Map->Xorig + Map->NX * Map->DY);
   printf("fail if %d > %d\n",
-	 (int) ((Map->NY + MM5Map->OffsetY) * Map->DY / MM5Map->DY),
-	 MM5Map->NY);
+         (int)((Map->NY + MM5Map->OffsetY) * Map->DY / MM5Map->DY), MM5Map->NY);
   printf("fail if %d > %d\n",
-	 (int) ((Map->NX - MM5Map->OffsetX) * Map->DX / MM5Map->DY),
-	 MM5Map->NX);
-  if ((int) ((Map->NY + MM5Map->OffsetY) * Map->DY / MM5Map->DY) > MM5Map->NY
-      || (int) ((Map->NX - MM5Map->OffsetX) * Map->DX / MM5Map->DY) >
-      MM5Map->NX)
+         (int)((Map->NX - MM5Map->OffsetX) * Map->DX / MM5Map->DY), MM5Map->NX);
+  if ((int)((Map->NY + MM5Map->OffsetY) * Map->DY / MM5Map->DY) > MM5Map->NY ||
+      (int)((Map->NX - MM5Map->OffsetX) * Map->DX / MM5Map->DY) > MM5Map->NX)
     ReportError("Input Options File", 31);
-
 }
 
 /*******************************************************************************
   Function name: InitRadar()
 
-  Purpose      : Read the radar information from the options file.  This 
+  Purpose      : Read the radar information from the options file.  This
                  information is in the [METEOROLOGY] section
 
-  Required     : 
+  Required     :
     LISTPTR Input       - Linked list with input strings
     MAPSIZE *Map        - Information about basin area
     TIMESTRUCT *Time    - Time information
@@ -398,26 +384,25 @@ void InitMM5(LISTPTR Input, int NSoilLayers, TIMESTRUCT * Time,
 
   Comments     :
 *****************************************************************************/
-void InitRadar(LISTPTR Input, MAPSIZE * Map, TIMESTRUCT * Time,
-	       INPUTFILES * InFiles, MAPSIZE * Radar)
-{
+void InitRadar(LISTPTR Input, MAPSIZE *Map, TIMESTRUCT *Time,
+               INPUTFILES *InFiles, MAPSIZE *Radar) {
   DATE Start;
   int i;
   STRINIENTRY StrEnv[] = {
-    {"METEOROLOGY", "RADAR START", "", ""},
-    {"METEOROLOGY", "RADAR FILE", "", ""},
-    {"METEOROLOGY", "RADAR EXTREME NORTH", "", ""},
-    {"METEOROLOGY", "RADAR EXTREME WEST", "", ""},
-    {"METEOROLOGY", "RADAR NUMBER OF ROWS", "", ""},
-    {"METEOROLOGY", "RADAR NUMBER OF COLUMNS", "", ""},
-    {"METEOROLOGY", "RADAR GRID SPACING", "", ""},
-    {NULL, NULL, "", NULL},
+      {"METEOROLOGY", "RADAR START", "", ""},
+      {"METEOROLOGY", "RADAR FILE", "", ""},
+      {"METEOROLOGY", "RADAR EXTREME NORTH", "", ""},
+      {"METEOROLOGY", "RADAR EXTREME WEST", "", ""},
+      {"METEOROLOGY", "RADAR NUMBER OF ROWS", "", ""},
+      {"METEOROLOGY", "RADAR NUMBER OF COLUMNS", "", ""},
+      {"METEOROLOGY", "RADAR GRID SPACING", "", ""},
+      {NULL, NULL, "", NULL},
   };
 
   /* Read the key-entry pairs from the input file */
   for (i = 0; StrEnv[i].SectionName; i++)
     GetInitString(StrEnv[i].SectionName, StrEnv[i].KeyName, StrEnv[i].Default,
-		  StrEnv[i].VarStr, (unsigned long) BUFSIZE, Input);
+                  StrEnv[i].VarStr, (unsigned long)BUFSIZE, Input);
 
   /* Assign the entries to the variables */
   if (!SScanDate(StrEnv[radar_start].VarStr, &Start))
@@ -432,28 +417,28 @@ void InitRadar(LISTPTR Input, MAPSIZE * Map, TIMESTRUCT * Time,
   /**************** Determine areal extent ****************/
   strcpy(Radar->System, Map->System);
 
-  if (!CopyDouble(&(Radar->Yorig), StrEnv[radar_north].VarStr, 1))
+  if (!CopyDouble(&(Radar->Yorig), StrEnv[radar_north].VarStr, 1, StrEnv[radar_north].KeyName))
     ReportError(StrEnv[radar_north].KeyName, 51);
 
-  if (!CopyDouble(&(Radar->Xorig), StrEnv[radar_west].VarStr, 1))
+  if (!CopyDouble(&(Radar->Xorig), StrEnv[radar_west].VarStr, 1, StrEnv[radar_west].KeyName))
     ReportError(StrEnv[radar_west].KeyName, 51);
 
-  if (!CopyInt(&(Radar->NY), StrEnv[radar_rows].VarStr, 1))
+  if (!CopyInt(&(Radar->NY), StrEnv[radar_rows].VarStr, 1, StrEnv[radar_rows].KeyName))
     ReportError(StrEnv[radar_rows].KeyName, 51);
 
-  if (!CopyInt(&(Radar->NX), StrEnv[radar_cols].VarStr, 1))
+  if (!CopyInt(&(Radar->NX), StrEnv[radar_cols].VarStr, 1, StrEnv[radar_cols].KeyName))
     ReportError(StrEnv[radar_cols].KeyName, 51);
 
-  if (!CopyFloat(&(Radar->DY), StrEnv[radar_grid].VarStr, 1))
+  if (!CopyFloat(&(Radar->DY), StrEnv[radar_grid].VarStr, 1, StrEnv[radar_grid].KeyName))
     ReportError(StrEnv[radar_grid].KeyName, 51);
 
   Radar->DXY = sqrt(Radar->DX * Radar->DX + Radar->DY * Radar->DY);
   Radar->X = 0;
   Radar->Y = 0;
-  Radar->OffsetX = Round(((float) (Radar->Xorig - Map->Xorig)) /
-			 ((float) Map->DX));
-  Radar->OffsetY = Round(((float) (Radar->Yorig - Map->Yorig)) /
-			 ((float) Map->DY));
+  Radar->OffsetX =
+      Round(((float)(Radar->Xorig - Map->Xorig)) / ((float)Map->DX));
+  Radar->OffsetY =
+      Round(((float)(Radar->Yorig - Map->Yorig)) / ((float)Map->DY));
 
   if (Radar->OffsetX > 0 || Radar->OffsetY < 0)
     ReportError("Input Options File", 31);
@@ -462,10 +447,10 @@ void InitRadar(LISTPTR Input, MAPSIZE * Map, TIMESTRUCT * Time,
 /*******************************************************************************
   Function name: InitWindModel()
 
-  Purpose      : Read the wind model information from the options file.  This 
+  Purpose      : Read the wind model information from the options file.  This
                  information is in the [METEOROLOGY] section
 
-  Required     : 
+  Required     :
     LISTPTR Input       - Linked list with input strings
     INPUTFILES *InFiles - Filenames for various input files
     int NStats          - Number of stations
@@ -478,32 +463,31 @@ void InitRadar(LISTPTR Input, MAPSIZE * Map, TIMESTRUCT * Time,
 
   Comments     :
 *****************************************************************************/
-void InitWindModel(LISTPTR Input, INPUTFILES * InFiles, int NStats,
-		   METLOCATION * Stat)
-{
+void InitWindModel(LISTPTR Input, INPUTFILES *InFiles, int NStats,
+                   METLOCATION *Stat) {
   int i;
   int WindStation;
   STRINIENTRY StrEnv[] = {
-    {"METEOROLOGY", "NUMBER OF WIND MAPS", "", ""},
-    {"METEOROLOGY", "WIND FILE BASENAME", "", ""},
-    {"METEOROLOGY", "WIND MAP MET STATION", "", ""},
-    {NULL, NULL, "", NULL},
+      {"METEOROLOGY", "NUMBER OF WIND MAPS", "", ""},
+      {"METEOROLOGY", "WIND FILE BASENAME", "", ""},
+      {"METEOROLOGY", "WIND MAP MET STATION", "", ""},
+      {NULL, NULL, "", NULL},
   };
 
   /* Read the key-entry pairs from the input file */
   for (i = 0; StrEnv[i].SectionName; i++)
     GetInitString(StrEnv[i].SectionName, StrEnv[i].KeyName, StrEnv[i].Default,
-		  StrEnv[i].VarStr, (unsigned long) BUFSIZE, Input);
+                  StrEnv[i].VarStr, (unsigned long)BUFSIZE, Input);
 
   /* Assign the entries to the variables */
-  if (!CopyInt(&NWINDMAPS, StrEnv[number_of_maps].VarStr, 1))
+  if (!CopyInt(&NWINDMAPS, StrEnv[number_of_maps].VarStr, 1, StrEnv[number_of_maps].KeyName))
     ReportError(StrEnv[number_of_maps].KeyName, 51);
 
   if (IsEmptyStr(StrEnv[wind_map_path].VarStr))
     ReportError(StrEnv[wind_map_path].KeyName, 51);
   strcpy(InFiles->WindMapPath, StrEnv[wind_map_path].VarStr);
 
-  if (!CopyInt(&WindStation, StrEnv[wind_station].VarStr, 1))
+  if (!CopyInt(&WindStation, StrEnv[wind_station].VarStr, 1, StrEnv[wind_station].KeyName))
     ReportError(StrEnv[wind_station].KeyName, 51);
 
   if (WindStation < 1 || WindStation > NStats)
@@ -517,32 +501,31 @@ void InitWindModel(LISTPTR Input, INPUTFILES * InFiles, int NStats,
 /*******************************************************************************
   Function name: InitPrecipLapse()
 
-  Purpose      : Read the file name for the precip lapse rate from the options 
+  Purpose      : Read the file name for the precip lapse rate from the options
                  file.  This information is in the [METEOROLOGY] section
 
-  Required     : 
+  Required     :
     LISTPTR Input       - Linked list with input strings
     INPUTFILES *InFiles - Filenames for various input files
 
   Returns      : void
 
-  Modifies     : Member of InFiles 
+  Modifies     : Member of InFiles
 
   Comments     :
 *****************************************************************************/
-void InitPrecipLapse(LISTPTR Input, INPUTFILES * InFiles)
-{
-  int i;			/* counter */
+void InitPrecipLapse(LISTPTR Input, INPUTFILES *InFiles) {
+  int i; /* counter */
 
   STRINIENTRY StrEnv[] = {
-    {"METEOROLOGY", "PRECIPITATION LAPSE RATE MAP", "", ""},
-    {NULL, NULL, "", NULL},
+      {"METEOROLOGY", "PRECIPITATION LAPSE RATE MAP", "", ""},
+      {NULL, NULL, "", NULL},
   };
 
   /* Read the key-entry pairs from the input file */
   for (i = 0; StrEnv[i].SectionName; i++)
     GetInitString(StrEnv[i].SectionName, StrEnv[i].KeyName, StrEnv[i].Default,
-		  StrEnv[i].VarStr, (unsigned long) BUFSIZE, Input);
+                  StrEnv[i].VarStr, (unsigned long)BUFSIZE, Input);
 
   /* Assign the entries to the variables */
   if (IsEmptyStr(StrEnv[precip_lapse_rate_file].VarStr))
