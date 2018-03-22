@@ -29,6 +29,19 @@
 #define MIN_GRAD .3 /* minimum slope for flow to channel */
 #endif
 
+/**
+ *  Global variables to hold onto some memory for this function.  Reduces free/callocs
+ */
+ 
+float **SubFlowGrad = NULL;        /* Magnitude of subsurface flow gradient
+                                 slope * width */
+unsigned char ***SubDir = NULL;    /* Fraction of flux moving in each direction*/
+unsigned int **SubTotalDir = NULL; /* Sum of Dir array */
+
+void initSubSurfaceMemory() {
+
+}
+
 /*****************************************************************************
   RouteSubSurface()
 
@@ -102,10 +115,10 @@ void RouteSubSurface(int Dt, MAPSIZE *Map, TOPOPIX **TopoMap, VEGTABLE *VType,
                      SNOWPIX **SnowMap) {
   const char *Routine = "RouteSubSurface";
   //int ii, jj, yy, xx; /* counters for FineMap initialization */
-  float **SubFlowGrad;        /* Magnitude of subsurface flow gradient
-                                 slope * width */
-  unsigned char ***SubDir;    /* Fraction of flux moving in each direction*/
-  unsigned int **SubTotalDir; /* Sum of Dir array */
+  //float **SubFlowGrad;        /* Magnitude of subsurface flow gradient
+  //                               slope * width */
+  //unsigned char ***SubDir;    /* Fraction of flux moving in each direction*/
+  //unsigned int **SubTotalDir; /* Sum of Dir array */
   /* variables for mass wasting trigger. */
   int count, totalcount;
   float mgrid, sat;

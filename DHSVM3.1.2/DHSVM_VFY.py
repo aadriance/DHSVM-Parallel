@@ -4,6 +4,7 @@ import subprocess
 import sys
 import os
 from difflib import SequenceMatcher
+mpi = False
 
 def runDHSVM():
     cmd = ['./DHSVM3.1.2', '../INPUT.Mercer.3.1.2_Bin', '1']
@@ -36,8 +37,9 @@ def compareFiles():
     if len(sys.argv) > 1:
         truthFolder += '_' + sys.argv[1]
     compareFolder = 'output'
-    for f in filesToCompare:
-        os.rename(compareFolder + '/0' + f, compareFolder + '/' + f)
+    if mpi:
+        for f in filesToCompare:
+            os.rename(compareFolder + '/0' + f, compareFolder + '/' + f)
     match, mismatch, errors = filecmp.cmpfiles(truthFolder, compareFolder, filesToCompare, shallow=True)
     print('Mismatched: ', mismatch)
     print('Errored: ', errors)

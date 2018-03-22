@@ -53,53 +53,45 @@ void RouteSurface(MAPSIZE *Map, TIMESTRUCT *Time, TOPOPIX **TopoMap,
                   SEDPIX **SedMap, PRECIPPIX **PrecipMap, SEDTABLE *SedType,
                   float Tair, float Rh, float *SedDiams) {
   const char *Routine = "RouteSurface";
-  int Lag; /* Lag time for hydrograph */
-  int Step;
-  float StreamFlow;
-  int TravelTime;
-  int WaveLength;
-  TIMESTRUCT NextTime;
-  TIMESTRUCT VariableTime;
-  int i, j, x, y, n, k; /* Counters */
   float **Runon;        /* (m3/s) */
 
   /*************************** Kinematic wave
    * routing**************************************** */
-  float knviscosity;         /* kinematic viscosity JSL */
-  double slope, alpha, beta; /* Slope is manning's slope;
-                                                              alpha is channel
-                                parameter including wetted perimeter, manning's
-                                n, and manning's slope. Beta is 3/5 */
-  double outflow; /* Outflow of water from a pixel during a sub-time step (m3/s)
-                                              outflow is not entirely true for
-                     channel cells*/
-  double sedoutflow;     /* Outflow used for sediment routing purposes (m3/s) */
-  float VariableDT;      /* Maximum stable time step (s) */
+  //float knviscosity;         /* kinematic viscosity JSL */
+  //double slope, alpha, beta; /* Slope is manning's slope;
+  //                                                            alpha is channel
+  //                              parameter including wetted perimeter, manning's
+  //                              n, and manning's slope. Beta is 3/5 */
+  //double outflow; /* Outflow of water from a pixel during a sub-time step (m3/s)
+  //                                            outflow is not entirely true for
+  //                   channel cells*/
+  //double sedoutflow;     /* Outflow used for sediment routing purposes (m3/s) */
+  //float VariableDT;      /* Maximum stable time step (s) */
   float **SedIn = NULL, SedOut; /* (m3/m3) */
-  float DR = 0;              /* Potential erosion due to leaf drip */
-  float DS;              /* Median particle diameter (m) */
-  float Cd;              /* Drag coefficient */
-  float vs, vs_last;     /* Settling velocity (m/s)*/
-  float Rn;              /* Particle Reynolds number */
-  float h;               /* Water depth (m) */
-  float term1, term2, term3;
-  float streampower; /* Unit streampower from KINEROS (M/s) */
-  float TC;          /* Transport capacity (m3/m3) */
-  float Fw;          /* Water depth correction factor */
-  float floweff;     /* Flow efficiency similar to Morgan */
-  int sedbin;        /* Particle bin that erosion is added to */
+  //float DR = 0;              /* Potential erosion due to leaf drip */
+  //float DS;              /* Median particle diameter (m) */
+  //float Cd;              /* Drag coefficient */
+  //float vs, vs_last;     /* Settling velocity (m/s)*/
+  //float Rn;              /* Particle Reynolds number */
+  //float h;               /* Water depth (m) */
+  //float term1, term2, term3;
+  //float streampower; /* Unit streampower from KINEROS (M/s) */
+  //float TC;          /* Transport capacity (m3/m3) */
+  //float Fw;          /* Water depth correction factor */
+  //float floweff;     /* Flow efficiency similar to Morgan */
+  //int sedbin;        /* Particle bin that erosion is added to */
   /* Check to see if calculations for surface erosion should be done */
   if (Options->SurfaceErosion) {
     if ((SedIn = (float **)calloc(Map->NY, sizeof(float *))) == NULL)
       ReportError((char *)Routine, 1);
-    for (y = 0; y < Map->NY; y++) {
+    for (int y = 0; y < Map->NY; y++) {
       if ((SedIn[y] = (float *)calloc(Map->NX, sizeof(float))) == NULL) {
         ReportError((char *)Routine, 1);
       }
     }
     /* Initiazlied Variables */
-    for (y = 0; y < Map->NY; y++) {
-      for (x = 0; x < Map->NX; x++) {
+    for (int y = 0; y < Map->NY; y++) {
+      for (int x = 0; x < Map->NX; x++) {
         SedIn[y][x] = 0;
       }
     }
@@ -109,21 +101,22 @@ void RouteSurface(MAPSIZE *Map, TIMESTRUCT *Time, TOPOPIX **TopoMap,
   if (Options->HasNetwork) {
     if ((Runon = (float **)calloc(Map->NY, sizeof(float *))) == NULL)
       ReportError((char *)Routine, 1);
-    for (y = 0; y < Map->NY; y++) {
+    for (int y = 0; y < Map->NY; y++) {
       if ((Runon[y] = (float *)calloc(Map->NX, sizeof(float))) == NULL) {
         ReportError((char *)Routine, 1);
       }
     }
     /* Initialize Runon variables */
-    for (y = 0; y < Map->NY; y++) {
-      for (x = 0; x < Map->NX; x++) {
+    for (int y = 0; y < Map->NY; y++) {
+      for (int x = 0; x < Map->NX; x++) {
         Runon[y][x] = 0.;
       }
     }
     /* Option->Routing = false when routing = conventional */
     if (!Options->Routing) {
-      for (y = 0; y < Map->NY; y++) {
-        for (x = 0; x < Map->NX; x++) {
+      //#pragma omp parallel for collapse(2)
+      for (int y = 0; y < Map->NY; y++) {
+        for (int x = 0; x < Map->NX; x++) {
           if (INBASIN(TopoMap[y][x].Mask)) {
             SoilMap[y][x].Runoff = SoilMap[y][x].IExcess;
             SoilMap[y][x].IExcess = 0;
@@ -131,8 +124,9 @@ void RouteSurface(MAPSIZE *Map, TIMESTRUCT *Time, TOPOPIX **TopoMap,
           }
         }
       }
-      for (y = 0; y < Map->NY; y++) {
-        for (x = 0; x < Map->NX; x++) {
+      //#pragma omp parallel for collapse(2)
+      for (int y = 0; y < Map->NY; y++) {
+        for (int x = 0; x < Map->NX; x++) {
           if (INBASIN(TopoMap[y][x].Mask)) {
             if (!channel_grid_has_channel(ChannelData->stream_map, x, y)) {
               if (VType[VegMap[y][x].Veg - 1].ImpervFrac > 0.0) {
@@ -160,7 +154,7 @@ void RouteSurface(MAPSIZE *Map, TIMESTRUCT *Time, TOPOPIX **TopoMap,
                   SoilMap[y][x].DetentionStorage = 0.0;
                 /* Route the runoff from pervious portion of urban cell to the
                  * neighboring cell */
-                for (n = 0; n < NDIRS; n++) {
+                for (int n = 0; n < NDIRS; n++) {
                   int xn = x + xdirection[n];
                   int yn = y + ydirection[n];
                   if (valid_cell(Map, xn, yn)) {
@@ -172,7 +166,7 @@ void RouteSurface(MAPSIZE *Map, TIMESTRUCT *Time, TOPOPIX **TopoMap,
                   }
                 }
               } else {
-                for (n = 0; n < NDIRS; n++) {
+                for (int n = 0; n < NDIRS; n++) {
                   int xn = x + xdirection[n];
                   int yn = y + ydirection[n];
                   if (valid_cell(Map, xn, yn)) {
@@ -192,20 +186,20 @@ void RouteSurface(MAPSIZE *Map, TIMESTRUCT *Time, TOPOPIX **TopoMap,
     } /* end if Options->routing = conventional */
     /***********************************************************************************************************************/
     else { /* Begin code for kinematic wave routing. */
-      NextTime = *Time;
-      VariableTime = *Time;
+      TIMESTRUCT NextTime = *Time;
+      TIMESTRUCT VariableTime = *Time;
 
       /* Holds the value of the next DHSVM time step. */
       IncreaseTime(&NextTime);
 
       /* Use the Courant condition to find the maximum stable time step (in
        * seconds). Must be an even increment of Dt. */
-      VariableDT = FindDT(SoilMap, Map, Time, TopoMap, SType);
+      float VariableDT = FindDT(SoilMap, Map, Time, TopoMap, SType);
 
       /*Numcells = cells in the basin*/
-      for (k = 0; k < Map->NumCells; k++) {
-        y = Map->OrderedCells[k].y;
-        x = Map->OrderedCells[k].x;
+      for (int k = 0; k < Map->NumCells; k++) {
+        int y = Map->OrderedCells[k].y;
+        int x = Map->OrderedCells[k].x;
         SoilMap[y][x].Runoff = 0.;
         if (Options->SurfaceErosion) {
           SedMap[y][x].SedFluxOut = 0.;
@@ -214,7 +208,7 @@ void RouteSurface(MAPSIZE *Map, TIMESTRUCT *Time, TOPOPIX **TopoMap,
       }
 
       /* estimate kinematic viscosity through interpolation JSL */
-      knviscosity = viscosity(Tair, Rh);
+      float knviscosity = viscosity(Tair, Rh);
       /* converting units to m2/sec */
       knviscosity /= 1000. * 1000.;
 
@@ -222,19 +216,19 @@ void RouteSurface(MAPSIZE *Map, TIMESTRUCT *Time, TOPOPIX **TopoMap,
        * model time step. */
       while (Before(&(VariableTime.Current), &(NextTime.Current))) {
         /* Loop thru all of the cells in descending order of elevation */
-        for (k = (Map->NumCells) - 1; k > -1; k--) {
-          y = Map->OrderedCells[k].y;
-          x = Map->OrderedCells[k].x;
-          outflow = SoilMap[y][x].startRunoff;
-          slope = TopoMap[y][x].Slope;
+        for (int k = (Map->NumCells) - 1; k > -1; k--) {
+          int y = Map->OrderedCells[k].y;
+          int x = Map->OrderedCells[k].x;
+          double outflow = SoilMap[y][x].startRunoff;
+          double slope = TopoMap[y][x].Slope;
           if (slope == 0)
             slope = 0.0001;
           else if (slope < 0) {
             printf("negative slope in RouteSurface.c\n");
             exit(0);
           }
-          beta = 3. / 5.;
-          alpha = pow(SType[SoilMap[y][x].Soil - 1].Manning *
+          double beta = 3. / 5.;
+          double alpha = pow(SType[SoilMap[y][x].Soil - 1].Manning *
                           pow((double)Map->DX, 2. / 3.) / sqrt(slope),
                       beta);
 
@@ -256,8 +250,8 @@ void RouteSurface(MAPSIZE *Map, TIMESTRUCT *Time, TOPOPIX **TopoMap,
             outflow = 0.0;
 
           /* Save flow depth and outflow for sediment routing */
-          sedoutflow = outflow;
-          h = SoilMap[y][x].IExcess;
+          double sedoutflow = outflow;
+          float h = SoilMap[y][x].IExcess;
           if (channel_grid_has_channel(ChannelData->stream_map, x, y) ||
               (channel_grid_has_channel(ChannelData->road_map, x, y) &&
                !channel_grid_has_sink(ChannelData->road_map, x, y))) {
@@ -309,10 +303,10 @@ void RouteSurface(MAPSIZE *Map, TIMESTRUCT *Time, TOPOPIX **TopoMap,
              * erodibility sil types */
             if ((sedoutflow > 0.) &&
                 (SedType[SoilMap[y][x].Soil - 1].KIndex > -999.)) {
-              DS = SedType[SoilMap[y][x].Soil - 1].d50 * (float)MMTOM;
+              float DS = SedType[SoilMap[y][x].Soil - 1].d50 * (float)MMTOM;
 
               /* calculate unit streampower = u*S (m/s)  */
-              streampower = (sedoutflow / Map->DX / h) * slope;
+              float streampower = (sedoutflow / Map->DX / h) * slope;
 
               /* avoid dividing by zero */
               if (h <= 0.)
@@ -326,6 +320,7 @@ void RouteSurface(MAPSIZE *Map, TIMESTRUCT *Time, TOPOPIX **TopoMap,
                 /* First find potential erosion due to rainfall Morgan et al.
                 (1998). Momentum squared of the precip is determined in
                 MassEnergyBalance.c Converting from (kg/m2*s) to (m3/s*m) */
+                float Fw;
                 if (h <= PrecipMap[y][x].Dm)
                   Fw = 1.;
                 else
@@ -334,6 +329,7 @@ void RouteSurface(MAPSIZE *Map, TIMESTRUCT *Time, TOPOPIX **TopoMap,
                 /* If there is an understory, it is assumed to cover the entire
                  * grid cell. DR is in kg/m^2*s) */
                 /* Modified by Ning (3/21/2013, 4:04 pm) */
+                float DR = 0;
                 if (VType[VegMap[y][x].Veg - 1].OverStory == TRUE) {
                   if (VType[VegMap[y][x].Veg - 1].UnderStory == FALSE)
                     DR = SedType[SoilMap[y][x].Soil - 1].KIndex * Fw *
@@ -357,29 +353,29 @@ void RouteSurface(MAPSIZE *Map, TIMESTRUCT *Time, TOPOPIX **TopoMap,
 
                 /* Calculate settling velocity iteratively (kineros) initial
                  * guess */
-                vs = sqrt((4. / 3.) * G * ((PARTDENSITY / WATER_DENSITY) - 1.) *
+                float vs = sqrt((4. / 3.) * G * ((PARTDENSITY / WATER_DENSITY) - 1.) *
                           DS);
-                vs_last = 999.;
+                float vs_last = 999.;
 
                 while (fabs(vs_last - vs) > (0.0001 * vs_last)) {
                   vs_last = vs;
-                  Rn = (vs * DS) / knviscosity;
-                  Cd = (24. / Rn) + (3. / (pow((double)Rn, 0.5))) + 0.34;
+                  float Rn = (vs * DS) / knviscosity;
+                  float Cd = (24. / Rn) + (3. / (pow((double)Rn, 0.5))) + 0.34;
                   vs = sqrt((4. / 3.) * G *
                             ((PARTDENSITY / WATER_DENSITY) - 1.) * (DS / Cd));
                 }
-                floweff =
+                float floweff =
                     0.79 *
                     exp(-0.6 * SedType[SoilMap[y][x].Soil - 1].Cohesion.mean);
 
                 /* calculate transport capacity (eq. 7 kineros) */
-                TC = 0.05 / (DS * pow((PARTDENSITY / WATER_DENSITY - 1.), 2.)) *
+                float TC = 0.05 / (DS * pow((PARTDENSITY / WATER_DENSITY - 1.), 2.)) *
                      sqrt(slope * h / G) * (streampower - SETTLECRIT);
 
                 /* Calculate sediment mass balance. */
-                term1 = (TIMEWEIGHT / Map->DX);
-                term2 = alpha / (2. * VariableDT);
-                term3 = (1. - TIMEWEIGHT) / Map->DX;
+                float term1 = (TIMEWEIGHT / Map->DX);
+                float term2 = alpha / (2. * VariableDT);
+                float term3 = (1. - TIMEWEIGHT) / Map->DX;
 
                 SedOut =
                     (SedIn[y][x] * (term1 * Runon[y][x] -
@@ -441,11 +437,11 @@ void RouteSurface(MAPSIZE *Map, TIMESTRUCT *Time, TOPOPIX **TopoMap,
           if ((Options->SurfaceErosion) && (SedOut > 0.)) {
 
             /* Determine which particle bin sediment gets added to SedDiams */
-            sedbin = 0;
+            int sedbin = 0;
             if (SedType[SoilMap[y][x].Soil - 1].d50 > SedDiams[NSEDSIZES - 1])
               sedbin = NSEDSIZES - 1;
             else {
-              for (j = 0; j < NSEDSIZES; j++) {
+              for (int j = 0; j < NSEDSIZES; j++) {
                 if (SedType[SoilMap[y][x].Soil - 1].d50 <= SedDiams[j]) {
                   sedbin = j - 1;
                   break;
@@ -477,7 +473,7 @@ void RouteSurface(MAPSIZE *Map, TIMESTRUCT *Time, TOPOPIX **TopoMap,
           /********************************************************************************************************/
           /* Redistribute surface water to downslope pixels. */
           if (outflow > 0.) {
-            for (n = 0; n < NDIRS; n++) {
+            for (int n = 0; n < NDIRS; n++) {
               int xn = x + xdirection[n];
               int yn = y + ydirection[n];
 
@@ -514,13 +510,13 @@ void RouteSurface(MAPSIZE *Map, TIMESTRUCT *Time, TOPOPIX **TopoMap,
     }   /* End of code added for kinematic wave routing. */
 
     if (Options->SurfaceErosion) {
-      for (y = 0; y < Map->NY; y++) {
+      for (int y = 0; y < Map->NY; y++) {
         free(SedIn[y]);
       }
       free(SedIn);
     }
 
-    for (y = 0; y < Map->NY; y++) {
+    for (int y = 0; y < Map->NY; y++) {
       free(Runon[y]);
     }
     free(Runon);
@@ -528,14 +524,14 @@ void RouteSurface(MAPSIZE *Map, TIMESTRUCT *Time, TOPOPIX **TopoMap,
 
   /* MAKE SURE THIS WORKS WITH A TIMESTEP IN SECONDS */
   else { /* No network, so use unit hydrograph method */
-    for (y = 0; y < Map->NY; y++) {
-      for (x = 0; x < Map->NX; x++) {
+    for (int y = 0; y < Map->NY; y++) {
+      for (int x = 0; x < Map->NX; x++) {
         if (INBASIN(TopoMap[y][x].Mask)) {
-          TravelTime = (int)TopoMap[y][x].Travel;
+          int TravelTime = (int)TopoMap[y][x].Travel;
           if (TravelTime != 0) {
-            WaveLength = HydrographInfo->WaveLength[TravelTime - 1];
-            for (Step = 0; Step < WaveLength; Step++) {
-              Lag = UnitHydrograph[TravelTime - 1][Step].TimeStep;
+            int WaveLength = HydrographInfo->WaveLength[TravelTime - 1];
+            for (int Step = 0; Step < WaveLength; Step++) {
+              int Lag = UnitHydrograph[TravelTime - 1][Step].TimeStep;
               Hydrograph[Lag] += SoilMap[y][x].Runoff *
                                  UnitHydrograph[TravelTime - 1][Step].Fraction;
             }
@@ -545,19 +541,19 @@ void RouteSurface(MAPSIZE *Map, TIMESTRUCT *Time, TOPOPIX **TopoMap,
       }
     }
 
-    StreamFlow = 0.0;
-    for (i = 0; i < Time->Dt; i++)
+    float StreamFlow = 0.0;
+    for (int i = 0; i < Time->Dt; i++)
       StreamFlow += (Hydrograph[i] * Map->DX * Map->DY) / Time->Dt;
 
     /* Advance Hydrograph */
-    for (i = 0; i < Time->Dt; i++) {
-      for (j = 0; j < HydrographInfo->TotalWaveLength - 1; j++) {
+    for (int i = 0; i < Time->Dt; i++) {
+      for (int j = 0; j < HydrographInfo->TotalWaveLength - 1; j++) {
         Hydrograph[j] = Hydrograph[j + 1];
       }
     }
 
     /* Set the last elements of the hydrograph to zero */
-    for (i = 0; i < Time->Dt; i++)
+    for (int i = 0; i < Time->Dt; i++)
       Hydrograph[HydrographInfo->TotalWaveLength - (i + 1)] = 0.0;
 
     PrintDate(&(Time->Current), Dump->Stream.FilePtr);
