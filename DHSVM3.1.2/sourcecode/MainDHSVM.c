@@ -37,6 +37,8 @@
 #include <mpi.h>
 #endif
 
+void cleanup(DUMPSTRUCT *Dump, CHANNEL *ChannelData, OPTIONSTRUCT *Options);
+
 /******************************************************************************/
 /*				GLOBAL VARIABLES                              */
 /******************************************************************************/
@@ -399,7 +401,7 @@ int main(int argc, char **argv) {
       channel_step_initialize_network(ChannelData.roads);
     }
   
-    //omp_set_num_threads(1);
+    omp_set_num_threads(1);
     #pragma omp parallel for collapse(2)
     for (int y = 0; y < Map.NY; y++) {
       for (int x = 0; x < Map.NX; x++) {
@@ -572,8 +574,8 @@ int main(int argc, char **argv) {
   writeRandomVals(Dump.Path);
   FinalMassBalance(&(Dump.FinalBalance), &Total, &Mass, &Options, roadarea);
 
-  /*printf("\nSTARTING CLEANUP\n\n");
-  cleanup(&Dump, &ChannelData, &Options);*/
+  /*printf("\nSTARTING CLEANUP\n\n");*/
+  cleanup(&Dump, &ChannelData, &Options);
   printf("\nEND OF MODEL RUN\n\n");
 
   /* record the run time at the end of each time loop */
