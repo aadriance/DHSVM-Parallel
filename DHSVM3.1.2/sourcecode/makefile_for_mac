@@ -48,7 +48,7 @@ DEFS =  -DHAVE_X11
 #possible DEFS -DHAVE_NETCDF -DHAVE_X11 -DSHOW_MET_ONLY -DSNOW_ONLY
 CC = icc
 #ICC = -prof-gen -prof-use
-ICC = -prof-use -Wl,-rpath,/opt/intel/compilers_and_libraries_2018.1.126/mac/compiler/lib -std=c99 -qopenmp -parallel -xCORE-AVX2 -ipo -no-prec-div
+ICC = -Wl,-rpath,/opt/intel/compilers_and_libraries_2018.1.126/mac/compiler/lib -std=c99 -qopenmp -parallel -xCORE-AVX2 -ipo -no-prec-div
 NICC = -fopenmp
 TCMALLOC = -fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free -ltcmalloc
 #MPI = -I/usr/local/Cellar/open-mpi/2.1.1/include -L/usr/local/opt/libevent/lib -L/usr/local/Cellar/open-mpi/2.1.1/lib -lmpi -D_USE_MPI_

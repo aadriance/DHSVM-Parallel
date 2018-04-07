@@ -2,13 +2,14 @@
 
 #SBATCH -J dhsvm
 #SBATCH -N 4
-#SBATCH -p powerq
+#SBATCH -n 20
+#SBATCH -p quickq
 #SBATCH -o dhsvm.out
-#SBATCH -e dhsvm.err 
+#SBATCH -e dhsvm.err
 
-NUM_RUNS=4
+NUM_RUNS=20
 INPUT_FILE="../INPUT.Mercer.3.1.2_Bin"
 
 module load openmpi/gcc/64/1.10.3
 
-mpirun -n 4 ./DHSVM3.1.2 $INPUT_FILE $NUM_RUNS
+mpirun --map-by ppr:20:node ./DHSVM3.1.2 $INPUT_FILE $NUM_RUNS

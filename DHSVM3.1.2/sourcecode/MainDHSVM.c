@@ -57,7 +57,7 @@ char fileext[BUFSIZ + 1] = "";      /* file extension */
 char errorstr[BUFSIZ + 1] = "";     /* error message */
 
 #define PRINT 0
-
+#define T_COUNT 8
 /******************************************************************************/
 /*				      MAIN                                    */
 /******************************************************************************/
@@ -375,6 +375,7 @@ int main(int argc, char **argv) {
   *****************************************************************************/
   while (Before(&(Time.Current), &(Time.End)) ||
          IsEqualTime(&(Time.Current), &(Time.End))) {
+    PIXRAD localRadiation[T_COUNT] = {0};
     ResetAggregate(&Soil, &Veg, &Total, &Options);
 
     if (IsNewMonth(&(Time.Current), Time.Dt))
@@ -401,10 +402,12 @@ int main(int argc, char **argv) {
       channel_step_initialize_network(ChannelData.roads);
     }
   
-    omp_set_num_threads(1);
+    omp_set_num_threads(T_COUNT);
     #pragma omp parallel for collapse(2)
     for (int y = 0; y < Map.NY; y++) {
       for (int x = 0; x < Map.NX; x++) {
+        int tid = omp_get_thread_num();
+        PIXRAD *myRad = &(localRadiation[tid]);
         if (INBASIN(TopoMap[y][x].Mask)) {
           PIXMET LoopMet;
           if (Options.Shading)
@@ -443,13 +446,14 @@ int main(int argc, char **argv) {
                             &(Network[y][x]), &(PrecipMap[y][x]),
                             &(VType[VegMap[y][x].Veg - 1]), &(VegMap[y][x]),
                             &(SType[SoilMap[y][x].Soil - 1]), &(SoilMap[y][x]),
-                            &(SnowMap[y][x]), &(EvapMap[y][x]), &(Total.Rad),
+                            &(SnowMap[y][x]), &(EvapMap[y][x]), myRad,
                             &ChannelData, SkyViewMap);
 
           PrecipMap[y][x].SumPrecip += PrecipMap[y][x].Precip;
         }
       }
     }
+
 
     for(int y = Map.NY - 1; y <= 0; y--) {
       int x;
@@ -477,6 +481,18 @@ int main(int argc, char **argv) {
       }
       if (INBASIN(TopoMap[y][x].Mask))
         break;
+    }
+
+    for(int i = 0; i < T_COUNT; i ++) {
+      PIXRAD *Rad = &(localRadiation[i]);
+      for (int j = 0; j < Veg.MaxLayers + 1; j++) {
+        Total.Rad.NetShort[j] += Rad->NetShort[j];
+        Total.Rad.LongIn[j] += Rad->LongIn[j];
+        Total.Rad.LongOut[j] += Rad->LongOut[j];
+      }
+      Total.Rad.PixelNetShort += Rad->PixelNetShort;
+      Total.Rad.PixelLongIn += Rad->PixelLongIn;
+      Total.Rad.PixelLongOut += Rad->PixelLongOut;
     }
 
     // Average all RBM inputs over each segment

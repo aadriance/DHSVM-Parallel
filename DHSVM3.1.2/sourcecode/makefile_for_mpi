@@ -46,7 +46,7 @@ REL=
  
 DEFS =  -DHAVE_X11 -D_USE_MPI_
 #possible DEFS -DHAVE_NETCDF -DHAVE_X11 -DSHOW_MET_ONLY -DSNOW_ONLY
-CFLAGS =  -g -I/usr/X11R6/include -Wall  -I/usr/local/include/ -fopenmp $(DEFS) 
+CFLAGS =  -O3 -g -I/usr/X11R6/include -Wall  -I/usr/local/include/ -fopenmp $(DEFS) 
 
 CC = mpicc
 FLEX = /usr/bin/flex
