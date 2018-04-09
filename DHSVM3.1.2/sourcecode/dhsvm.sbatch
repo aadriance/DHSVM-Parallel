@@ -3,7 +3,7 @@
 #SBATCH -J dhsvm
 #SBATCH -N 4
 #SBATCH -n 20
-#SBATCH -p quickq
+#SBATCH -p powerq
 #SBATCH -o dhsvm.out
 #SBATCH -e dhsvm.err
 
