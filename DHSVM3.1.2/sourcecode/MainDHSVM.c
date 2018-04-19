@@ -57,7 +57,7 @@ char fileext[BUFSIZ + 1] = "";      /* file extension */
 char errorstr[BUFSIZ + 1] = "";     /* error message */
 
 #define PRINT 0
-#define T_COUNT 8
+#define T_COUNT 4
 /******************************************************************************/
 /*				      MAIN                                    */
 /******************************************************************************/

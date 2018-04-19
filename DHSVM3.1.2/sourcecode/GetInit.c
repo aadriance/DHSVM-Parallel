@@ -105,7 +105,7 @@ long GetRandomL(char *Buffer, char **EndPtr, char *name){
     ranVal = drand48();
     result = Start + ((End - Start) * ranVal);
     if((*EndPtr)[0] == '>'){
-      *EndPtr = (*EndPtr)[1];
+      *EndPtr = *EndPtr + 1;
     }
   }
   sprintf(&(randomVals[randomCount][0]), "%s: %ld", name, result);
@@ -124,7 +124,7 @@ double GetRandomD(char *Buffer, char **EndPtr, char *name){
     ranVal = drand48();
     result = Start + ((End - Start) * ranVal);
     if((*EndPtr)[0] == '>'){
-      *EndPtr = (*EndPtr)[1];
+      *EndPtr = *EndPtr + 1;
     }
   }
   sprintf(&(randomVals[randomCount][0]), "%s: %lf", name, result);
