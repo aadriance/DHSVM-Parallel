@@ -1,4 +1,4 @@
-#DHSVM-Parallel
+# DHSVM-Parallel
 
 This GitHub repo is based off of DHSVM3.1.2, whose original repo is at https://github.com/pnnl/DHSVM-PNNL.  This repo is the result of my thesis work that was defended on May 23, 2018.
 
@@ -6,11 +6,11 @@ As of May 24th, this repo is mostly a dump of my thesis code with some minor cle
 
 Once my thesis is finalized I will add a link to it here.
 
-#Basic Usage
+# Basic Usage
 
 Currently, if you somply follow the origina tutorial PDF in the repo, and compile DHSVM using the makefile_for_binary option, you will end up with a parallel version of DHSVM that uses 4 threads, and in my experience runs about 4 times faster.
 
-#Added features
+# Added features
 
 I added the ability to specify random ranges in the input file for DHSVM.  For example, in the example input file that comes with this repo:
 
@@ -20,21 +20,21 @@ If you'd like to change to to have DHSVM pick a random value between 0.02-0.05, 
 
 Ground Roughness     = <0.02-0.05>
 
-#Compiler Options
+# Compiler Options
 
 I tried to make  makefile_for_binary easy to work with for configuring how you'd like to use DHSVM.  There are several option and definitions of interest:
 
-##openMPI
+## openMPI
 
 openMPI is used in this rendition of DHSVM to run more than one copy at a time.  To enable MPI changes add the _USE_MPI def to the DEFS list, and change CC to mpicc.  Once MPI is enabled DHSVM requires a new command line input parameter for how many DHSVM instances you'd like.  for example:
 
 ./DHSVM3.1.2 INPUT_FILE NUM_OF_RUNS
 
-##openMP
+## openMP
 
 By default the program noe compiles with openMP.  If you do not want openMP, simply comment out the "MP = ..." line.  This will #ifdef's to remove all openMP code from the program.
 
-##TCMalloc
+## TCMalloc
 
 My thesis used TCMalloc to signifigantly speed up runtimes.  By defualt I have this enabled in the make file, but requires that you locally install the TCMalloc library.  gperftools, which contains TCMalloc, is at  https://github.com/gperftools/gperftools.
 
