@@ -45,12 +45,21 @@ REL=
 
  
 DEFS =  -DHAVE_X11 
-#possible DEFS -DHAVE_NETCDF -DHAVE_X11 -DSHOW_MET_ONLY -DSNOW_ONLY
-CFLAGS =  -g -I/usr/X11R6/include -Wall  -I/usr/local/include/  $(DEFS) 
+#possible DEFS -DHAVE_NETCDF -DHAVE_X11 -DSHOW_MET_ONLY -DSNOW_ONLY -D_USE_MPI_
+#-D_USE_MPI_ : Enables the OpenMPI version of the program.  Please also change CC = mpicc
+CC = gcc
+#ICC =  -parallel -xCORE-AVX2 -ipo -no-prec-div
+#Uncomment ICC definition if CC = icc
+MP = -fopenmp -D_USE_MP_ -DT_COUNT=4
+#Uncomment MP definition to enable the program to compile with openMP
+#Change T_COUNT's value to change number of threads the program can use
+TCMALLOC = -fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free -ltcmalloc
+#Uncomment TCMALLOC definition if you'd like to use TCMalloc to replace libc malloc
+#YOU MUST INSTALL TCMALLOC
+CFLAGS = -O3 -g -I/usr/X11R6/include -Wall -I/usr/local/include/ $(TCMALLOC) $(MP) $(ICC) $(DEFS)
 
-CC = gcc-7
 FLEX = /usr/bin/flex
-LIBS = -lm -L/usr/X11R6/lib -lX11 -L/sw/lib -L/usr/local/lib 
+LIBS = -lm -L/usr/X11R6/lib -L/sw/lib -L/usr/local/lib -lX11
 
 # possible libs:   
 #LIBS = -lm -L/usr/X11R6/lib -lX11 -L/sw/lib -L/usr/local/lib -lnetcdf
@@ -59,7 +68,7 @@ DHSVM: $(OBJS)
 	$(CC) $(OBJS) $(CFLAGS) -o DHSVM3.1.2 $(LIBS)
 
 clean::
-	rm -f *.o
+	rm -f DHSVM
 
 library: libBinIO.a
 

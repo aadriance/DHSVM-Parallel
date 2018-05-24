@@ -57,7 +57,9 @@ char fileext[BUFSIZ + 1] = "";      /* file extension */
 char errorstr[BUFSIZ + 1] = "";     /* error message */
 
 #define PRINT 0
-#define T_COUNT 4
+#ifndef _USE_MP_
+  #define T_COUNT 1
+#endif
 /******************************************************************************/
 /*				      MAIN                                    */
 /******************************************************************************/
@@ -77,10 +79,8 @@ int main(int argc, char **argv){
   MPI_Init(NULL, NULL);
   MPI_Comm_size(MPI_COMM_WORLD, &comm_sz);
   MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
-  //omp_set_num_threads(8);
-  //#pragma omp parallel for
   for(int i = my_rank; i < numRuns; i += comm_sz) {
-    printf("Number of threads in the current parallel region is %i \n", omp_get_num_threads());
+    //printf("Number of threads in the current parallel region is %i \n", omp_get_num_threads());
     mpiMain(argc, argv, i);
   }
   MPI_Finalize();
@@ -401,12 +401,17 @@ int main(int argc, char **argv) {
       channel_step_initialize_network(ChannelData.streams);
       channel_step_initialize_network(ChannelData.roads);
     }
-  
+    #ifdef _USE_MP_
     omp_set_num_threads(T_COUNT);
     #pragma omp parallel for collapse(2)
+    #endif
     for (int y = 0; y < Map.NY; y++) {
       for (int x = 0; x < Map.NX; x++) {
+        #ifdef _USE_MP_
         int tid = omp_get_thread_num();
+        #else
+        int tid = 0;
+        #endif
         PIXRAD *myRad = &(localRadiation[tid]);
         if (INBASIN(TopoMap[y][x].Mask)) {
           PIXMET LoopMet;

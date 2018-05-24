@@ -132,7 +132,9 @@ void RouteSubSurface(int Dt, MAPSIZE *Map, TOPOPIX **TopoMap, VEGTABLE *VType,
 
   if (!(SubFlowGrad = (float **)calloc(Map->NY, sizeof(float *))))
     ReportError((char *)Routine, 1);
+  #ifdef _USE_MP_
   #pragma omp parallel for
+  #endif
   for (int i = 0; i < Map->NY; i++) {
     if (!(SubFlowGrad[i] = (float *)calloc(Map->NX, sizeof(float))))
       ReportError((char *)Routine, 1);
@@ -141,7 +143,9 @@ void RouteSubSurface(int Dt, MAPSIZE *Map, TOPOPIX **TopoMap, VEGTABLE *VType,
   if (!((SubDir) =
             (unsigned char ***)calloc(Map->NY, sizeof(unsigned char **))))
     ReportError((char *)Routine, 1);
+  #ifdef _USE_MP_
   #pragma omp parallel for
+  #endif
   for (int i = 0; i < Map->NY; i++) {
     if (!((SubDir)[i] =
               (unsigned char **)calloc(Map->NX, sizeof(unsigned char *))))
@@ -155,7 +159,9 @@ void RouteSubSurface(int Dt, MAPSIZE *Map, TOPOPIX **TopoMap, VEGTABLE *VType,
 
   if (!(SubTotalDir = (unsigned int **)calloc(Map->NY, sizeof(unsigned int *))))
     ReportError((char *)Routine, 1);
+  #ifdef _USE_MP_
   #pragma omp parallel for
+  #endif
   for (int i = 0; i < Map->NY; i++) {
     if (!(SubTotalDir[i] =
               (unsigned int *)calloc(Map->NX, sizeof(unsigned int))))
@@ -164,7 +170,9 @@ void RouteSubSurface(int Dt, MAPSIZE *Map, TOPOPIX **TopoMap, VEGTABLE *VType,
 
   //Might be able to delete this all togther...
   // reset the saturated subsurface flow to zero
+  #ifdef _USE_MP_
   #pragma omp parallel for collapse(2)
+  #endif
   for (int y = 0; y < Map->NY; y++) {
     for (int x = 0; x < Map->NX; x++) {
       if (INBASIN(TopoMap[y][x].Mask)) {
@@ -183,7 +191,9 @@ void RouteSubSurface(int Dt, MAPSIZE *Map, TOPOPIX **TopoMap, VEGTABLE *VType,
   // next sweep through all the grid cells, calculate the amount of
   // flow in each direction, and divide the flow over the surrounding
   // pixels
+  #ifdef _USE_MP_
   #pragma omp parallel for collapse(2)
+  #endif
   for (int y = 0; y < Map->NY; y++) {
     for (int x = 0; x < Map->NX; x++) {
       float *Adjust;
@@ -362,7 +372,9 @@ void RouteSubSurface(int Dt, MAPSIZE *Map, TOPOPIX **TopoMap, VEGTABLE *VType,
       }
     }
   }
+  #ifdef _USE_MP_
   #pragma omp parallel for
+  #endif
   for (int i = 0; i < Map->NY; i++) {
     free(SubTotalDir[i]);
     free(SubFlowGrad[i]);

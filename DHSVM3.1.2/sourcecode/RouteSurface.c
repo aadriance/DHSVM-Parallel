@@ -114,7 +114,6 @@ void RouteSurface(MAPSIZE *Map, TIMESTRUCT *Time, TOPOPIX **TopoMap,
     }
     /* Option->Routing = false when routing = conventional */
     if (!Options->Routing) {
-      //#pragma omp parallel for collapse(2)
       for (int y = 0; y < Map->NY; y++) {
         for (int x = 0; x < Map->NX; x++) {
           if (INBASIN(TopoMap[y][x].Mask)) {
@@ -124,7 +123,6 @@ void RouteSurface(MAPSIZE *Map, TIMESTRUCT *Time, TOPOPIX **TopoMap,
           }
         }
       }
-      //#pragma omp parallel for collapse(2)
       for (int y = 0; y < Map->NY; y++) {
         for (int x = 0; x < Map->NX; x++) {
           if (INBASIN(TopoMap[y][x].Mask)) {

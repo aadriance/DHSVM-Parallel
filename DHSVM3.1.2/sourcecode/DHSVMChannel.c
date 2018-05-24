@@ -248,7 +248,9 @@ void RouteChannel(CHANNEL *ChannelData, TIMESTRUCT *Time, MAPSIZE *Map,
 
   /* add culvert outflow to surface water */
   Total->CulvertReturnFlow = 0.0;
+  #ifdef _USE_MP_
   #pragma omp parallel for collapse(2)
+  #endif
   for (int y = 0; y < Map->NY; y++) {
     for (int x = 0; x < Map->NX; x++) {
       if (INBASIN(TopoMap[y][x].Mask)) {
@@ -262,17 +264,25 @@ void RouteChannel(CHANNEL *ChannelData, TIMESTRUCT *Time, MAPSIZE *Map,
                                   (SoilMap[y][x].IExcess + CulvertFlow) *
                                       Map->DX * Map->DY);
           SoilMap[y][x].ChannelInt += SoilMap[y][x].IExcess;
+          #ifdef _USE_MP_
           #pragma omp atomic
+          #endif
           Total->CulvertToChannel += CulvertFlow;
+          #ifdef _USE_MP_
           #pragma omp atomic
+          #endif
           Total->RunoffToChannel += SoilMap[y][x].IExcess;
 
           SoilMap[y][x].IExcess = 0.0f;
 
         } else {
+          #ifdef _USE_MP_
           #pragma omp atomic
+          #endif
           SoilMap[y][x].IExcess += CulvertFlow;
+          #ifdef _USE_MP_
           #pragma omp atomic
+          #endif
           Total->CulvertReturnFlow += CulvertFlow;
         }
       }

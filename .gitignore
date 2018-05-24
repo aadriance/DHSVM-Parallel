@@ -1,2 +1,7 @@
 DHSVM3.1.2/output/*
 .DS_Store
+.vscode/*
+DHSVM3.1.2/sourcecode/DHSVM3.1.2
+DHSVM3.1.2.dSYM/*
+makefile_for_me
+DHSVM3.1.2
