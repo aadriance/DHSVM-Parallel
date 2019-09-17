@@ -2,9 +2,8 @@
 
 This GitHub repo is based off of DHSVM3.1.2, whose original repo is at https://github.com/pnnl/DHSVM-PNNL.  This repo is the result of my thesis work that was defended on May 23, 2018.
 
-As of May 24th, this repo is mostly a dump of my thesis code with some minor clean up.  In June and July I plan to clean up my changes and document them with comments in code to make it better for people in the future.
-
-Once my thesis is finalized I will add a link to it here.
+Thesis:
+https://digitalcommons.calpoly.edu/cgi/viewcontent.cgi?article=3174&context=theses
 
 # Basic Usage
 
